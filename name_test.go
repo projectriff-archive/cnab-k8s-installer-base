@@ -64,6 +64,10 @@ var _ = Describe("Name", func() {
 			It("should return the correct synonyms", func() {
 				Expect(synonymStrings(ref)).To(ConsistOf("ubuntu", "library/ubuntu", "docker.io/library/ubuntu", "index.docker.io/library/ubuntu"))
 			})
+
+			It("should return the correct name", func() {
+			    Expect(ref.Name()).To(Equal("docker.io/library/ubuntu"))
+			})
 		})
 
 		Context("when the string name includes a tag", func() {
@@ -93,6 +97,10 @@ var _ = Describe("Name", func() {
 
 			It("should return the correct synonyms", func() {
 				Expect(synonymStrings(ref)).To(ConsistOf("ubuntu:18.10", "library/ubuntu:18.10", "docker.io/library/ubuntu:18.10", "index.docker.io/library/ubuntu:18.10"))
+			})
+
+			It("should return the correct name", func() {
+				Expect(ref.Name()).To(Equal("docker.io/library/ubuntu"))
 			})
 		})
 
@@ -126,6 +134,10 @@ var _ = Describe("Name", func() {
 					"library/ubuntu@sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
 					"docker.io/library/ubuntu@sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
 					"index.docker.io/library/ubuntu@sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"))
+			})
+
+			It("should return the correct name", func() {
+				Expect(ref.Name()).To(Equal("docker.io/library/ubuntu"))
 			})
 		})
 
@@ -163,6 +175,10 @@ var _ = Describe("Name", func() {
 					"library/ubuntu:18.10@sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
 					"docker.io/library/ubuntu:18.10@sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
 					"index.docker.io/library/ubuntu:18.10@sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"))
+			})
+
+			It("should return the correct name", func() {
+				Expect(ref.Name()).To(Equal("docker.io/library/ubuntu"))
 			})
 		})
 

@@ -40,6 +40,10 @@ func (img Name) Normalize() Name {
 	return ref
 }
 
+func (img Name) Name() string {
+	return img.ref.Name()
+}
+
 func (img Name) String() string {
 	if img.ref == nil {
 		return ""
