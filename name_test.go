@@ -66,7 +66,7 @@ var _ = Describe("Name", func() {
 			})
 
 			It("should return the correct name", func() {
-			    Expect(ref.Name()).To(Equal("docker.io/library/ubuntu"))
+				Expect(ref.Name()).To(Equal("docker.io/library/ubuntu"))
 			})
 		})
 
@@ -370,6 +370,67 @@ var _ = Describe("Name", func() {
 
 			It("should return a suitable error", func() {
 				Expect(err).To(MatchError("Cannot apply tag -invalid to image.Name docker.io/library/ubuntu: invalid tag format"))
+			})
+		})
+	})
+
+	Describe("WithDigest", func() {
+		var (
+			newRef image.Name
+			digest image.Digest
+			err    error
+		)
+
+		JustBeforeEach(func() {
+			newRef, err = ref.WithDigest(digest)
+		})
+
+		Context("when the digest is valid", func() {
+			BeforeEach(func() {
+				digest = image.NewDigest("sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+			})
+
+			Context("when the image name is tagged", func() {
+				BeforeEach(func() {
+					var err error
+					ref, err = image.NewName("ubuntu:some-tag")
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should replace the tag with a digest", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(newRef.Tag()).To(Equal(""))
+					Expect(newRef.Digest().String()).To(Equal("sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
+					Expect(newRef.String()).To(Equal("docker.io/library/ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
+				})
+			})
+
+			Context("when the image name is not tagged", func() {
+				BeforeEach(func() {
+					var err error
+					ref, err = image.NewName("ubuntu")
+					Expect(err).NotTo(HaveOccurred())
+				})
+
+				It("should set the digest", func() {
+					Expect(err).NotTo(HaveOccurred())
+					Expect(newRef.Tag()).To(Equal(""))
+					Expect(newRef.Digest().String()).To(Equal("sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
+					Expect(newRef.String()).To(Equal("docker.io/library/ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
+				})
+			})
+		})
+
+		Context("when the digest is invalid", func() {
+			BeforeEach(func() {
+				digest = image.NewDigest("2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9")
+				var err error
+				ref, err = image.NewName("ubuntu")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should return a suitable error", func() {
+				Expect(err).To(MatchError("Cannot apply digest 2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9 to image.Name docker.io/library/ubuntu: invalid reference format"))
 			})
 		})
 	})

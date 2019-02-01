@@ -83,6 +83,19 @@ func (img Name) Digest() Digest {
 	return EmptyDigest
 }
 
+func (img Name) WithDigest(digest Digest) (Name, error) {
+	name := img.Name()
+	tag := img.Tag()
+	if strings.HasSuffix(name, fmt.Sprintf(":%s", tag)) {
+		name = name[:len(name)-(len(tag)+1)]
+	}
+	digested, err := NewName(fmt.Sprintf("%s@%s", name, digest))
+	if err != nil {
+		return EmptyName, fmt.Errorf("Cannot apply digest %s to image.Name %v: %v", digest, img, err)
+	}
+	return digested, nil
+}
+
 // Synonyms returns the equivalent image names for a given image name. The synonyms are not necessarily
 // normalized: in particular they may not have a host name.
 func (img Name) Synonyms() []Name {
