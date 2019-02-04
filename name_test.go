@@ -374,6 +374,39 @@ var _ = Describe("Name", func() {
 		})
 	})
 
+	Describe("WithoutTag", func() {
+		var newRef image.Name
+
+		JustBeforeEach(func() {
+			newRef = ref.WithoutTag()
+		})
+
+		Context("when the image name is tagged", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu:some-tag")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should remove the tag", func() {
+				Expect(newRef.Tag()).To(Equal(""))
+				Expect(newRef.String()).To(Equal("docker.io/library/ubuntu"))
+			})
+		})
+
+		Context("when the image name is not tagged", func() {
+			BeforeEach(func() {
+				var err error
+				ref, err = image.NewName("ubuntu")
+				Expect(err).NotTo(HaveOccurred())
+			})
+
+			It("should not change the image name", func() {
+				Expect(newRef).To(Equal(ref))
+			})
+		})
+	})
+
 	Describe("WithDigest", func() {
 		var (
 			newRef image.Name
@@ -397,11 +430,11 @@ var _ = Describe("Name", func() {
 					Expect(err).NotTo(HaveOccurred())
 				})
 
-				It("should replace the tag with a digest", func() {
+				It("should keep the tag and set the digest", func() {
 					Expect(err).NotTo(HaveOccurred())
-					Expect(newRef.Tag()).To(Equal(""))
+					Expect(newRef.Tag()).To(Equal("some-tag"))
 					Expect(newRef.Digest().String()).To(Equal("sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
-					Expect(newRef.String()).To(Equal("docker.io/library/ubuntu@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
+					Expect(newRef.String()).To(Equal("docker.io/library/ubuntu:some-tag@sha256:2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9"))
 				})
 			})
 
@@ -430,7 +463,7 @@ var _ = Describe("Name", func() {
 			})
 
 			It("should return a suitable error", func() {
-				Expect(err).To(MatchError("Cannot apply digest 2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9 to image.Name docker.io/library/ubuntu: invalid reference format"))
+				Expect(err).To(MatchError("Cannot apply digest 2fb7bfc6145d0ad40334f1802707c2e2390bdcfc16ca636d9ed8a56c1101f5b9 to image.Name docker.io/library/ubuntu: invalid digest format"))
 			})
 		})
 	})

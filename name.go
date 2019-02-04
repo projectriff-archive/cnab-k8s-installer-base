@@ -83,17 +83,17 @@ func (img Name) Digest() Digest {
 	return EmptyDigest
 }
 
+func (img Name) WithoutTag() Name {
+	return Name{reference.TrimNamed(img)}
+}
+
 func (img Name) WithDigest(digest Digest) (Name, error) {
-	name := img.Name()
-	tag := img.Tag()
-	if strings.HasSuffix(name, fmt.Sprintf(":%s", tag)) {
-		name = name[:len(name)-(len(tag)+1)]
-	}
-	digested, err := NewName(fmt.Sprintf("%s@%s", name, digest))
+	digested, err := reference.WithDigest(img.ref, digest.dig)
 	if err != nil {
 		return EmptyName, fmt.Errorf("Cannot apply digest %s to image.Name %v: %v", digest, img, err)
 	}
-	return digested, nil
+
+	return Name{digested}, nil
 }
 
 // Synonyms returns the equivalent image names for a given image name. The synonyms are not necessarily
