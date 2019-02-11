@@ -1,0 +1,13 @@
+{
+    "name": "k8sbase",
+    "version": "0.1.0",
+    "invocationImages": [
+        {
+        "imageType": "docker",
+        "image": "cf-spring-funkytown/k8sbase:0.1.0"
+        }
+    ],
+    "images": [],
+    "parameters": {},
+    "credentials": {}
+}
