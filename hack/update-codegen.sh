@@ -6,6 +6,8 @@ set -o pipefail
 set -ex
 
 # code-gen does not work with go modules yet :(
+GO111MODULE_OLD=${GO111MODULE}
+GO111MODULE=off
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
 CODEGEN_BASE=${GOPATH}/src/k8s.io
@@ -22,6 +24,8 @@ fi
 
 
 "${CODEGEN_PKG}"/generate-groups.sh "deepcopy,client" \
-  "${SCRIPT_ROOT}"/pkg/client "${SCRIPT_ROOT}"/pkg/apis \
+  github.com/projectriff/cnab-k8s-installer-base/pkg/client github.com/projectriff/cnab-k8s-installer-base/pkg/apis \
   kab:v1alpha1 \
   --go-header-file "${SCRIPT_ROOT}"/hack/copyright.go.txt
+
+GO111MODULE=${GO111MODULE_OLD}
