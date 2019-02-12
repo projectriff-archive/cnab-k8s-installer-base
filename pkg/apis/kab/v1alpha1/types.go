@@ -16,11 +16,23 @@
 
 package v1alpha1
 
-import metaV1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+// +genclient
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type Manifest struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+
+	Spec KabSpec `json:"spec,omitempty"`
+
+	// +optional
+	Status KabStatus `json:"status,omitempty"`
+}
 
 type ResourceChecks struct {
 	Kind     string               `json:"kind,omitempty"`
-	Selector metaV1.LabelSelector `json:"selector,omitempty"`
+	Selector metav1.LabelSelector `json:"selector,omitempty"`
 	JsonPath string               `json:"jsonpath,omitempty"`
 	Pattern  string               `json:"pattern,omitempty"`
 }
@@ -42,10 +54,11 @@ type KabStatus struct {
 	Status string `json:"status,omitempty"`
 }
 
-type Manifest struct {
-	metaV1.TypeMeta   `json:",inline"`
-	metaV1.ObjectMeta `json:"metadata,omitempty"`
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type ManifestList struct {
+	metav1.TypeMeta `json:",inline"`
+	// +optional
+	metav1.ListMeta `son:"metadata,omitempty"`
 
-	Spec   KabSpec   `json:"spec,omitempty"`
-	Status KabStatus `json:"status,omitempty"`
+	Items []Manifest `json:"items"`
 }

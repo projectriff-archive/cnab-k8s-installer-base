@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package kab
+ // +k8s:deepcopy-gen=package
+// +k8s:defaulter-gen=TypeMeta
+// +groupName=projectriff.io
 
-const (
-	GroupName = "projectriff.io"
-)
+package v1alpha1
