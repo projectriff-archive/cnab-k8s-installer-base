@@ -1,0 +1,27 @@
+{
+    "name": "kab",
+    "version": "0.1.0",
+    "description": "A short description of your bundle",
+    "keywords": [
+        "cnab",
+        "kab"
+    ],
+    "maintainers": [
+        {
+            "name": "Swapnil Bawaskar",
+            "email": "sbawaskar@pivotal.io",
+            "url": "https://example.com"
+        }
+    ],
+    "invocationImages": {
+        "cnab": {
+            "name": "cnab",
+            "builder": "docker",
+            "configuration": {
+                "registry": "sbawaska"
+            }
+        }
+    },
+    "parameters": null,
+    "credentials": null
+}
