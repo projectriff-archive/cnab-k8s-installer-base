@@ -21,11 +21,16 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+const (
+	GroupName = "projectriff.io"
+	VersionNumber = "v1alpha1"
+)
+
 // Define your schema name and the version
 var (
 	SchemeGroupVersion = schema.GroupVersion{
-		Group:   "projectriff.io",
-		Version: "v1alpha1",
+		Group:   GroupName,
+		Version: VersionNumber,
 	}
 
 	SchemeBuilder      runtime.SchemeBuilder

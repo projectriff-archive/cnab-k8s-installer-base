@@ -16,7 +16,16 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	"errors"
+	"fmt"
+	"github.com/ghodss/yaml"
+	"github.com/projectriff/riff/pkg/fileutils"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"net/url"
+	"path/filepath"
+	"strings"
+)
 
 // +genclient
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -61,4 +70,63 @@ type ManifestList struct {
 	metav1.ListMeta `son:"metadata,omitempty"`
 
 	Items []Manifest `json:"items"`
+}
+
+func NewManifest(path string) (manifest *Manifest, err error) {
+	var m Manifest
+	yamlFile, err := fileutils.Read(path, "")
+	if err != nil {
+		return nil, fmt.Errorf("error reading manifest file: %v", err)
+	}
+
+	err = yaml.Unmarshal(yamlFile, &m)
+	if err != nil {
+		if strings.Contains(err.Error(), "did not find expected key") {
+			return nil, fmt.Errorf("error parsing manifest file: %v. Please ensure that manifest has supported version", err)
+		}
+		return nil, fmt.Errorf("error parsing manifest file: %v", err)
+	}
+
+	supportedVersion := fmt.Sprintf("%s/%s", GroupName, VersionNumber)
+	if !strings.EqualFold(m.APIVersion, supportedVersion) {
+		return nil, errors.New(fmt.Sprintf("Unsupported version %s. Supported version is %s", m.APIVersion, supportedVersion))
+	}
+
+	err = m.VisitResources(checkResourcePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return &m, nil
+}
+
+func (m *Manifest) VisitResources(f func(res KabResource) error) error {
+
+	for _, resource := range m.Spec.Resources {
+		err := f(resource)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkResourcePath(resource KabResource) error {
+	if filepath.IsAbs(resource.Path) {
+		return fmt.Errorf("resources must use a http or https URL or a relative path: absolute path not supported: %v", resource)
+	}
+
+	u, err := url.Parse(resource.Path)
+	if err != nil {
+		return err
+	}
+	if u.Scheme == "http" || u.Scheme == "https" || (u.Scheme == "" && !filepath.IsAbs(u.Path)) {
+		return nil
+	}
+
+	if u.Scheme == "" {
+		return fmt.Errorf("resources must use a http or https URL or a relative path: absolute path not supported: %v", resource)
+	}
+
+	return fmt.Errorf("resources must use a http or https URL or a relative path: scheme %s not supported: %v", u.Scheme, resource)
 }

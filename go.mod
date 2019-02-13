@@ -1,6 +1,7 @@
 module cnab-k8s-installer-base
 
 require (
+	github.com/evanphx/json-patch v4.1.0+incompatible // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/gogo/protobuf v1.2.0 // indirect
 	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c // indirect
@@ -25,11 +26,12 @@ require (
 	golang.org/x/time v0.0.0-20181108054448-85acf8d2951c // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v2 v2.2.2 // indirect
-	k8s.io/api v0.0.0-20190208171344-de494049e22a // indirect
+	k8s.io/api v0.0.0-20190111032252-67edc246be36
 	k8s.io/apiextensions-apiserver v0.0.0-20190208173442-01b4f3c039db
 	k8s.io/apimachinery v0.0.0-20190210215030-4521e64aecd3
 	k8s.io/client-go v10.0.0+incompatible
 	k8s.io/klog v0.1.0 // indirect
+	k8s.io/kube-openapi v0.0.0-20190208205540-d7c86cdc46e3 // indirect
 	sigs.k8s.io/structured-merge-diff v0.0.0-20190130003954-e5e029740eb8 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
 )
