@@ -104,6 +104,11 @@ func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 
 func (c *Client) installAndCheckResources(manifest *v1alpha1.Manifest, basedir string) error {
 	for _,resource := range manifest.Spec.Resources {
+		if resource.Install {
+			// TODO change the flag to deferinstall
+			fmt.Printf("Skipping install of %s", resource.Name)
+			continue
+		}
 		err := c.installResource(resource, basedir)
 		if err != nil {
 			return err
