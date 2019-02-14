@@ -17,4 +17,4 @@ install: build
 	cp $(OUTPUT) $(GOBIN)
 
 kab: $(GO_SOURCES) VERSION
-	GO111MODULE=on go build -o $(OUTPUT) -v
+	GO111MODULE=on GOOS=linux GOARCH=amd64 go build -o $(OUTPUT) -v

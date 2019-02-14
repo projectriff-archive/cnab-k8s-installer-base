@@ -7,5 +7,6 @@ RUN apk --no-cache add curl \
   && apk del curl
 
 COPY Dockerfile /cnab/Dockerfile
+COPY app/run /cnab/app/run
 
 CMD ["/cnab/app/run"]
