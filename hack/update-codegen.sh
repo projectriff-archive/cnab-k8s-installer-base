@@ -3,10 +3,9 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-set -ex
 
 # code-gen does not work with go modules yet :(
-GO111MODULE_OLD=${GO111MODULE}
+GO111MODULE_OLD=${GO111MODULE:-off}
 GO111MODULE=off
 
 SCRIPT_ROOT=$(dirname "${BASH_SOURCE[0]}")/..
