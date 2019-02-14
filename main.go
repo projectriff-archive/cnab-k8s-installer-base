@@ -19,6 +19,16 @@ const BaseDir = "/cnab/app/kab"
 func main()  {
 
 	path := "/cnab/app/kab/template.yaml"
+	action := os.Getenv("CNAB_ACTION")
+	switch action {
+	case "install":
+		install(path)
+	case "uninstall":
+	case "upgrade":
+	}
+}
+
+func install(path string) {
 	manifest, err := v1alpha1.NewManifest(path)
 	if err != nil {
 		_, err = fmt.Fprintf(os.Stderr, "error while reading from %s: %v", path, err)
