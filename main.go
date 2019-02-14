@@ -18,7 +18,13 @@ const BaseDir = "/cnab/app/kab"
 
 func main()  {
 
-	path := "/cnab/app/kab/template.yaml"
+	args := os.Args[1:]
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/cnab/app/kab/template.yaml"
+	}
 	action := os.Getenv("CNAB_ACTION")
 	switch action {
 	case "install":
