@@ -51,7 +51,7 @@ type KabResource struct {
 	Content   string           `json:"content,omitempty"`
 	Name      string           `json:"name,omitempty"`
 	Namespace string           `json:"namespace,omitempty"`
-	Install   bool             `json:"install,omitempty"`
+	Deferred  bool             `json:"deferred,omitempty"`
 	Checks    []ResourceChecks `json:"checks,omitempty"`
 }
 

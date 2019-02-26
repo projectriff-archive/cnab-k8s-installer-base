@@ -104,8 +104,7 @@ func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 
 func (c *Client) installAndCheckResources(manifest *v1alpha1.Manifest, basedir string) error {
 	for _,resource := range manifest.Spec.Resources {
-		if resource.Install {
-			// TODO change the flag to deferinstall
+		if !resource.Deferred {
 			fmt.Printf("Skipping install of %s", resource.Name)
 			continue
 		}
@@ -131,7 +130,6 @@ func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error
 		return err
 	}
 	c.coreClient.RESTClient().Post()
-	// TODO HACK: use the RESTClient to do this
 	kubectl := kubectl.RealKubeCtl()
 	istioLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &yaml)
 	if err != nil {
