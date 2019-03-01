@@ -30,6 +30,9 @@ import (
 // Read reads the contents of the specified file. If the file is a relative path, it is relative to base.
 // Either file or base may be URLs.
 func Read(file string, base string) ([]byte, error) {
+	if file == "" {
+		return []byte{}, nil
+	}
 	absoluteFile, err := AbsFile(file, base)
 	if err != nil {
 		return nil, err

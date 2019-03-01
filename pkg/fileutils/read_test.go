@@ -42,6 +42,17 @@ var _ = Describe("Read", func() {
 		content, err = fileutils.Read(file, base)
 	})
 
+	Context("when file is empty", func() {
+		BeforeEach(func() {
+			file = ""
+			base = ""
+		})
+		It("does not return an error", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(string(content)).To(Equal(""))
+		})
+	})
+
 	Context("when file is a URL", func() {
 		BeforeEach(func() {
 			file = getwdAsURL() + "/fixtures/file.txt"
