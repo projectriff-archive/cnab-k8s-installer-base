@@ -88,17 +88,25 @@ func (c *Client) installAndCheckResources(manifest *v1alpha1.Manifest, basedir s
 }
 
 func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error {
-	if res.Path == "" {
-		return errors.New("cannot install anything other than a url yet")
+	var installContent []byte
+	var err error
+
+	fmt.Printf("installing %s...", res.Name)
+	if res.Content != "" {
+		installContent = []byte(res.Content)
+	} else {
+		if res.Path == "" {
+			return errors.New(fmt.Sprintf("resource %s does not specify Content OR Path to yaml for install", res.Name))
+		}
+		installContent, err = fileutils.Read(res.Path, basedir)
+		if err != nil {
+			return err
+		}
+
 	}
-	fmt.Printf("installing %s from %s...", res.Name, res.Path)
-	yaml, err := fileutils.Read(res.Path, basedir)
-	if err != nil {
-		return err
-	}
-	c.coreClient.RESTClient().Post()
+
 	kubectl := kubectl.RealKubeCtl()
-	istioLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &yaml)
+	istioLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &installContent)
 	if err != nil {
 		fmt.Printf("%s\n", istioLog)
 		if strings.Contains(istioLog, "forbidden") {
