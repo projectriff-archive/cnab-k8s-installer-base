@@ -47,7 +47,7 @@ func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 		if err != nil && !strings.Contains(err.Error(), "not found") {
 			return false, nil
 		}
-		if old != nil {
+		if !isEmpty(old) {
 			return true, errors.New(fmt.Sprintf("%s already installed", env.Cli.Name))
 		}
 		_, err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Create(manifest)
@@ -62,10 +62,17 @@ func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 	return manifest, err
 }
 
+func isEmpty(manifest *v1alpha1.Manifest) bool {
+	if len(manifest.Spec.Resources) == 0 {
+		return true
+	}
+	return false
+}
+
 func (c *Client) installAndCheckResources(manifest *v1alpha1.Manifest, basedir string) error {
 	for _, resource := range manifest.Spec.Resources {
-		if !resource.Deferred {
-			fmt.Printf("Skipping install of %s", resource.Name)
+		if resource.Deferred {
+			fmt.Printf("Skipping install of %s\n", resource.Name)
 			continue
 		}
 		err := c.installResource(resource, basedir)
