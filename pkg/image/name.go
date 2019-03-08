@@ -68,6 +68,13 @@ func (img Name) Tag() string {
 	return ""
 }
 
+func (img Name) WithoutDigest() string {
+	if strings.Contains(img.ref.Name(), "@") {
+		return strings.Split(img.ref.Name(), "@")[0]
+	}
+	return img.ref.Name()
+}
+
 func (img Name) WithTag(tag string) (Name, error) {
 	namedTagged, err := reference.WithTag(img.ref, tag)
 	if err != nil {

@@ -28,6 +28,7 @@ var _ = Describe("RelocateManifest", func() {
 	var (
 		manifest *v1alpha1.Manifest
 		destRepo string
+		reloMap  map[string]string
 		err      error
 	)
 
@@ -60,7 +61,7 @@ var _ = Describe("RelocateManifest", func() {
 
 	Context("when the manifest has Spec.Resource.Content", func() {
 		It("repository relocation is successful", func() {
-			err = kab.RelocateManifest(manifest, destRepo)
+			reloMap, err = kab.RelocateManifest(manifest, destRepo)
 			Expect(err).To(BeNil())
 
 			for i := range manifest.Spec.Resources {
@@ -68,6 +69,11 @@ var _ = Describe("RelocateManifest", func() {
 				Expect(manifest.Spec.Resources[i].Content).NotTo(ContainSubstring("gcr.io"))
 				Expect(manifest.Spec.Resources[i].Content).To(ContainSubstring(destRepo))
 			}
+
+			Expect(reloMap).Should(HaveLen(2))
+			Expect(reloMap).Should(HaveKeyWithValue("mysql:5.6", "my.private.repo/mysql:5.6"))
+			Expect(reloMap).Should(HaveKeyWithValue("gcr.io/knative-releases/x/y", "my.private.repo/knative-releases-x-y"))
+
 		})
 	})
 

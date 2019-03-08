@@ -41,6 +41,11 @@ func install(path string) {
 		os.Exit(1)
 	}
 	knbClient := createKnbClient()
+	err = knbClient.Relocate(manifest, os.Getenv("target_registry"))
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 	err = knbClient.Install(manifest, BaseDir)
 	if err != nil {
 		_, err = fmt.Fprintf(os.Stderr, "error while installing from %s: %v", path, err)

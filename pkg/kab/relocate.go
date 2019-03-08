@@ -2,6 +2,7 @@ package kab
 
 import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"cnab-k8s-installer-base/pkg/docker"
 	"cnab-k8s-installer-base/pkg/fileutils"
 	"cnab-k8s-installer-base/pkg/scan"
 	"errors"
@@ -13,12 +14,12 @@ func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) er
 		return nil
 	}
 
-	err := RelocateManifest(manifest, targetRegistry)
+	relocationMap, err := RelocateManifest(manifest, targetRegistry)
 	if err != nil {
 		return err
 	}
 
-	manifest, err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Update(manifest)
+	err = UpdateRegistry(relocationMap)
 	if err != nil {
 		return err
 	}
@@ -26,31 +27,61 @@ func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) er
 	return nil
 }
 
-func RelocateManifest(manifest *v1alpha1.Manifest, targetRegistry string) error {
+func RelocateManifest(manifest *v1alpha1.Manifest, targetRegistry string) (map[string]string, error) {
 	var err error
 
 	err = embedResourceContent(manifest)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	images, err := getAllImages(manifest)
-	if err != nil {
-		return err
-	}
-	relocatedImages, err := getRelocatedImages(targetRegistry, images)
-	if err != nil {
-		return err
-	}
+	relocationMap, err := buildRelocationImageMap(manifest, targetRegistry)
+
 	// TODO add a images section to the manifest
 
-	err = replaceImagesInManifest(manifest, images, relocatedImages)
+	err = replaceImagesInManifest(manifest, relocationMap)
 
+	return relocationMap, nil
+}
+
+func UpdateRegistry(relocationMap map[string]string) error {
+
+	dClient, err := docker.NewDockerClient()
+	if err != nil {
+		return err
+	}
+
+	for fromRef, toRef := range relocationMap {
+		err = dClient.Relocate(fromRef, toRef)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
-func replaceImagesInManifest(manifest *v1alpha1.Manifest, images []string, relocatedImages []string) error {
-	replacer, err := buildImageReplacer(images, relocatedImages)
+func buildRelocationImageMap(manifest *v1alpha1.Manifest, targetRegistry string) (map[string]string, error) {
+	relocationMap := map[string]string{}
+	images, err := getAllImages(manifest)
+	if err != nil {
+		return nil, err
+	}
+	relocatedImages, err := getRelocatedImages(targetRegistry, images)
+	if err != nil {
+		return nil, err
+	}
+	if len(images) != len(relocatedImages) {
+		return nil, errors.New("length of images and relocated images should be same")
+	}
+	for i, fromRef := range images {
+		relocationMap[fromRef] = relocatedImages[i]
+	}
+
+	return relocationMap, nil
+}
+
+func replaceImagesInManifest(manifest *v1alpha1.Manifest, relocationMap map[string]string) error {
+	replacer, err := buildImageReplacer(relocationMap)
 	if err != nil {
 		return err
 	}
@@ -61,14 +92,11 @@ func replaceImagesInManifest(manifest *v1alpha1.Manifest, images []string, reloc
 	return nil
 }
 
-func buildImageReplacer(images, relocatedImages []string) (*strings.Replacer, error) {
+func buildImageReplacer(relocationMap map[string]string) (*strings.Replacer, error) {
 	replacements := []string{}
 
-	if len(images) != len(relocatedImages) {
-		return nil, errors.New("length of images and relocated images should be same")
-	}
-	for i := range images {
-		replacements = append(replacements, images[i], relocatedImages[i])
+	for key, value := range relocationMap {
+		replacements = append(replacements, key, value)
 	}
 	return strings.NewReplacer(replacements...), nil
 }
@@ -76,7 +104,7 @@ func buildImageReplacer(images, relocatedImages []string) (*strings.Replacer, er
 func embedResourceContent(manifest *v1alpha1.Manifest) error {
 
 	for i := 0; i < len(manifest.Spec.Resources); i++ {
-		resource := manifest.Spec.Resources[i]
+		resource := &manifest.Spec.Resources[i]
 		content, err := fileutils.Read(resource.Path, "")
 		if err != nil {
 			return err
