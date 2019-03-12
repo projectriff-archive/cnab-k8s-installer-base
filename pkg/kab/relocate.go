@@ -14,37 +14,29 @@ func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) er
 		return nil
 	}
 
-	relocationMap, err := RelocateManifest(manifest, targetRegistry)
-	if err != nil {
-		return err
-	}
-
-	err = UpdateRegistry(relocationMap)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func RelocateManifest(manifest *v1alpha1.Manifest, targetRegistry string) (map[string]string, error) {
 	var err error
 
 	err = embedResourceContent(manifest)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	relocationMap, err := buildRelocationImageMap(manifest, targetRegistry)
 
+	err = updateRegistry(relocationMap)
+	if err != nil {
+		return err
+	}
 	// TODO add a images section to the manifest
 
 	err = replaceImagesInManifest(manifest, relocationMap)
 
-	return relocationMap, nil
+	return nil
 }
 
-func UpdateRegistry(relocationMap map[string]string) error {
+// pull images, push them to the target registry and update the relocationMap with the
+// newly pushed digested images
+func updateRegistry(relocationMap map[string]string) error {
 
 	dClient, err := docker.NewDockerClient()
 	if err != nil {
@@ -52,10 +44,11 @@ func UpdateRegistry(relocationMap map[string]string) error {
 	}
 
 	for fromRef, toRef := range relocationMap {
-		err = dClient.Relocate(fromRef, toRef)
+		digestedRef, err := dClient.Relocate(fromRef, toRef)
 		if err != nil {
 			return err
 		}
+		relocationMap[fromRef] = digestedRef.String()
 	}
 	return nil
 }

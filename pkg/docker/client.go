@@ -19,7 +19,9 @@ type dclient struct {
 
 type DClient interface {
 	Pull(ref string) (image.Name, image.Id, error)
-	Relocate(fromRef, toRef string) error
+	Relocate(fromRef, toRef string) (image.Name, error)
+	Tag(id image.Id, name image.Name) (image.Name, error)
+	Push(name image.Name) (image.Name, error)
 }
 
 type Event struct {
@@ -65,13 +67,16 @@ func (dc *dclient) Pull(ref string) (image.Name, image.Id, error) {
 				break
 			}
 		} else {
-			if strings.Contains(event.Status, "Digest") {
+			if strings.Contains(strings.ToUpper(event.Status), "DIGEST") {
 				digest = event.Status
 			}
 		}
 	}
-	digest = strings.TrimSpace(strings.SplitN(digest, ":", 2)[1])
-	fmt.Println(event.Status)
+	digest, err = extractDigest(digest)
+	if err != nil {
+		return image.EmptyName, image.EmptyId, err
+	}
+	fmt.Println(event.Status, "DIGEST:", digest)
 	id, err := dc.getImageId(digest)
 	if err != nil {
 		return image.EmptyName, image.EmptyId, err
@@ -83,28 +88,28 @@ func (dc *dclient) Pull(ref string) (image.Name, image.Id, error) {
 	return name, id, nil
 }
 
-func (dc *dclient) Relocate(fromRef, toRef string) error {
+func (dc *dclient) Relocate(fromRef, toRef string) (image.Name, error) {
 	_, id, err := dc.Pull(fromRef)
 	if err != nil {
-		return err
+		return image.EmptyName, err
 	}
 
 	toName, err := image.NewName(toRef)
 	if err != nil {
-		return err
+		return image.EmptyName, err
 	}
 
 	tag, err := dc.Tag(id, toName)
 	if err != nil {
-		return err
+		return image.EmptyName, err
 	}
 
-	err = dc.Push(tag)
+	digestedRef, err := dc.Push(tag)
 	if err != nil {
-		return err
+		return image.EmptyName, err
 	}
 
-	return nil
+	return digestedRef, nil
 }
 
 func (dc *dclient) Tag(id image.Id, name image.Name) (image.Name, error) {
@@ -123,24 +128,41 @@ func (dc *dclient) Tag(id image.Id, name image.Name) (image.Name, error) {
 	return tag, nil
 }
 
-func (dc *dclient) Push(name image.Name) error {
-	fmt.Println("Pushing", name.String())
+func (dc *dclient) Push(name image.Name) (image.Name, error) {
+	fmt.Printf("Pushing %s...", name.String())
 	events, err := dc.cli.ImagePush(dc.ctx, name.String(), types.ImagePushOptions{RegistryAuth:"foo"})
 	if err != nil {
-		return err
+		return image.EmptyName, err
 	}
 	d := json.NewDecoder(events)
+	var digest string
 	var event *Event
 	for {
 		if err := d.Decode(&event); err != nil {
 			if err == io.EOF {
 				break
 			}
+		} else {
+			if strings.Contains(strings.ToUpper(event.Status), "DIGEST") {
+				digest = event.Status
+			}
 		}
 	}
-	fmt.Println(event.Status)
+	fmt.Println("done")
+	digest, err = extractDigest(digest)
+	newName, err := name.WithDigest(image.NewDigest(digest))
+	fmt.Println("digest image reference:", newName)
+	return newName, nil
+}
 
-	return nil
+func extractDigest(str string) (string, error) {
+	arr := strings.Fields(str)
+	for _, str := range arr {
+		if strings.HasPrefix(str, "sha256") {
+			return str, nil
+		}
+	}
+	return "", errors.New(fmt.Sprintf("cannot extract digest from: %s", str))
 }
 
 func (dc *dclient) getImageId(digest string) (image.Id, error) {
