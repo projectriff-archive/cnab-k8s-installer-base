@@ -2,7 +2,6 @@ package kab
 
 import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/docker"
 	"cnab-k8s-installer-base/pkg/fileutils"
 	"cnab-k8s-installer-base/pkg/scan"
 	"errors"
@@ -23,7 +22,7 @@ func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) er
 
 	relocationMap, err := buildRelocationImageMap(manifest, targetRegistry)
 
-	err = updateRegistry(relocationMap)
+	err = c.updateRegistry(relocationMap)
 	if err != nil {
 		return err
 	}
@@ -36,15 +35,10 @@ func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) er
 
 // pull images, push them to the target registry and update the relocationMap with the
 // newly pushed digested images
-func updateRegistry(relocationMap map[string]string) error {
-
-	dClient, err := docker.NewDockerClient()
-	if err != nil {
-		return err
-	}
+func (c *Client) updateRegistry(relocationMap map[string]string) error {
 
 	for fromRef, toRef := range relocationMap {
-		digestedRef, err := dClient.Relocate(fromRef, toRef)
+		digestedRef, err := c.dockerClient.Relocate(fromRef, toRef)
 		if err != nil {
 			return err
 		}

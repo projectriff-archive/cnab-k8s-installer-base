@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-type dclient struct {
+type Client struct {
 	cli *client.Client
 	ctx context.Context
 }
@@ -34,20 +34,20 @@ type Event struct {
 	} `json:"progressDetail"`
 }
 
-func NewDockerClient() (*dclient, error) {
+func NewDockerClient() (*Client, error) {
 	cli, err := client.NewEnvClient()
 	if err != nil {
 		return nil, err
 	}
 	ctx := context.TODO()
 
-	return &dclient{
+	return &Client{
 		cli: cli,
 		ctx: ctx,
 	}, nil
 }
 
-func (dc *dclient) Pull(ref string) (image.Name, image.Id, error) {
+func (dc *Client) Pull(ref string) (image.Name, image.Id, error) {
 	fmt.Printf("Pulling image %s...\n", ref)
 	var err error
 	n, err := image.NewName(ref)
@@ -88,7 +88,7 @@ func (dc *dclient) Pull(ref string) (image.Name, image.Id, error) {
 	return name, id, nil
 }
 
-func (dc *dclient) Relocate(fromRef, toRef string) (image.Name, error) {
+func (dc *Client) Relocate(fromRef, toRef string) (image.Name, error) {
 	_, id, err := dc.Pull(fromRef)
 	if err != nil {
 		return image.EmptyName, err
@@ -112,7 +112,7 @@ func (dc *dclient) Relocate(fromRef, toRef string) (image.Name, error) {
 	return digestedRef, nil
 }
 
-func (dc *dclient) Tag(id image.Id, name image.Name) (image.Name, error) {
+func (dc *Client) Tag(id image.Id, name image.Name) (image.Name, error) {
 	var err error
 	tag, err := image.NewName(name.WithoutDigest())
 	if name.Tag() != "" {
@@ -128,7 +128,7 @@ func (dc *dclient) Tag(id image.Id, name image.Name) (image.Name, error) {
 	return tag, nil
 }
 
-func (dc *dclient) Push(name image.Name) (image.Name, error) {
+func (dc *Client) Push(name image.Name) (image.Name, error) {
 	fmt.Printf("Pushing %s...", name.String())
 	events, err := dc.cli.ImagePush(dc.ctx, name.String(), types.ImagePushOptions{RegistryAuth:"foo"})
 	if err != nil {
@@ -165,7 +165,7 @@ func extractDigest(str string) (string, error) {
 	return "", errors.New(fmt.Sprintf("cannot extract digest from: %s", str))
 }
 
-func (dc *dclient) getImageId(digest string) (image.Id, error) {
+func (dc *Client) getImageId(digest string) (image.Id, error) {
 	images, err := dc.cli.ImageList(dc.ctx, types.ImageListOptions{})
 	if err != nil {
 		return image.EmptyId, err

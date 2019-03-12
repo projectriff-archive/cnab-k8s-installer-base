@@ -18,6 +18,7 @@ package kab
 
 import (
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
+	"cnab-k8s-installer-base/pkg/docker"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"time"
@@ -30,15 +31,17 @@ const (
 )
 
 type Client struct {
-	coreClient *kubernetes.Clientset
-	extClient  *apiext.Clientset
-	kabClient  *versioned.Clientset
+	coreClient   *kubernetes.Clientset
+	extClient    *apiext.Clientset
+	kabClient    *versioned.Clientset
+	dockerClient *docker.Client
 }
 
-func NewKnbClient(core *kubernetes.Clientset, ext *apiext.Clientset, kab *versioned.Clientset) *Client {
+func NewKnbClient(core *kubernetes.Clientset, ext *apiext.Clientset, kab *versioned.Clientset, dockerClient *docker.Client) *Client {
 	return &Client{
-		coreClient: core,
-		extClient:  ext,
-		kabClient:  kab,
+		coreClient:   core,
+		extClient:    ext,
+		kabClient:    kab,
+		dockerClient: dockerClient,
 	}
 }

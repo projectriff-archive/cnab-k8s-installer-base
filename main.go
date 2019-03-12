@@ -3,6 +3,7 @@ package main
 import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
+	"cnab-k8s-installer-base/pkg/docker"
 	"cnab-k8s-installer-base/pkg/kab"
 	"flag"
 	"fmt"
@@ -70,7 +71,12 @@ func createKnbClient() *kab.Client {
 	if err != nil {
 		fmt.Println("Could not create kubernetes kab client", err)
 	}
-	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient)
+	dClient, err := docker.NewDockerClient()
+	if err != nil {
+		fmt.Println("Could not create kubernetes kab client", err)
+	}
+
+	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient)
 	return knbClient
 }
 
