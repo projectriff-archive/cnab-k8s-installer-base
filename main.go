@@ -7,6 +7,7 @@ import (
 	"cnab-k8s-installer-base/pkg/kab"
 	"flag"
 	"fmt"
+	"github.com/pkg/errors"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -41,7 +42,11 @@ func install(path string) {
 		_, err = fmt.Fprintf(os.Stderr, "error while reading from %s: %v", path, err)
 		os.Exit(1)
 	}
-	knbClient := createKnbClient()
+	knbClient, err := createKnbClient()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 	err = knbClient.Relocate(manifest, os.Getenv("target_registry"))
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -54,30 +59,30 @@ func install(path string) {
 	}
 }
 
-func createKnbClient() *kab.Client {
+func createKnbClient() (*kab.Client, error) {
 	config, err := getRestConfig()
 	if err != nil {
-		fmt.Println("Could not get kubernetes configuration", err)
+		return nil, errors.New(fmt.Sprintf("Could not get kubernetes configuration: %s", err))
 	}
 	coreClient, err := getCoreClient(config)
 	if err != nil {
-		fmt.Println("Could not create kubernetes core client", err)
+		return nil, errors.New(fmt.Sprintf("Could not create kubernetes core client: %s", err))
 	}
 	extClient, err := getExtensionClient(config)
 	if err != nil {
-		fmt.Println("Could not create kubernetes extension client", err)
+		return nil, errors.New(fmt.Sprintf("Could not create kubernetes extension client: %s", err))
 	}
 	kabClient, err := getKabClient(config)
 	if err != nil {
-		fmt.Println("Could not create kubernetes kab client", err)
+		return nil, errors.New(fmt.Sprintf("Could not create kubernetes kab client: %s", err))
 	}
 	dClient, err := docker.NewDockerClient()
 	if err != nil {
-		fmt.Println("Could not create kubernetes kab client", err)
+		return nil, errors.New(fmt.Sprintf("Could not create docker client: %s", err))
 	}
 
 	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient)
-	return knbClient
+	return knbClient, nil
 }
 
 func getRestConfig() (*rest.Config, error) {
