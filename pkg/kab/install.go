@@ -128,24 +128,20 @@ To fix this you need to:
 	return nil
 }
 
-// TODO this only supports checking Pods for phases, add more resources
 func (c *Client) checkResource(resource v1alpha1.KabResource) error {
 	cnt := 1
 	for _, check := range resource.Checks {
 		var ready bool
 		var err error
 		for i := 0; i < 360; i++ {
-			if strings.EqualFold(check.Kind, "Pod") {
-				ready, err = c.isPodReady(check, resource.Namespace)
-				if err != nil {
-					return err
-				}
-				if ready {
-					break
-				}
-			} else {
-				return errors.New("only Kind:Pod supported for resource checks")
+			ready, err = c.IsResourceReady(check, resource.Namespace)
+			if err != nil {
+				return err
 			}
+			if ready {
+				break
+			}
+
 			time.Sleep(1 * time.Second)
 			cnt++
 			if cnt%5 == 0 {
@@ -158,22 +154,6 @@ func (c *Client) checkResource(resource v1alpha1.KabResource) error {
 	}
 	fmt.Println("done")
 	return nil
-}
-
-func (c *Client) isPodReady(check v1alpha1.ResourceChecks, namespace string) (bool, error) {
-	pods := c.coreClient.CoreV1().Pods(namespace)
-	podList, err := pods.List(metav1.ListOptions{
-		LabelSelector: convertMapToString(check.Selector.MatchLabels),
-	})
-	if err != nil {
-		return false, err
-	}
-	for _, pod := range podList.Items {
-		if strings.EqualFold(string(pod.Status.Phase), check.Pattern) {
-			return true, nil
-		}
-	}
-	return false, nil
 }
 
 func convertMapToString(m map[string]string) string {
