@@ -18,8 +18,8 @@ package kustomize
 
 import (
 	"bytes"
+	"cnab-k8s-installer-base/pkg/fileutils"
 	"fmt"
-	"github.com/projectriff/riff/pkg/fileutils"
 	"io/ioutil"
 	"net/url"
 	"sigs.k8s.io/kustomize/k8sdeps"
