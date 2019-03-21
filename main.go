@@ -21,6 +21,7 @@ import (
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
 	"cnab-k8s-installer-base/pkg/docker"
 	"cnab-k8s-installer-base/pkg/kab"
+	"cnab-k8s-installer-base/pkg/kustomize"
 	"flag"
 	"fmt"
 	"github.com/pkg/errors"
@@ -30,9 +31,13 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
+	"time"
 )
 
-const BaseDir = "/cnab/app/kab"
+const (
+	BaseDir = "/cnab/app/kab"
+	TIMEOUT = 30 * time.Second
+)
 
 func main()  {
 
@@ -59,6 +64,11 @@ func install(path string) {
 		os.Exit(1)
 	}
 	knbClient, err := createKnbClient()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	err = knbClient.ApplyLabels(manifest)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -96,8 +106,9 @@ func createKnbClient() (*kab.Client, error) {
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Could not create docker client: %s", err))
 	}
+	kustomizer := kustomize.MakeKustomizer(TIMEOUT)
 
-	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient)
+	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient, kustomizer)
 	return knbClient, nil
 }
 

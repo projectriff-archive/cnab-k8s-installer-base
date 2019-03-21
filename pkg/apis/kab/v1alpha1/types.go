@@ -47,12 +47,13 @@ type ResourceChecks struct {
 }
 
 type KabResource struct {
-	Path      string           `json:"path,omitempty"`
-	Content   string           `json:"content,omitempty"`
-	Name      string           `json:"name,omitempty"`
-	Namespace string           `json:"namespace,omitempty"`
-	Deferred  bool             `json:"deferred,omitempty"`
-	Checks    []ResourceChecks `json:"checks,omitempty"`
+	Path      string            `json:"path,omitempty"`
+	Content   string            `json:"content,omitempty"`
+	Name      string            `json:"name,omitempty"`
+	Namespace string            `json:"namespace,omitempty"`
+	Labels    map[string]string `json:"labels,omitempty"`
+	Deferred  bool              `json:"deferred,omitempty"`
+	Checks    []ResourceChecks  `json:"checks,omitempty"`
 }
 
 type KabSpec struct {
