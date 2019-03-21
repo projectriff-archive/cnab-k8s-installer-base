@@ -34,9 +34,9 @@ type Client struct {
 }
 
 type DClient interface {
-	Pull(ref string) (image.Name, image.Id, error)
+	Pull(ref string) (image.Name, image.Digest, error)
 	Relocate(fromRef, toRef string) (image.Name, error)
-	Tag(id image.Id, name image.Name) (image.Name, error)
+	Tag(id image.Digest, name image.Name) (image.Name, error)
 	Push(name image.Name) (image.Name, error)
 }
 
@@ -63,16 +63,16 @@ func NewDockerClient() (*Client, error) {
 	}, nil
 }
 
-func (dc *Client) Pull(ref string) (image.Name, image.Id, error) {
+func (dc *Client) Pull(ref string) (image.Name, image.Digest, error) {
 	fmt.Printf("Pulling image %s...\n", ref)
 	var err error
 	n, err := image.NewName(ref)
 	if err != nil {
-		return image.EmptyName, image.EmptyId, err
+		return image.EmptyName, image.EmptyDigest, err
 	}
 	events, err := dc.cli.ImagePull(dc.ctx, n.String(), types.ImagePullOptions{})
 	if err != nil {
-		return image.EmptyName, image.EmptyId, err
+		return image.EmptyName, image.EmptyDigest, err
 	}
 	d := json.NewDecoder(events)
 	var digest string
@@ -90,16 +90,16 @@ func (dc *Client) Pull(ref string) (image.Name, image.Id, error) {
 	}
 	digest, err = extractDigest(digest)
 	if err != nil {
-		return image.EmptyName, image.EmptyId, err
+		return image.EmptyName, image.EmptyDigest, err
 	}
 	fmt.Println(event.Status, "DIGEST:", digest)
 	id, err := dc.getImageId(digest)
 	if err != nil {
-		return image.EmptyName, image.EmptyId, err
+		return image.EmptyName, image.EmptyDigest, err
 	}
 	name, err := image.NewName(ref)
 	if err != nil {
-		return image.EmptyName, image.EmptyId, err
+		return image.EmptyName, image.EmptyDigest, err
 	}
 	return name, id, nil
 }
@@ -128,7 +128,7 @@ func (dc *Client) Relocate(fromRef, toRef string) (image.Name, error) {
 	return digestedRef, nil
 }
 
-func (dc *Client) Tag(id image.Id, name image.Name) (image.Name, error) {
+func (dc *Client) Tag(id image.Digest, name image.Name) (image.Name, error) {
 	var err error
 	tag, err := image.NewName(name.WithoutDigest())
 	if name.Tag() != "" {
@@ -181,19 +181,19 @@ func extractDigest(str string) (string, error) {
 	return "", errors.New(fmt.Sprintf("cannot extract digest from: %s", str))
 }
 
-func (dc *Client) getImageId(digest string) (image.Id, error) {
+func (dc *Client) getImageId(digest string) (image.Digest, error) {
 	images, err := dc.cli.ImageList(dc.ctx, types.ImageListOptions{})
 	if err != nil {
-		return image.EmptyId, err
+		return image.EmptyDigest, err
 	}
 
 	for _, img := range images {
 		if arrayContainsSubstring(img.RepoDigests, digest) {
-			id := image.NewId(img.ID)
+			id := image.NewDigest(img.ID)
 			return id, nil
 		}
 	}
-	return image.EmptyId, errors.New(fmt.Sprintf("No image found for digest %s\n", digest))
+	return image.EmptyDigest, errors.New(fmt.Sprintf("No image found for digest %s\n", digest))
 }
 
 func arrayContainsSubstring(digests []string, digest string) bool {

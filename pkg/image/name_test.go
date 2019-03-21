@@ -1,9 +1,9 @@
 package image_test
 
 import (
+	"cnab-k8s-installer-base/pkg/image"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-cf/pfs/pkg/image"
 )
 
 var _ = Describe("Name", func() {

@@ -96,6 +96,13 @@ func (img Name) WithDigest(digest Digest) (Name, error) {
 	return Name{digested}, nil
 }
 
+func (img Name) WithoutDigest() string {
+	if strings.Contains(img.ref.Name(), "@") {
+		return strings.Split(img.ref.Name(), "@")[0]
+	}
+	return img.ref.Name()
+}
+
 // Synonyms returns the equivalent image names for a given image name. The synonyms are not necessarily
 // normalized: in particular they may not have a host name.
 func (img Name) Synonyms() []Name {
