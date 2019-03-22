@@ -25,6 +25,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -48,6 +49,9 @@ func main()  {
 	} else {
 		path = "/cnab/app/kab/template.yaml"
 	}
+
+	setupLogging()
+
 	action := os.Getenv("CNAB_ACTION")
 	switch action {
 	case "install":
@@ -65,18 +69,15 @@ func install(path string) {
 	}
 	knbClient, err := createKnbClient()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 	err = knbClient.ApplyLabels(manifest)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 	err = knbClient.Relocate(manifest, os.Getenv("target_registry"))
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		log.Fatalln(err)
 	}
 	err = knbClient.Install(manifest, BaseDir)
 	if err != nil {
@@ -158,4 +159,21 @@ func homeDir() string {
 		return h
 	}
 	return os.Getenv("USERPROFILE") // windows
+}
+
+func setupLogging() {
+	log.SetOutput(os.Stdout)
+	log.SetLevel(getLogLevel())
+}
+
+func getLogLevel() log.Level {
+	requestedLevel := os.Getenv("log_level")
+	if requestedLevel == "" {
+		return log.InfoLevel
+	}
+	level, err := log.ParseLevel(requestedLevel)
+	if err != nil {
+		log.Fatalf("Unknown log level %s", requestedLevel)
+	}
+	return level
 }

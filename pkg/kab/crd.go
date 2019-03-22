@@ -19,6 +19,7 @@ package kab
 import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	extApi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	extClientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -28,6 +29,8 @@ import (
 const NAME = "manifests"
 
 func CreateCRD(clientset extClientset.Interface) error {
+	log.Traceln("Creating CRD")
+
 	_, err := clientset.ApiextensionsV1beta1().CustomResourceDefinitions().Create(
 		&extApi.CustomResourceDefinition{
 			ObjectMeta: meta_v1.ObjectMeta{
@@ -56,6 +59,7 @@ func CreateCRD(clientset extClientset.Interface) error {
 		})
 
 	if err != nil && apierrors.IsAlreadyExists(err) {
+		log.Traceln("CRD already existed")
 		return nil
 	}
 	return err

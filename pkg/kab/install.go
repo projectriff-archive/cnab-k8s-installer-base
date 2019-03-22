@@ -23,6 +23,7 @@ import (
 	"github.com/projectriff/riff/pkg/env"
 	"github.com/projectriff/riff/pkg/fileutils"
 	"github.com/projectriff/riff/pkg/kubectl"
+	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"strings"
@@ -38,13 +39,13 @@ func (c *Client) Install(manifest *v1alpha1.Manifest, basedir string) error {
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not install riff: %s ", err))
 	}
-	fmt.Println("Installing", env.Cli.Name, "components")
-	fmt.Println()
+	log.Infoln("Installing", env.Cli.Name, "components")
+	log.Infoln()
 	err = c.installAndCheckResources(manifest, basedir)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not install riff: %s ", err))
 	}
-	fmt.Print("Kubernetes Application Bundle installed\n\n")
+	log.Infof("Kubernetes Application Bundle installed\n\n")
 	return nil
 }
 
@@ -58,9 +59,11 @@ func backOffSettings() wait.Backoff {
 
 func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wait.Backoff) (*v1alpha1.Manifest, error) {
 
+	log.Debugln("creating object", manifest.Name)
 	err := wait.ExponentialBackoff(backOffSettings, func() (bool, error) {
 		old, err := c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Get(manifest.Name, metav1.GetOptions{})
 		if err != nil && !strings.Contains(err.Error(), "not found") {
+			log.Debugln("error looking up object", err)
 			return false, nil
 		}
 		if !isEmpty(old) {
@@ -68,6 +71,7 @@ func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 		}
 		_, err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Create(manifest)
 		if err != nil {
+			log.Debugln("error creating object", err)
 			return false, nil
 		}
 		return true, nil
@@ -88,7 +92,7 @@ func isEmpty(manifest *v1alpha1.Manifest) bool {
 func (c *Client) installAndCheckResources(manifest *v1alpha1.Manifest, basedir string) error {
 	for _, resource := range manifest.Spec.Resources {
 		if resource.Deferred {
-			fmt.Printf("Skipping install of %s\n", resource.Name)
+			log.Debugf("Skipping install of %s\n", resource.Name)
 			continue
 		}
 		err := c.installResource(resource, basedir)
@@ -107,7 +111,7 @@ func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error
 	var installContent []byte
 	var err error
 
-	fmt.Printf("installing %s...", res.Name)
+	log.Infof("installing %s...", res.Name)
 	if res.Content != "" {
 		installContent = []byte(res.Content)
 	} else {
@@ -124,9 +128,9 @@ func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error
 	kubectl := kubectl.RealKubeCtl()
 	istioLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &installContent)
 	if err != nil {
-		fmt.Printf("%s\n", istioLog)
+		log.Infof("%s\n", istioLog)
 		if strings.Contains(istioLog, "forbidden") {
-			fmt.Print(`It looks like you don't have cluster-admin permissions.
+			log.Warningf(`It looks like you don't have cluster-admin permissions.
 
 To fix this you need to:
  1. Delete the current failed installation using:
@@ -161,14 +165,14 @@ func (c *Client) checkResource(resource v1alpha1.KabResource) error {
 			time.Sleep(1 * time.Second)
 			cnt++
 			if cnt%5 == 0 {
-				fmt.Print(".")
+				log.Print(".")
 			}
 		}
 		if !ready {
 			return errors.New(fmt.Sprintf("The resource %s did not initialize", resource.Name))
 		}
 	}
-	fmt.Println("done")
+	log.Infoln("done")
 	return nil
 }
 

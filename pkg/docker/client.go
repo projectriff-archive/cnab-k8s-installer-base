@@ -23,6 +23,7 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"io"
 	"strings"
@@ -64,7 +65,7 @@ func NewDockerClient() (*Client, error) {
 }
 
 func (dc *Client) Pull(ref string) (image.Name, image.Digest, error) {
-	fmt.Printf("Pulling image %s...\n", ref)
+	log.Debugf("Pulling image %s...\n", ref)
 	var err error
 	n, err := image.NewName(ref)
 	if err != nil {
@@ -92,7 +93,7 @@ func (dc *Client) Pull(ref string) (image.Name, image.Digest, error) {
 	if err != nil {
 		return image.EmptyName, image.EmptyDigest, err
 	}
-	fmt.Println(event.Status, "DIGEST:", digest)
+	log.Debugln(event.Status, "DIGEST:", digest)
 	id, err := dc.getImageId(digest)
 	if err != nil {
 		return image.EmptyName, image.EmptyDigest, err
@@ -145,7 +146,7 @@ func (dc *Client) Tag(id image.Digest, name image.Name) (image.Name, error) {
 }
 
 func (dc *Client) Push(name image.Name) (image.Name, error) {
-	fmt.Printf("Pushing %s...", name.String())
+	log.Debugf("Pushing %s...", name.String())
 	events, err := dc.cli.ImagePush(dc.ctx, name.String(), types.ImagePushOptions{RegistryAuth:"foo"})
 	if err != nil {
 		return image.EmptyName, err
@@ -164,10 +165,10 @@ func (dc *Client) Push(name image.Name) (image.Name, error) {
 			}
 		}
 	}
-	fmt.Println("done")
+	log.Debugln("done")
 	digest, err = extractDigest(digest)
 	newName, err := name.WithDigest(image.NewDigest(digest))
-	fmt.Println("digest image reference:", newName)
+	log.Debugln("digest image reference:", newName)
 	return newName, nil
 }
 

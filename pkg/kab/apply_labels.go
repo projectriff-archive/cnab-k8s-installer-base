@@ -18,6 +18,7 @@ package kab
 
 import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	log "github.com/sirupsen/logrus"
 	"net/url"
 )
 
@@ -26,15 +27,17 @@ func (c *Client) ApplyLabels(manifest *v1alpha1.Manifest) error {
 	var content []byte
 	var path *url.URL
 	var err error
+
 	for i := 0; i < len(manifest.Spec.Resources); i++ {
 		resource = &manifest.Spec.Resources[i]
+		log.Tracef("Applying labels resource: %s Labels: %+v...", resource.Name, resource.Labels)
 		path, err = url.Parse(resource.Path)
 		if err != nil {
 			return err
 		}
 		content, err = c.kustomizer.ApplyLabels(path, resource.Labels)
 		resource.Content = string(content)
-
+		log.Traceln("done")
 	}
 	return nil
 }

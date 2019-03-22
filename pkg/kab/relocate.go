@@ -21,11 +21,13 @@ import (
 	"cnab-k8s-installer-base/pkg/fileutils"
 	"cnab-k8s-installer-base/pkg/scan"
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"strings"
 )
 
 func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) error {
 	if targetRegistry == "" {
+		log.Traceln("skipping image relocation")
 		return nil
 	}
 
@@ -52,6 +54,7 @@ func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) er
 // pull images, push them to the target registry and update the relocationMap with the
 // newly pushed digested images
 func (c *Client) updateRegistry(relocationMap map[string]string) error {
+	log.Infoln("Relocating images...")
 
 	for fromRef, toRef := range relocationMap {
 		digestedRef, err := c.dockerClient.Relocate(fromRef, toRef)
@@ -60,6 +63,8 @@ func (c *Client) updateRegistry(relocationMap map[string]string) error {
 		}
 		relocationMap[fromRef] = digestedRef.String()
 	}
+	log.Infoln("finished relocating images")
+
 	return nil
 }
 
@@ -76,8 +81,10 @@ func buildRelocationImageMap(manifest *v1alpha1.Manifest, targetRegistry string)
 	if len(images) != len(relocatedImages) {
 		return nil, errors.New("length of images and relocated images should be same")
 	}
+	log.Traceln("Relocation Image Map:")
 	for i, fromRef := range images {
 		relocationMap[fromRef] = relocatedImages[i]
+		log.Traceln(fromRef, " : ", relocatedImages[i])
 	}
 
 	return relocationMap, nil
