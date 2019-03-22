@@ -81,8 +81,7 @@ func install(path string) {
 	}
 	err = knbClient.Install(manifest, BaseDir)
 	if err != nil {
-		_, err = fmt.Fprintf(os.Stderr, "error while installing from %s: %v", path, err)
-		os.Exit(1)
+		log.Fatalf("error while installing from %s: %v\n", path, err)
 	}
 }
 
