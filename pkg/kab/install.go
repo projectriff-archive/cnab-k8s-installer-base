@@ -164,15 +164,12 @@ func (c *Client) checkResource(resource v1alpha1.KabResource) error {
 
 			time.Sleep(1 * time.Second)
 			cnt++
-			if cnt%5 == 0 {
-				log.Print(".")
-			}
 		}
 		if !ready {
 			return errors.New(fmt.Sprintf("The resource %s did not initialize", resource.Name))
 		}
 	}
-	log.Infoln("done")
+	log.Infof("done installing %s", resource.Name)
 	return nil
 }
 
