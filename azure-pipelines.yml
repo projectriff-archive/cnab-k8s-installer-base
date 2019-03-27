@@ -35,11 +35,12 @@ steps:
 
 - script: |
     docker run -d -p 5000:5000 --restart=always --volume ~/.registry/storage:/var/lib/registry registry:2
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.0.0/minikube-linux-amd64 && chmod +x minikube
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.0.0/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
     minikube start --memory=8192 --cpus=4 \
     --kubernetes-version=v1.13.2 \
     --bootstrapper=kubeadm \
     --vm-driver=hyperkit \
     --extra-config=apiserver.enable-admission-plugins="LimitRanger,NamespaceExists,NamespaceLifecycle,ResourceQuota,ServiceAccount,DefaultStorageClass,MutatingAdmissionWebhook" \
     --insecure-registry registry.pfs.svc.cluster.local:5000
+  displayName: 'start minikube and local registry'
 
