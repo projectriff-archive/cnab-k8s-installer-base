@@ -137,7 +137,7 @@ func getRelocatedImages(targetRegistry string, images []string) ([]string, error
 		if err != nil {
 			return nil, err
 		}
-		repoPath = strings.ReplaceAll(repoPath, "/", "-")
+		repoPath = strings.Replace(repoPath, "/", "-", -1)
 		relocatedImg := targetRegistry + repoPath
 		relocatedImages = append(relocatedImages, relocatedImg)
 	}
