@@ -32,6 +32,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -53,11 +54,14 @@ func main()  {
 	setupLogging()
 
 	action := os.Getenv("CNAB_ACTION")
+	action = strings.ToLower(action)
 	switch action {
 	case "install":
 		install(path)
 	case "uninstall":
 	case "upgrade":
+	default:
+		log.Fatalf("unknown action '%s'. please set CNAB_ACTION environment variable", action)
 	}
 }
 
