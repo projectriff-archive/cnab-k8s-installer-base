@@ -1,5 +1,8 @@
+[![Build Status](https://dev.azure.com/projectriff/projectriff/_apis/build/status/projectriff.cnab-k8s-installer-base?branchName=master)](https://dev.azure.com/projectriff/projectriff/_build/latest?definitionId=1&branchName=master)
+
 # KAB - Kubernetes Application Bundle
 A CNAB bundle that allows creation of other declarative CNAB bundles
+
 
 ## Background
 
