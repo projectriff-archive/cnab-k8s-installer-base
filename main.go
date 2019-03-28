@@ -170,7 +170,7 @@ func setupLogging() {
 }
 
 func getLogLevel() log.Level {
-	requestedLevel := os.Getenv("log_level")
+	requestedLevel := os.Getenv("LOG_LEVEL")
 	if requestedLevel == "" {
 		return log.InfoLevel
 	}

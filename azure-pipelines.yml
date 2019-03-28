@@ -15,6 +15,7 @@ variables:
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
   CNAB_ACTION: install
+  LOG_LEVEL: trace
 
 steps:
 - script: |
