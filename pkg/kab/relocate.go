@@ -57,7 +57,7 @@ func (c *Client) updateRegistry(relocationMap map[string]string) error {
 	log.Infoln("Relocating images...")
 
 	for fromRef, toRef := range relocationMap {
-		digestedRef, err := c.dockerClient.Relocate(fromRef, toRef)
+		digestedRef, err := c.registryClient.Relocate(fromRef, toRef)
 		if err != nil {
 			return err
 		}
