@@ -14,6 +14,8 @@ variables:
   GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+  cnab_action: install
+  target_registry: registry.pfs.svc.cluster.local:5000
 
 steps:
 - script: |
@@ -55,8 +57,6 @@ steps:
   displayName: 'clone cnab-riff'
 
 - script: |
-    export CNAB_ACTION=install
-    export TARGET_REGISTRY=registry.pfs.svc.cluster.local:5000
     sudo ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
   workingDirectory: '$(modulePath)'
   displayName: 'run install'
