@@ -44,7 +44,13 @@ steps:
     --extra-config=apiserver.enable-admission-plugins="LimitRanger,NamespaceExists,NamespaceLifecycle,ResourceQuota,ServiceAccount,DefaultStorageClass,MutatingAdmissionWebhook" \
     --insecure-registry registry.pfs.svc.cluster.local:5000
     sudo minikube update-context
-  displayName: 'start minikube'
+  displayName: 'install and start minikube'
+
+- script: |
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    chmod +x ./kubectl
+    sudo mv ./kubectl /usr/local/bin/kubectl
+  displayName: 'install kubectl'
 
 - script: |
     docker run -d -p 5000:5000 registry:2
