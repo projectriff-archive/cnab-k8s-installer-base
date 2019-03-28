@@ -34,7 +34,7 @@ steps:
   displayName: 'Get dependencies, then build'
 
 - script: |
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.0.0/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
+    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.35.0/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
     minikube start --memory=8192 --cpus=4 \
     --kubernetes-version=v1.13.2 \
     --bootstrapper=kubeadm \
