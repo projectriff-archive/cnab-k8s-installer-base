@@ -61,5 +61,5 @@ steps:
   workingDirectory: '$(modulePath)'
   displayName: 'run install'
   env:
-    cnab_action: install
-    target_registry: registry.pfs.svc.cluster.local:5000
+    CNAB_ACTION: install
+    TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000
