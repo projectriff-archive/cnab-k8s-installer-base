@@ -59,6 +59,13 @@ steps:
   displayName: 'setup registry'
 
 - script: |
+    sudo chown -R $USER $HOME/.kube
+    sudo chgrp -R $USER $HOME/.kube
+    sudo chown -R $USER $HOME/.minikube
+    sudo chgrp -R $USER $HOME/.minikube
+  displayName: 'change owner'
+
+- script: |
     kubectl create namespace pfs
     cat <<EOF | kubectl create -f -
     ---
@@ -94,10 +101,6 @@ steps:
 - script: |
     echo "CAPS: $CNAB_ACTION"
     echo "small: $cnab_action"
-    sudo chown -R $USER $HOME/.kube
-    sudo chgrp -R $USER $HOME/.kube
-    sudo chown -R $USER $HOME/.minikube
-    sudo chgrp -R $USER $HOME/.minikube
     ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
   workingDirectory: '$(modulePath)'
   displayName: 'run install'
