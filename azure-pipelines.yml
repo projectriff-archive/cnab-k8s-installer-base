@@ -46,7 +46,7 @@ steps:
   displayName: 'start minikube'
 
 - script: |
-    docker run -d -p 5000:5000 --restart=always --volume ~/.registry/storage:/var/lib/registry registry:2
+    docker run -d -p 5000:5000 registry:2
     sudo sed -i 's/127.0.0.1\slocalhost/127.0.0.1     localhost registry.pfs.svc.cluster.local/g' /etc/hosts
   displayName: 'setup registry'
 
@@ -58,7 +58,9 @@ steps:
 - script: |
     echo "CAPS: $CNAB_ACTION"
     echo "small: $cnab_action"
-    sudo ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
+    sudo chown -R $USER $HOME/.kube
+    sudo chgrp -R $USER $HOME/.kube
+    ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
   workingDirectory: '$(modulePath)'
   displayName: 'run install'
   env:
