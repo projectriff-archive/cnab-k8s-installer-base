@@ -79,7 +79,7 @@ func install(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = knbClient.Relocate(manifest, os.Getenv("target_registry"))
+	err = knbClient.Relocate(manifest, os.Getenv("TARGET_REGISTRY"))
 	if err != nil {
 		log.Fatalln(err)
 	}

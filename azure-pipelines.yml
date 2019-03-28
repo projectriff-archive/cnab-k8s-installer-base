@@ -34,13 +34,28 @@ steps:
   displayName: 'Get dependencies, then build'
 
 - script: |
-    docker run -d -p 5000:5000 --restart=always --volume ~/.registry/storage:/var/lib/registry registry:2
     curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.0.0/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
     minikube start --memory=8192 --cpus=4 \
     --kubernetes-version=v1.13.2 \
     --bootstrapper=kubeadm \
-    --vm-driver=hyperkit \
+    --vm-driver=none \
     --extra-config=apiserver.enable-admission-plugins="LimitRanger,NamespaceExists,NamespaceLifecycle,ResourceQuota,ServiceAccount,DefaultStorageClass,MutatingAdmissionWebhook" \
     --insecure-registry registry.pfs.svc.cluster.local:5000
-  displayName: 'start minikube and local registry'
+  displayName: 'start minikube'
 
+- script: |
+    docker run -d -p 5000:5000 --restart=always --volume ~/.registry/storage:/var/lib/registry registry:2
+    sudo sed -i 's/127.0.0.1\slocalhost/127.0.0.1     localhost registry.pfs.svc.cluster.local/g' /etc/hosts
+  displayName: 'setup registry'
+
+- script: |
+    git clone git@github.com:projectriff/cnab-riff.git
+  workingDirectory: '$(modulePath)/..'
+  displayName: 'clone cnab-riff'
+
+- script: |
+    export CNAB_ACTION=install
+    export TARGET_REGISTRY=registry.pfs.svc.cluster.local:5000
+    ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
+  workingDirectory: '$(modulePath)'
+  displayName: 'run install'
