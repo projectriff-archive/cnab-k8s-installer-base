@@ -14,8 +14,6 @@ variables:
   GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
-  CNAB_ACTION: install
-  LOG_LEVEL: trace
 
 steps:
 - script: |
@@ -54,8 +52,6 @@ steps:
 
 - script: |
     docker run -d -p 5000:5000 registry:2
-    sudo sed -i 's/127.0.0.1\slocalhost/127.0.0.1     localhost registry.pfs.svc.cluster.local/g' /etc/hosts
-    cat /etc/hosts
   displayName: 'setup registry'
 
 - script: |
@@ -66,6 +62,7 @@ steps:
   displayName: 'change owner'
 
 - script: |
+    sudo ifconfig lo:0 $DEV_IP
     kubectl create namespace pfs
     cat <<EOF | kubectl create -f -
     ---
@@ -92,6 +89,8 @@ steps:
           - port: 5000
     EOF
   displayName: 'create registry service'
+  env:
+    DEV_IP: 172.16.1.1
 
 - script: |
     git clone https://github.com/projectriff/cnab-riff.git
@@ -106,4 +105,5 @@ steps:
   displayName: 'run install'
   env:
     CNAB_ACTION: install
-    TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000
+    LOG_LEVEL: trace
+    TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
