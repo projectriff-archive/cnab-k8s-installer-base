@@ -43,6 +43,8 @@ steps:
     --insecure-registry registry.pfs.svc.cluster.local:5000
     sudo minikube update-context
   displayName: 'install and start minikube'
+  env:
+    CHANGE_MINIKUBE_NONE_USER: true
 
 - script: |
     curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
@@ -53,13 +55,6 @@ steps:
 - script: |
     docker run -d -p 5000:5000 registry:2
   displayName: 'setup registry'
-
-- script: |
-    sudo chown -R $USER $HOME/.kube
-    sudo chgrp -R $USER $HOME/.kube
-    sudo chown -R $USER $HOME/.minikube
-    sudo chgrp -R $USER $HOME/.minikube
-  displayName: 'change owner'
 
 - script: |
     sudo ifconfig lo:0 $DEV_IP
@@ -98,11 +93,19 @@ steps:
   displayName: 'clone cnab-riff'
 
 - script: |
-    echo "CAPS: $CNAB_ACTION"
-    echo "small: $cnab_action"
     ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
   workingDirectory: '$(modulePath)'
   displayName: 'run install'
+  continueOnError: true
+  env:
+    CNAB_ACTION: install
+    LOG_LEVEL: trace
+    TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
+
+- script: |
+    ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
+  workingDirectory: '$(modulePath)'
+  displayName: 'run install again'
   env:
     CNAB_ACTION: install
     LOG_LEVEL: trace
