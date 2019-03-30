@@ -109,17 +109,3 @@ steps:
     CNAB_ACTION: install
     LOG_LEVEL: trace
     TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
-
-- script: |
-    kubectl get manifests.projectriff.io riff-install -o yaml
-  displayName: 'debug'
-
-- script: |
-    kubectl delete crd manifests.projectriff.io
-    ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
-  workingDirectory: '$(modulePath)'
-  displayName: 'run install again'
-  env:
-    CNAB_ACTION: install
-    LOG_LEVEL: trace
-    TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
