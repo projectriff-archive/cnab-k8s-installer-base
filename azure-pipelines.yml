@@ -57,6 +57,13 @@ steps:
   displayName: 'setup registry'
 
 - script: |
+    sudo chown -R $USER $HOME/.kube
+    sudo chgrp -R $USER $HOME/.kube
+    sudo chown -R $USER $HOME/.minikube
+    sudo chgrp -R $USER $HOME/.minikube
+  displayName: 'change owner'
+
+- script: |
     sudo ifconfig lo:0 $DEV_IP
     kubectl create namespace pfs
     cat <<EOF | kubectl create -f -
