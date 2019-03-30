@@ -160,7 +160,7 @@ func (dc *Client) Push(name image.Name) (image.Name, error) {
 				break
 			}
 		} else {
-			log.Traceln(event.Status)
+			log.Tracef("event: %+v\n", event)
 			if strings.Contains(strings.ToUpper(event.Status), "DIGEST") {
 				digest = event.Status
 			}
