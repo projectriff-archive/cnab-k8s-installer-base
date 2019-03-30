@@ -104,8 +104,7 @@ steps:
     ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
   workingDirectory: '$(modulePath)'
   displayName: 'run install'
-  continueOnError: true
   env:
     CNAB_ACTION: install
-    LOG_LEVEL: trace
+    LOG_LEVEL: debug
     TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser

@@ -84,6 +84,7 @@ func (dc *Client) Pull(ref string) (image.Name, image.Digest, error) {
 				break
 			}
 		} else {
+			log.Tracef("event: %+v\n", event)
 			if strings.Contains(strings.ToUpper(event.Status), "DIGEST") {
 				digest = event.Status
 			}
