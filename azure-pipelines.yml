@@ -110,6 +110,7 @@ steps:
     TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
 
 - script: |
+    kubectl delete crd manifests.projectriff.io
     ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
   workingDirectory: '$(modulePath)'
   displayName: 'run install again'
