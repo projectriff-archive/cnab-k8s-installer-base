@@ -18,9 +18,9 @@ package kab
 
 import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/fileutils"
 	"cnab-k8s-installer-base/pkg/scan"
 	"errors"
+	"github.com/pivotal/go-ape"
 	log "github.com/sirupsen/logrus"
 	"strings"
 )
