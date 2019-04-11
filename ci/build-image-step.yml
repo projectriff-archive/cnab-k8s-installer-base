@@ -1,0 +1,9 @@
+steps:
+  - task: Docker@1
+    displayName: Build image
+    inputs:
+      command: build
+      dockerFile: cnab/Dockerfile
+      imageName: $(Build.Repository.Name)
+      containerregistrytype: Container Registry
+      dockerRegistryEndpoint: dockerhub
