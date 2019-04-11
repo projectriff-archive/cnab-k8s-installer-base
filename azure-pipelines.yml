@@ -8,6 +8,7 @@ resources:
     - repository: riff
       type: github
       name: projectriff/riff
+      endpoint: projectriff
 
 jobs:
 - job: unit
