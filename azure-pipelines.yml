@@ -10,52 +10,52 @@ resources:
       name: projectriff/riff
 
 jobs:
-  - job: unit
-    strategy:
-      matrix:
-        linux:
-          imageName: 'ubuntu-16.04'
-        mac:
-          imageName: 'macos-10.13'
-        windows:
-          imageName: 'windows-2019'
-      pool:
-        vmImage: $(imageName)
-      variables:
-        GOBIN:  '$(GOPATH)/bin' # Go binaries path
-        GOROOT: '/usr/local/go1.11' # Go installation path
-        GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
-        modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
-
-    steps:
-      - template: ci/install-go-steps.yml@riff
-      - script: |
-          go version
-          make
-        workingDirectory: '$(modulePath)'
-        displayName: 'Get dependencies, then build'
-
-  - job: integration
-    dependsOn: unit
+- job: unit
+  strategy:
+    matrix:
+      linux:
+        imageName: 'ubuntu-16.04'
+      mac:
+        imageName: 'macos-10.13'
+      windows:
+        imageName: 'windows-2019'
     pool:
-      vmImage: 'Ubuntu-16.04'
+      vmImage: $(imageName)
+    variables:
+      GOBIN:  '$(GOPATH)/bin' # Go binaries path
+      GOROOT: '/usr/local/go1.11' # Go installation path
+      GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
+      modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
 
-    steps:
-      - template: ci/start-minikube-steps.yml
-      - template: ci/install-kubectl-steps.yml
-      - template: ci/setup-local-registry-steps.yml
+  steps:
+    - template: ci/install-go-steps.yml@riff
+    - script: |
+        go version
+        make
+      workingDirectory: '$(modulePath)'
+      displayName: 'Get dependencies, then build'
 
-      - script: |
-          git clone --depth 1 https://github.com/projectriff/cnab-riff.git
-        workingDirectory: '$(modulePath)/..'
-        displayName: 'clone cnab-riff'
+- job: integration
+  dependsOn: unit
+  pool:
+    vmImage: 'Ubuntu-16.04'
 
-      - script: |
-          ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
-        workingDirectory: '$(modulePath)'
-        displayName: 'run install'
-        env:
-          CNAB_ACTION: install
-          LOG_LEVEL: debug
-          TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
+  steps:
+    - template: ci/start-minikube-steps.yml
+    - template: ci/install-kubectl-steps.yml
+    - template: ci/setup-local-registry-steps.yml
+
+    - script: |
+        git clone --depth 1 https://github.com/projectriff/cnab-riff.git
+      workingDirectory: '$(modulePath)/..'
+      displayName: 'clone cnab-riff'
+
+    - script: |
+        ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
+      workingDirectory: '$(modulePath)'
+      displayName: 'run install'
+      env:
+        CNAB_ACTION: install
+        LOG_LEVEL: debug
+        TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
 
