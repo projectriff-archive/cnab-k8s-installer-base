@@ -19,13 +19,13 @@ jobs:
         imageName: 'macos-10.13'
       windows:
         imageName: 'windows-2019'
-    pool:
-      vmImage: $(imageName)
-    variables:
-      GOBIN:  '$(GOPATH)/bin' # Go binaries path
-      GOROOT: '/usr/local/go1.11' # Go installation path
-      GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
-      modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+  pool:
+    vmImage: $(imageName)
+  variables:
+    GOBIN:  '$(GOPATH)/bin' # Go binaries path
+    GOROOT: '/usr/local/go1.11' # Go installation path
+    GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
+    modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
 
   steps:
     - template: ci/install-go-steps.yml@riff
