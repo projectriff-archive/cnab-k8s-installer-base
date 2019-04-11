@@ -61,7 +61,7 @@ jobs:
         LOG_LEVEL: debug
         TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
 
-- job: publish-image
+- job: publish_image
   dependsOn: integration
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
