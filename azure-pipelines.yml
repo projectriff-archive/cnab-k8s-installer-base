@@ -38,6 +38,7 @@ jobs:
     vmImage: 'Ubuntu-16.04'
 
   steps:
+    - template: ci/go-build-step.yml
     - template: ci/start-minikube-steps.yml
     - template: ci/install-kubectl-steps.yml
     - template: ci/setup-local-registry-steps.yml
