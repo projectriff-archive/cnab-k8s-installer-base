@@ -30,12 +30,7 @@ jobs:
     vmImage: $(imageName)
 
   steps:
-    - template: ci/install-go-steps.yml@riff
-    - script: |
-        go version
-        make
-      workingDirectory: '$(modulePath)'
-      displayName: 'Get dependencies, then build'
+    - template: ci/go-build-step.yml
 
 - job: integration
   dependsOn: unit
