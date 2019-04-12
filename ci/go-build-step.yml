@@ -1,5 +1,5 @@
 steps:
   - template: ci/install-go-steps.yml@riff
-  - script: make
+  - script: make build
     workingDirectory: '$(modulePath)'
     displayName: 'Get dependencies, then build'

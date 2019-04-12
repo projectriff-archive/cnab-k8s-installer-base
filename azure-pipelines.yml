@@ -31,6 +31,7 @@ jobs:
 
   steps:
     - template: ci/go-build-step.yml
+    - script: make test
 
 - job: integration
   dependsOn: unit
