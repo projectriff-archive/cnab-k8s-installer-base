@@ -1,6 +1,5 @@
 steps:
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  displayName: 'publish docker image'
+- ${{ if eq(variables['Build.SourceBranch'], 'refs/heads/master') }}:
   - template: ci/dockerhub-login-step.yml
   - template: ci/build-image-step.yml
   - template: ci/push-image-step.yml
