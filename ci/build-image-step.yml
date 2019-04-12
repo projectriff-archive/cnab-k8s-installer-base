@@ -1,7 +1,6 @@
 steps:
   - task: Docker@1
     displayName: Build image
-    workingDirectory: '$(modulePath)'
     inputs:
       command: build
       dockerFile: cnab/Dockerfile
