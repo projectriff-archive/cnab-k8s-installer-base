@@ -18,6 +18,7 @@ steps:
   - script: make
     workingDirectory: '$(modulePath)'
 
+  - template: ci/fetch-fats-step.yml
   - template: ci/start-minikube-steps.yml
   - template: ci/install-kubectl-steps.yml
 #  - template: ci/setup-local-registry-steps.yml
