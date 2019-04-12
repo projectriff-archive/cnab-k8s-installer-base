@@ -18,6 +18,7 @@ steps:
   - template: ci/go-build-step.yml
   - script: make
     workingDirectory: '$(modulePath)'
+    displayName: 'build and unit test'
 
   - template: ci/fetch-fats-step.yml
   - template: ci/start-minikube-steps.yml
