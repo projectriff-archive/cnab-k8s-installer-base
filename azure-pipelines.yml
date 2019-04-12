@@ -32,6 +32,7 @@ jobs:
   steps:
     - template: ci/go-build-step.yml
     - script: make test
+      workingDirectory: '$(modulePath)'
 
 - job: integration
   dependsOn: unit
@@ -63,6 +64,8 @@ jobs:
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
   steps:
+    - template: ci/go-build-step.yml
     - template: ci/dockerhub-login-step.yml
     - template: ci/build-image-step.yml
     - template: ci/push-image-step.yml
+  displayName: 'publish docker image'
