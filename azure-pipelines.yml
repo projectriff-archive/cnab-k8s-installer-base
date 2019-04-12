@@ -8,6 +8,7 @@ variables:
   GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+  fatsDir: '$(system.defaultWorkingDirectory)/fats'
 
 pool:
   vmImage: 'ubuntu-16.04'
@@ -19,7 +20,7 @@ steps:
 
   - template: ci/start-minikube-steps.yml
   - template: ci/install-kubectl-steps.yml
-  - template: ci/setup-local-registry-steps.yml
+#  - template: ci/setup-local-registry-steps.yml
 
   - script: |
       git clone --depth 1 https://github.com/projectriff/cnab-riff.git
@@ -33,6 +34,6 @@ steps:
     env:
       CNAB_ACTION: install
       LOG_LEVEL: debug
-      TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
+      TARGET_REGISTRY: registry.kube-system.svc.cluster.local/testuser
 
   - template: ci/publish-docker-image-steps.yml
