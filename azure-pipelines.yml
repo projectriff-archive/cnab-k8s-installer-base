@@ -9,6 +9,7 @@ variables:
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
   fatsDir: '$(system.defaultWorkingDirectory)/fats'
+  fatsRefspec: 2234005739491f39fabaa75098b19c6d521af324 # projectriff/fats master as of 2019-04-09
 
 pool:
   vmImage: 'ubuntu-16.04'

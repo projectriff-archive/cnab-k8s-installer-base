@@ -1,7 +1,6 @@
 steps:
   - script: |
-      ./ci/fats-fetch.sh $(fatsDir) $(fats_refspec) projectriff/fats
+      ./ci/fats-fetch.sh $(fatsDir) $(fatsRefspec) projectriff/fats
       source $(fatsDir)/.util.sh
     workingDirectory: '$(modulePath)'
-    env:
-      fats_refspec: 2234005739491f39fabaa75098b19c6d521af324
+    displayName: 'fetch fats'
