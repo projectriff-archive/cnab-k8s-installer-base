@@ -3,69 +3,38 @@
 # Add steps that test, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/go
 
-resources:
-  repositories:
-    - repository: riff
-      type: github
-      name: projectriff/riff
-      endpoint: projectriff
-
 variables:
   GOBIN:  '$(GOPATH)/bin' # Go binaries path
   GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
 
-jobs:
-- job: unit
-  strategy:
-    matrix:
-      linux:
-        imageName: 'ubuntu-16.04'
-      mac:
-        imageName: 'macos-10.13'
-#      windows:
-#        imageName: 'windows-2019'
-  pool:
-    vmImage: $(imageName)
+pool:
+  vmImage: 'ubuntu-16.04'
 
-  steps:
-    - template: ci/go-build-step.yml
-    - script: make test
-      workingDirectory: '$(modulePath)'
+steps:
+  - template: ci/go-build-step.yml
+  - script: make
+    workingDirectory: '$(modulePath)'
 
-- job: integration
-  dependsOn: unit
-  pool:
-    vmImage: 'Ubuntu-16.04'
+  - template: ci/start-minikube-steps.yml
+  - template: ci/install-kubectl-steps.yml
+  - template: ci/setup-local-registry-steps.yml
 
-  steps:
-    - template: ci/go-build-step.yml
-    - template: ci/start-minikube-steps.yml
-    - template: ci/install-kubectl-steps.yml
-    - template: ci/setup-local-registry-steps.yml
+  - script: |
+      git clone --depth 1 https://github.com/projectriff/cnab-riff.git
+    workingDirectory: '$(modulePath)/..'
+    displayName: 'clone cnab-riff'
 
-    - script: |
-        git clone --depth 1 https://github.com/projectriff/cnab-riff.git
-      workingDirectory: '$(modulePath)/..'
-      displayName: 'clone cnab-riff'
+  - script: |
+      ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
+    workingDirectory: '$(modulePath)'
+    displayName: 'run install'
+    env:
+      CNAB_ACTION: install
+      LOG_LEVEL: debug
+      TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
 
-    - script: |
-        ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
-      workingDirectory: '$(modulePath)'
-      displayName: 'run install'
-      env:
-        CNAB_ACTION: install
-        LOG_LEVEL: debug
-        TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
-
-- job: publish_image
-  dependsOn: integration
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-
-  steps:
-    - template: ci/go-build-step.yml
-    - template: ci/dockerhub-login-step.yml
-    - template: ci/build-image-step.yml
-    - template: ci/push-image-step.yml
-  displayName: 'publish docker image'
+  - template: ci/publish-docker-image-steps.yml
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    displayName: 'publish docker image'

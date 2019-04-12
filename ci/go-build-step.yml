@@ -1,5 +1,11 @@
 steps:
-  - template: ci/install-go-steps.yml@riff
-  - script: make build
-    workingDirectory: '$(modulePath)'
-    displayName: 'Get dependencies, then build'
+  - script: |
+      mkdir -p '$(GOBIN)'
+      mkdir -p '$(GOPATH)/pkg'
+      mkdir -p '$(modulePath)'
+      shopt -s extglob
+      shopt -s dotglob
+      mv !(gopath) '$(modulePath)'
+      echo '##vso[task.prependpath]$(GOBIN)'
+      echo '##vso[task.prependpath]$(GOROOT)/bin'
+    displayName: 'Set up the Go workspace'
