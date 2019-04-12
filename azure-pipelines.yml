@@ -36,5 +36,3 @@ steps:
       TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
 
   - template: ci/publish-docker-image-steps.yml
-    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-    displayName: 'publish docker image'
