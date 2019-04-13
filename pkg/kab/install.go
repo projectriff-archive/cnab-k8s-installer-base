@@ -112,25 +112,27 @@ func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error
 	var err error
 
 	log.Infof("installing %s...", res.Name)
-	if res.Content != "" {
-		installContent = []byte(res.Content)
-	} else {
-		if res.Path == "" {
-			return errors.New(fmt.Sprintf("resource %s does not specify Content OR Path to yaml for install", res.Name))
+	err = wait.ExponentialBackoff(backOffSettings(), func() (bool, error) {
+		if res.Content != "" {
+			installContent = []byte(res.Content)
+		} else {
+			if res.Path == "" {
+				return false, errors.New(fmt.Sprintf("resource %s does not specify Content OR Path to yaml for install", res.Name))
+			}
+			installContent, err = fileutils.Read(res.Path, basedir)
+			if err != nil {
+				log.Debugln("error reading", err)
+				return false, err
+			}
+
 		}
-		installContent, err = fileutils.Read(res.Path, basedir)
+
+		kubectl := kubectl.RealKubeCtl()
+		resLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &installContent)
 		if err != nil {
-			return err
-		}
-
-	}
-
-	kubectl := kubectl.RealKubeCtl()
-	istioLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &installContent)
-	if err != nil {
-		log.Infof("%s\n", istioLog)
-		if strings.Contains(istioLog, "forbidden") {
-			log.Warningf(`It looks like you don't have cluster-admin permissions.
+			log.Infof("%s\n", resLog)
+			if strings.Contains(resLog, "forbidden") {
+				log.Warningf(`It looks like you don't have cluster-admin permissions.
 
 To fix this you need to:
  1. Delete the current failed installation using:
@@ -142,10 +144,17 @@ To fix this you need to:
  3. Re-install ` + env.Cli.Name + `
 
 `)
+				return false, err
+			}
+			log.Debugf("retrying installing resource: %s due to error %+v\n", res.Name, err)
+			return false, nil
 		}
-		return err
+		return true, nil
+	})
+	if err == wait.ErrWaitTimeout {
+		return errors.New(fmt.Sprintf("could not create resource: %s", res.Name))
 	}
-	return nil
+	return err
 }
 
 func (c *Client) checkResource(resource v1alpha1.KabResource) error {
