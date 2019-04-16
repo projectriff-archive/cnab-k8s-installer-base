@@ -14,7 +14,7 @@ variables:
 pool:
   vmImage: 'ubuntu-16.04'
 
-name: $(TeamProject)_$(Date:yyyyMMdd)$(Rev:.r)
+name: $(Date:yyyyMMdd)$(Rev:.r)
 steps:
   - template: ci/go-build-step.yml
   - script: make
