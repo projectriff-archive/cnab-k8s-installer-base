@@ -21,9 +21,9 @@ steps:
     workingDirectory: '$(modulePath)'
     displayName: 'build and unit test'
 
-#  - template: ci/fetch-fats-step.yml
-#  - template: ci/start-minikube-steps.yml
-#  - template: ci/install-kubectl-steps.yml
+  - template: ci/fetch-fats-step.yml
+  - template: ci/start-minikube-steps.yml
+  - template: ci/install-kubectl-steps.yml
 
   - script: |
       git clone --depth 1 https://github.com/projectriff/cnab-riff.git
