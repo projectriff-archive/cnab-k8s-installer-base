@@ -30,13 +30,13 @@ steps:
     workingDirectory: '$(modulePath)/..'
     displayName: 'clone cnab-riff'
 
-#  - script: |
-#      ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
-#    workingDirectory: '$(modulePath)'
-#    displayName: 'run install'
-#    env:
-#      CNAB_ACTION: install
-#      LOG_LEVEL: debug
-#      TARGET_REGISTRY: registry.kube-system.svc.cluster.local
+  - script: |
+      ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
+    workingDirectory: '$(modulePath)'
+    displayName: 'run install'
+    env:
+      CNAB_ACTION: install
+      LOG_LEVEL: debug
+      TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
   - template: ci/publish-docker-image-steps.yml
