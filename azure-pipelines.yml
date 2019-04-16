@@ -36,6 +36,6 @@ steps:
     env:
       CNAB_ACTION: install
       LOG_LEVEL: debug
-      TARGET_REGISTRY: registry.kube-system.svc.cluster.local/testuser
+      TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
   - template: ci/publish-docker-image-steps.yml
