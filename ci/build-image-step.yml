@@ -3,7 +3,7 @@ steps:
     displayName: Build image
     inputs:
       command: build
-      dockerFile: cnab/Dockerfile
+      dockerFile: $(Build.SourcesDirectory)/cnab/Dockerfile
       imageName: $(Build.Repository.Name)
       containerregistrytype: Container Registry
       dockerRegistryEndpoint: dockerhub
