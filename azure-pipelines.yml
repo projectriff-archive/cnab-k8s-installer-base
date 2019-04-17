@@ -30,7 +30,7 @@ steps:
   - template: ci/fetch-cnab-riff-step.yml
 
   - script: |
-      ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
+      ./cnab/app/run $(cnabRiffDir)/cnab/app/kab/template.yaml
     workingDirectory: '$(modulePath)'
     displayName: 'run install'
     env:
