@@ -81,6 +81,8 @@ github.com/pivotal/go-ape v0.0.0-20190321171947-873a3deee122 h1:g7NK8CHkRkI9e187
 github.com/pivotal/go-ape v0.0.0-20190321171947-873a3deee122/go.mod h1:0RxD7GbTM7JYW324FQnCFo2UFTqnsihgz03/pLjasP8=
 github.com/pivotal/image-relocation v0.0.0-20190402164553-3d3c23587907 h1:f3qhhd7CJYH8wKXzxw/5UlPcPgFEiCUOGbZuxwdVI7A=
 github.com/pivotal/image-relocation v0.0.0-20190402164553-3d3c23587907/go.mod h1:GepjmthjPQ4ym6hVJhbun1CyVKAiOjHh6jvvEI6wjqg=
+github.com/pivotal/image-relocation v0.0.0-20190416232339-532dd0b42e7a h1:MLfVBjvBBL4Un3wewXEvca9oNdkIzZrm6obUej4D0LA=
+github.com/pivotal/image-relocation v0.0.0-20190416232339-532dd0b42e7a/go.mod h1:GepjmthjPQ4ym6hVJhbun1CyVKAiOjHh6jvvEI6wjqg=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=
 github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
