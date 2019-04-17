@@ -1,0 +1,8 @@
+steps:
+  - task: Docker@1
+    displayName: Push image
+    inputs:
+      command: push
+      imageName: $(Build.Repository.Name):$(Build.BuildNumber)
+      containerregistrytype: Container Registry
+      dockerRegistryEndpoint: dockerhub

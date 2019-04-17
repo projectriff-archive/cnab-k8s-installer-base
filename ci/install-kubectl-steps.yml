@@ -1,0 +1,3 @@
+steps:
+- script: $(fatsDir)/install.sh kubectl
+  displayName: 'install kubectl'

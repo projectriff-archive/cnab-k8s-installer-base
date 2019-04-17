@@ -3,111 +3,39 @@
 # Add steps that test, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/go
 
-trigger:
-- master
-
-pool:
-  vmImage: 'Ubuntu-16.04'
-
 variables:
   GOBIN:  '$(GOPATH)/bin' # Go binaries path
   GOROOT: '/usr/local/go1.11' # Go installation path
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
+  fatsDir: '$(system.defaultWorkingDirectory)/fats'
+  fatsRefspec: 2234005739491f39fabaa75098b19c6d521af324 # projectriff/fats master as of 2019-04-09
+  cnabRiffDir: '$(system.defaultWorkingDirectory)/cnab-riff'
+  cnabRiffRefspec: 4a991ce947774a3ac3d000df3987de327a27c875 # projectriff/cnab-riff master as of 2019-04-17
 
+pool:
+  vmImage: 'ubuntu-16.04'
+
+name: $(Date:yyyyMMdd)$(Rev:.r)
 steps:
-- script: |
-    mkdir -p '$(GOBIN)'
-    mkdir -p '$(GOPATH)/pkg'
-    mkdir -p '$(modulePath)'
-    shopt -s extglob
-    shopt -s dotglob
-    mv !(gopath) '$(modulePath)'
-    echo '##vso[task.prependpath]$(GOBIN)'
-    echo '##vso[task.prependpath]$(GOROOT)/bin'
-  displayName: 'Set up the Go workspace'
+  - template: ci/go-build-step.yml
+  - script: make
+    workingDirectory: '$(modulePath)'
+    displayName: 'build and unit test'
 
-- script: |
-    go version
-    make
-  workingDirectory: '$(modulePath)'
-  displayName: 'Get dependencies, then build'
+  - template: ci/fetch-fats-step.yml
+  - template: ci/start-minikube-steps.yml
+  - template: ci/install-kubectl-steps.yml
 
-- script: sudo apt-get update && sudo apt-get remove moby-engine moby-cli && sudo apt-get install docker.io=18.06.1-0ubuntu1.2~16.04.1
-  displayName: 'Downgrade Docker'
+  - template: ci/fetch-cnab-riff-step.yml
 
-- script: |
-    curl -Lo minikube https://storage.googleapis.com/minikube/releases/v1.0.0/minikube-linux-amd64 && chmod +x minikube && sudo cp minikube /usr/local/bin/ && rm minikube
-    sudo minikube start --memory=8192 --cpus=4 \
-    --kubernetes-version=v1.13.2 \
-    --bootstrapper=kubeadm \
-    --vm-driver=none \
-    --extra-config=apiserver.enable-admission-plugins="LimitRanger,NamespaceExists,NamespaceLifecycle,ResourceQuota,ServiceAccount,DefaultStorageClass,MutatingAdmissionWebhook" \
-    --insecure-registry registry.pfs.svc.cluster.local:5000
-    sudo minikube update-context
-  displayName: 'install and start minikube'
-  env:
-    CHANGE_MINIKUBE_NONE_USER: true
+  - script: |
+      ./cnab/app/run $(cnabRiffDir)/cnab/app/kab/template.yaml
+    workingDirectory: '$(modulePath)'
+    displayName: 'run install'
+    env:
+      CNAB_ACTION: install
+      LOG_LEVEL: debug
+      TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
-- script: |
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-    chmod +x ./kubectl
-    sudo mv ./kubectl /usr/local/bin/kubectl
-  displayName: 'install kubectl'
-
-- script: |
-    docker run -d -p 5000:5000 registry:2
-    sudo sed -i 's/127.0.0.1\slocalhost/127.0.0.1     localhost registry.pfs.svc.cluster.local/g' /etc/hosts
-  displayName: 'setup registry'
-
-- script: |
-    sudo chown -R $USER $HOME/.kube
-    sudo chgrp -R $USER $HOME/.kube
-    sudo chown -R $USER $HOME/.minikube
-    sudo chgrp -R $USER $HOME/.minikube
-  displayName: 'change owner'
-
-- script: |
-    sudo ifconfig lo:0 $DEV_IP
-    kubectl create namespace pfs
-    cat <<EOF | kubectl create -f -
-    ---
-    kind: Service
-    apiVersion: v1
-    metadata:
-      name: registry
-      namespace: pfs
-    spec:
-      ports:
-      - protocol: TCP
-        port: 5000
-        targetPort: 5000
-    ---
-    kind: Endpoints
-    apiVersion: v1
-    metadata:
-      name: registry
-      namespace: pfs
-    subsets:
-      - addresses:
-          - ip: $DEV_IP
-        ports:
-          - port: 5000
-    EOF
-  displayName: 'create registry service'
-  env:
-    DEV_IP: 172.16.1.1
-
-- script: |
-    git clone https://github.com/projectriff/cnab-riff.git
-  workingDirectory: '$(modulePath)/..'
-  displayName: 'clone cnab-riff'
-
-- script: |
-    ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml
-  workingDirectory: '$(modulePath)'
-  displayName: 'run install'
-  env:
-    CNAB_ACTION: install
-    LOG_LEVEL: debug
-    TARGET_REGISTRY: registry.pfs.svc.cluster.local:5000/testuser
+  - template: ci/publish-docker-image-steps.yml
