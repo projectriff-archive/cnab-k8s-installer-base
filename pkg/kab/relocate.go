@@ -21,6 +21,8 @@ import (
 	"cnab-k8s-installer-base/pkg/scan"
 	"errors"
 	"github.com/pivotal/go-ape"
+	"github.com/pivotal/image-relocation/pkg/image"
+	"github.com/pivotal/image-relocation/pkg/pathmapping"
 	log "github.com/sirupsen/logrus"
 	"strings"
 )
@@ -128,28 +130,26 @@ func embedResourceContent(manifest *v1alpha1.Manifest) error {
 }
 
 func getRelocatedImages(targetRegistry string, images []string) ([]string, error) {
+	mapping := getMapping(targetRegistry)
 	relocatedImages := []string{}
-	if !strings.HasSuffix(targetRegistry, "/") {
-		targetRegistry = targetRegistry + "/"
-	}
 	for _, img := range images {
-		_, repoPath, err := splitHostAndRepo(img)
+		relocatedImg, err := mapping(img)
 		if err != nil {
-			return nil, err
+			return []string{}, err
 		}
-		repoPath = strings.Replace(repoPath, "/", "-", -1)
-		relocatedImg := targetRegistry + repoPath
 		relocatedImages = append(relocatedImages, relocatedImg)
 	}
 	return relocatedImages, nil
 }
 
-func splitHostAndRepo(image string) (host string, repoPath string, err error) {
-	s := strings.SplitN(image, "/", 2)
-	if len(s) == 1 {
-		return "", s[0], nil
+func getMapping(repoPrefix string) func(string) (string, error) {
+	return func(originalImage string) (string, error) {
+		n, err := image.NewName(originalImage)
+		if err != nil {
+			return "", err
+		}
+		return pathmapping.FlattenRepoPathPreserveTagDigest(repoPrefix, n).String(), nil
 	}
-	return s[0], s[1], nil
 }
 
 func getAllImages(manifest *v1alpha1.Manifest) ([]string, error) {
