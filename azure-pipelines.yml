@@ -10,6 +10,8 @@ variables:
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
   fatsDir: '$(system.defaultWorkingDirectory)/fats'
   fatsRefspec: 2234005739491f39fabaa75098b19c6d521af324 # projectriff/fats master as of 2019-04-09
+  cnabRiffDir: '$(system.defaultWorkingDirectory)/cnab-riff'
+  cnabRiffRefspec: 4a991ce947774a3ac3d000df3987de327a27c875 # projectriff/cnab-riff master as of 2019-04-17
 
 pool:
   vmImage: 'ubuntu-16.04'
@@ -25,10 +27,7 @@ steps:
   - template: ci/start-minikube-steps.yml
   - template: ci/install-kubectl-steps.yml
 
-  - script: |
-      git clone --depth 1 https://github.com/projectriff/cnab-riff.git
-    workingDirectory: '$(modulePath)/..'
-    displayName: 'clone cnab-riff'
+  - template: ci/fetch-cnab-riff-step.yml
 
   - script: |
       ./cnab/app/run ../cnab-riff/cnab/app/kab/template.yaml

@@ -1,0 +1,5 @@
+steps:
+  - script: |
+      ./ci/git-repo-fetch.sh $(cnabRiffDir) $(cnabRiffRefspec) projectriff/cnab-riff
+    workingDirectory: '$(modulePath)'
+    displayName: 'fetch cnab-riff'

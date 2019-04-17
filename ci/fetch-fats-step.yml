@@ -1,6 +1,6 @@
 steps:
   - script: |
-      ./ci/fats-fetch.sh $(fatsDir) $(fatsRefspec) projectriff/fats
+      ./ci/git-repo-fetch.sh $(fatsDir) $(fatsRefspec) projectriff/fats
       source $(fatsDir)/.util.sh
     workingDirectory: '$(modulePath)'
     displayName: 'fetch fats'
