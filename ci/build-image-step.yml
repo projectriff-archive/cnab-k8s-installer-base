@@ -5,5 +5,6 @@ steps:
       command: build
       dockerFile: $(modulePath)/cnab/Dockerfile
       imageName: $(Build.Repository.Name):$(Build.BuildNumber)
+      includeLatestTag: true
       containerregistrytype: Container Registry
       dockerRegistryEndpoint: dockerhub
