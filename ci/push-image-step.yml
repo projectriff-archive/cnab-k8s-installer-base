@@ -6,3 +6,18 @@ steps:
       imageName: $(Build.Repository.Name):$(Build.BuildNumber)
       containerregistrytype: Container Registry
       dockerRegistryEndpoint: dockerhub
+
+  - task: Docker@1
+    displayName: tag edge
+    inputs:
+      command: tag
+      imageName: $(Build.Repository.Name):$(Build.BuildNumber)
+      arguments: $(Build.Repository.Name):edge
+
+  - task: Docker@1
+    displayName: Push edge tag
+    inputs:
+      command: push
+      imageName: $(Build.Repository.Name):edge
+      containerregistrytype: Container Registry
+      dockerRegistryEndpoint: dockerhub
