@@ -130,7 +130,6 @@ func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error
 		kubectl := kubectl.RealKubeCtl()
 		resLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &installContent)
 		if err != nil {
-			log.Infof("%s\n", resLog)
 			if strings.Contains(resLog, "forbidden") {
 				log.Warningf(`It looks like you don't have cluster-admin permissions.
 
