@@ -17,27 +17,52 @@
 package kab
 
 import (
+	"bytes"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"net/url"
 )
 
-func (c *Client) ApplyLabels(manifest *v1alpha1.Manifest) error {
-	var resource *v1alpha1.KabResource
-	var content []byte
+func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
+
+	err := manifest.PatchResourceContent(c.applyLabels)
+	if err != nil {
+		return err
+	}
+
+	err = manifest.PatchResourceContent(c.patchForMinikube)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) applyLabels(res *v1alpha1.KabResource) (content string, e error) {
 	var path *url.URL
 	var err error
 
-	for i := 0; i < len(manifest.Spec.Resources); i++ {
-		resource = &manifest.Spec.Resources[i]
-		log.Tracef("Applying labels resource: %s Labels: %+v...", resource.Name, resource.Labels)
-		path, err = url.Parse(resource.Path)
-		if err != nil {
-			return err
-		}
-		content, err = c.kustomizer.ApplyLabels(path, resource.Labels)
-		resource.Content = string(content)
-		log.Traceln("done")
+	log.Tracef("Applying labels resource: %s Labels: %+v...", res.Name, res.Labels)
+
+	path, err = url.Parse(res.Path)
+	if err != nil {
+		return "", err
 	}
-	return nil
+	byteContent, err := c.kustomizer.ApplyLabels(path, res.Labels)
+	log.Traceln("done")
+
+	return string(byteContent), nil
+}
+
+func (c *Client) patchForMinikube(res *v1alpha1.KabResource) (content string, e error) {
+	_, err := c.coreClient.CoreV1().Nodes().Get("minikube", v1.GetOptions{})
+	if err != nil && apierrors.IsNotFound(err) {
+		return res.Content, nil
+	}
+	byteContent := []byte(content)
+	byteContent = bytes.Replace(byteContent, []byte("type: LoadBalancer"), []byte("type: NodePort"), -1)
+	return string(byteContent), nil
 }

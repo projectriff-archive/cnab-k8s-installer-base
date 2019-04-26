@@ -75,7 +75,7 @@ func install(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = knbClient.ApplyLabels(manifest)
+	err = knbClient.PatchManifest(manifest)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -18,6 +18,7 @@ package v1alpha1_test
 
 import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"path/filepath"
@@ -125,6 +126,73 @@ var _ = Describe("Manifest", func() {
 				Expect(res.Labels).Should(HaveKeyWithValue("key1", "value1"))
 				Expect(res.Labels).Should(HaveKeyWithValue("key2", "value2"))
 
+			})
+		})
+	})
+
+	Describe("PatchResources", func() {
+
+		var (
+			manifestPath string
+			manifest     *v1alpha1.Manifest
+			err          error
+		)
+		JustBeforeEach(func() {
+			manifestPath = "./fixtures/valid.yaml"
+			manifest, err = v1alpha1.NewManifest(manifestPath)
+		})
+
+		Context("When the function returns modified content", func() {
+			It("content of resource is updated", func() {
+				err = manifest.PatchResourceContent(func(res *v1alpha1.KabResource) (string, error) {
+					if res.Name == "istio" {
+						return "my new content", nil
+					}
+					return res.Content, nil
+				})
+				Expect(err).ToNot(HaveOccurred())
+				var istioRes v1alpha1.KabResource
+				for _, res := range manifest.Spec.Resources {
+					if res.Name == "istio" {
+						istioRes = res
+					}
+				}
+				Expect(istioRes.Content).To(Equal("my new content"))
+			})
+		})
+
+		Context("When the function modifies attributes other than content", func() {
+			It("those modifications are preserved", func() {
+				lables := map[string]string{"k1":"v1", "k2":"v2"}
+				err = manifest.PatchResourceContent(func(res *v1alpha1.KabResource) (string, error) {
+					if res.Name == "istio" {
+						res.Labels = lables
+					}
+					return res.Content, nil
+				})
+				Expect(err).ToNot(HaveOccurred())
+				var istioRes v1alpha1.KabResource
+				for _, res := range manifest.Spec.Resources {
+					if res.Name == "istio" {
+						istioRes = res
+					}
+				}
+				Expect(istioRes.Labels).To(HaveLen(2))
+				Expect(istioRes.Labels).To(HaveKeyWithValue("k1", "v1"))
+				Expect(istioRes.Labels).To(HaveKeyWithValue("k2", "v2"))
+			})
+		})
+
+		Context("When the function throws an error", func() {
+			It("an error is returned", func() {
+				err = manifest.PatchResourceContent(func(res *v1alpha1.KabResource) (string, error) {
+					if res.Name == "istio" {
+						return "", errors.New("my error")
+					}
+					return res.Content, nil
+				})
+				Expect(err).To(HaveOccurred())
+				Expect(err).To(MatchError("my error"))
 			})
 		})
 	})
