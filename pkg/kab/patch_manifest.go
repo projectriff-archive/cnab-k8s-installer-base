@@ -26,7 +26,10 @@ import (
 	"net/url"
 )
 
-const MINIKUBE_NODE_NAME = "minikube"
+const (
+	MINIKUBE_NODE_NAME = "minikube"
+	DOCKER_FOR_DESKTOP_NAME = "docker-for-desktop"
+)
 
 func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
 
@@ -35,7 +38,7 @@ func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
 		return err
 	}
 
-	err = manifest.PatchResourceContent(c.patchForMinikube)
+	err = manifest.PatchResourceContent(c.patchForLocalCluster)
 	if err != nil {
 		return err
 	}
@@ -59,15 +62,31 @@ func (c *Client) applyLabels(res *v1alpha1.KabResource) (content string, e error
 	return string(byteContent), nil
 }
 
-func (c *Client) patchForMinikube(res *v1alpha1.KabResource) (string, error) {
-	_, err := c.coreClient.CoreV1().Nodes().Get(MINIKUBE_NODE_NAME, v1.GetOptions{})
+func (c *Client) patchForLocalCluster(res *v1alpha1.KabResource) (string, error) {
+	var err error
+	minikube, err := c.nodeExists(MINIKUBE_NODE_NAME)
 	if err != nil {
-		if apierrors.IsNotFound(err) {
-			return res.Content, nil
-		}
 		return "", err
 	}
-	byteContent := []byte(res.Content)
-	byteContent = bytes.Replace(byteContent, []byte("type: LoadBalancer"), []byte("type: NodePort"), -1)
-	return string(byteContent), nil
+	dockerForDesktop, err := c.nodeExists(DOCKER_FOR_DESKTOP_NAME)
+	if err != nil {
+		return "", err
+	}
+	if minikube || dockerForDesktop {
+		byteContent := []byte(res.Content)
+		byteContent = bytes.Replace(byteContent, []byte("type: LoadBalancer"), []byte("type: NodePort"), -1)
+		return string(byteContent), nil
+	}
+	return res.Content, nil
+}
+
+func (c *Client) nodeExists(nodeName string) (bool, error) {
+	_, err := c.coreClient.CoreV1().Nodes().Get(nodeName, v1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }

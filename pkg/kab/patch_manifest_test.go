@@ -59,6 +59,10 @@ var _ = Describe("test patch for minikube", func() {
 			kubeClient.On("CoreV1").Return(mockCore)
 			mockCore.On("Nodes").Return(mockNodes)
 			mockNodes.On("Get", "minikube", mock.Anything).Return(nil, nil)
+
+			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
+
 			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 		})
 
@@ -80,7 +84,40 @@ var _ = Describe("test patch for minikube", func() {
 		})
 	})
 
-	Context("When the node is not minikube", func() {
+	Context("When the node is docker-for-desktop", func() {
+
+		JustBeforeEach(func() {
+			content = "sometext: type: LoadBalancer"
+
+			kubeClient.On("CoreV1").Return(mockCore)
+			mockCore.On("Nodes").Return(mockNodes)
+			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil, nil)
+
+			mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "minikube"))
+
+			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
+		})
+
+		It("the content is patched", func() {
+			manifest = &v1alpha1.Manifest{
+				Spec: v1alpha1.KabSpec{
+					Resources: []v1alpha1.KabResource{
+						{
+							Name:    "foo",
+							Content: content,
+						},
+					},
+				},
+			}
+			err = client.PatchManifest(manifest)
+			Expect(err).To(BeNil())
+			Expect(manifest.Spec.Resources[0].Content).ToNot(ContainSubstring("type: LoadBalancer"))
+			Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("type: NodePort"))
+		})
+	})
+
+	Context("When the node is neither minikube nor docker-for-desktop", func() {
 
 		JustBeforeEach(func() {
 			kubeClient.On("CoreV1").Return(mockCore)
@@ -88,6 +125,9 @@ var _ = Describe("test patch for minikube", func() {
 
 			mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
 				errors.NewNotFound(schema.GroupResource{}, "minikube"))
+
+			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
 
 			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 		})
