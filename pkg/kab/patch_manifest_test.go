@@ -26,6 +26,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"os"
 )
 
 var _ = Describe("test patch for minikube", func() {
@@ -114,6 +115,45 @@ var _ = Describe("test patch for minikube", func() {
 			Expect(err).To(BeNil())
 			Expect(manifest.Spec.Resources[0].Content).ToNot(ContainSubstring("type: LoadBalancer"))
 			Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("type: NodePort"))
+		})
+	})
+
+	Context("When the node-port env variable is set", func() {
+
+		JustBeforeEach(func() {
+			os.Setenv(kab.NODE_PORT_ENV_NAME, "true")
+			content = "sometext: type: LoadBalancer"
+
+			kubeClient.On("CoreV1").Return(mockCore)
+			mockCore.On("Nodes").Return(mockNodes)
+			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
+
+			mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "minikube"))
+
+			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
+		})
+
+		It("the content is patched", func() {
+			manifest = &v1alpha1.Manifest{
+				Spec: v1alpha1.KabSpec{
+					Resources: []v1alpha1.KabResource{
+						{
+							Name:    "foo",
+							Content: content,
+						},
+					},
+				},
+			}
+			err = client.PatchManifest(manifest)
+			Expect(err).To(BeNil())
+			Expect(manifest.Spec.Resources[0].Content).ToNot(ContainSubstring("type: LoadBalancer"))
+			Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("type: NodePort"))
+		})
+
+		JustAfterEach(func() {
+			os.Unsetenv(kab.NODE_PORT_ENV_NAME)
 		})
 	})
 

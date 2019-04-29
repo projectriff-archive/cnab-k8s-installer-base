@@ -31,6 +31,13 @@
             "destination": {
                 "env": "TARGET_REGISTRY"
             }
+        },
+        "node_port": {
+            "type": "boolean",
+            "destination": {
+                "env": "NODE_PORT"
+            },
+            "default": "false"
         }
     },
     "credentials": null
