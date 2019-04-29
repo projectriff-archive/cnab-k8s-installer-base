@@ -15,9 +15,10 @@
  */
 
 package kab_test
+
 import (
 	"cnab-k8s-installer-base/pkg/kab"
-	"cnab-k8s-installer-base/pkg/kab/vendor_mocks/mockextensions"
+	"cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pkg/errors"
@@ -28,16 +29,16 @@ var _ = Describe("CRD", func() {
 	Describe("CRD definition", func() {
 
 		var (
-			mockExtensionClientSet *mockextensions.Interface
-			mockExtensionInterface *mockextensions.ApiextensionsV1beta1Interface
-			mockCrdi            *mockextensions.CustomResourceDefinitionInterface
+			mockExtensionClientSet *vendor_mocks_ext.Interface
+			mockExtensionInterface *vendor_mocks_ext.ApiextensionsV1beta1Interface
+			mockCrdi            *vendor_mocks_ext.CustomResourceDefinitionInterface
 			err                 error
 		)
 
 		JustBeforeEach(func() {
-			mockExtensionClientSet = new(mockextensions.Interface)
-			mockExtensionInterface = new(mockextensions.ApiextensionsV1beta1Interface)
-			mockCrdi = new(mockextensions.CustomResourceDefinitionInterface)
+			mockExtensionClientSet = new(vendor_mocks_ext.Interface)
+			mockExtensionInterface = new(vendor_mocks_ext.ApiextensionsV1beta1Interface)
+			mockCrdi = new(vendor_mocks_ext.CustomResourceDefinitionInterface)
 
 			mockExtensionClientSet.On("ApiextensionsV1beta1").Return(mockExtensionInterface)
 			mockExtensionInterface.On("CustomResourceDefinitions").Return(mockCrdi)

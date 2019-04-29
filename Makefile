@@ -20,13 +20,20 @@ check-jq:
 	@which jq > /dev/null || (echo jq not found: please install jq, eg \"brew install jq\" && false)
 
 gen-mocks: check-mockery check-jq
-	GO111MODULE=on mockery -output pkg/core/kustomize/mocks                -outpkg mockkustomize       -dir pkg/kustomize                                                                                               -name Kustomizer
-	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/mockextensions     -outpkg mockextensions      -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset                             -name Interface
-	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/mockextensions     -outpkg mockextensions      -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset/typed/apiextensions/v1beta1 -name ApiextensionsV1beta1Interface
-	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/mockextensions     -outpkg mockextensions      -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset/typed/apiextensions/v1beta1 -name CustomResourceDefinitionInterface
+	GO111MODULE=on mockery -output pkg/kustomize/mocks    -outpkg mockkustomize   -dir pkg/kustomize                                                                                               -name Kustomizer
+	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/ext   -outpkg vendor_mocks_ext    -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset                             -name Interface
+	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/ext   -outpkg vendor_mocks_ext    -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset/typed/apiextensions/v1beta1 -name ApiextensionsV1beta1Interface
+	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/ext   -outpkg vendor_mocks_ext    -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset/typed/apiextensions/v1beta1 -name CustomResourceDefinitionInterface
+	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name CoreV1Interface
+	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name NodeInterface
+	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes                                                               -name Interface
 
 install: build
 	cp $(OUTPUT) $(GOBIN)
 
 kab: $(GO_SOURCES) VERSION
 	GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(OUTPUT) -v
+
+define source_of
+	$(shell GO111MODULE=on go mod download -json | jq -r 'select(.Path == "$(1)").Dir' | tr '\\' '/'  2> /dev/null)
+endef

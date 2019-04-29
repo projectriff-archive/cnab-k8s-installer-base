@@ -26,6 +26,8 @@ import (
 	"net/url"
 )
 
+const MINIKUBE_NODE_NAME = "minikube"
+
 func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
 
 	err := manifest.PatchResourceContent(c.applyLabels)
@@ -57,12 +59,15 @@ func (c *Client) applyLabels(res *v1alpha1.KabResource) (content string, e error
 	return string(byteContent), nil
 }
 
-func (c *Client) patchForMinikube(res *v1alpha1.KabResource) (content string, e error) {
-	_, err := c.coreClient.CoreV1().Nodes().Get("minikube", v1.GetOptions{})
-	if err != nil && apierrors.IsNotFound(err) {
-		return res.Content, nil
+func (c *Client) patchForMinikube(res *v1alpha1.KabResource) (string, error) {
+	_, err := c.coreClient.CoreV1().Nodes().Get(MINIKUBE_NODE_NAME, v1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return res.Content, nil
+		}
+		return "", err
 	}
-	byteContent := []byte(content)
+	byteContent := []byte(res.Content)
 	byteContent = bytes.Replace(byteContent, []byte("type: LoadBalancer"), []byte("type: NodePort"), -1)
 	return string(byteContent), nil
 }
