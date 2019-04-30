@@ -112,6 +112,24 @@ func (m *Manifest) VisitResources(f func(res KabResource) error) error {
 	return nil
 }
 
+// For each resource (res) in the manifest, replaces the Content (res.Content) with
+// the returned value from the parameter function
+func (m *Manifest) PatchResourceContent(f func(res *KabResource) (string, error)) error {
+	var resource *KabResource
+
+	for i := 0; i < len(m.Spec.Resources); i++ {
+		resource = &m.Spec.Resources[i]
+
+		newContent, err := f(resource)
+		if err != nil {
+			return err
+		}
+		resource.Content = newContent
+
+	}
+	return nil
+}
+
 func checkResourcePath(resource KabResource) error {
 	if filepath.IsAbs(resource.Path) {
 		return fmt.Errorf("resources must use a http or https URL or a relative path: absolute path not supported: %v", resource)

@@ -32,14 +32,14 @@ const (
 )
 
 type Client struct {
-	coreClient     *kubernetes.Clientset
-	extClient      *apiext.Clientset
-	kabClient      *versioned.Clientset
+	coreClient     kubernetes.Interface
+	extClient      apiext.Interface
+	kabClient      versioned.Interface
 	registryClient registry.Client
 	kustomizer     kustomize.Kustomizer
 }
 
-func NewKnbClient(core *kubernetes.Clientset, ext *apiext.Clientset, kab *versioned.Clientset, registryClient registry.Client,
+func NewKnbClient(core kubernetes.Interface, ext apiext.Interface, kab versioned.Interface, registryClient registry.Client,
 	kustomizer kustomize.Kustomizer) *Client {
 	return &Client{
 		coreClient:     core,

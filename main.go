@@ -75,7 +75,7 @@ func install(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = knbClient.ApplyLabels(manifest)
+	err = knbClient.PatchManifest(manifest)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -133,7 +133,7 @@ func getRestConfig() (*rest.Config, error) {
 	return config, nil
 }
 
-func getCoreClient(config *rest.Config) (*kubernetes.Clientset, error) {
+func getCoreClient(config *rest.Config) (kubernetes.Interface, error) {
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return nil, err
@@ -141,7 +141,7 @@ func getCoreClient(config *rest.Config) (*kubernetes.Clientset, error) {
 	return clientset, nil
 }
 
-func getExtensionClient(config *rest.Config) (*apiext.Clientset, error) {
+func getExtensionClient(config *rest.Config) (apiext.Interface, error) {
 	extClient, err := apiext.NewForConfig(config)
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func getExtensionClient(config *rest.Config) (*apiext.Clientset, error) {
 	return extClient, nil
 }
 
-func getKabClient(config *rest.Config) (*versioned.Clientset, error) {
+func getKabClient(config *rest.Config) (versioned.Interface, error) {
 	kabClient, err := versioned.NewForConfig(config)
 	if err != nil {
 		return nil, err
