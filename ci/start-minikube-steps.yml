@@ -7,4 +7,4 @@ steps:
   displayName: 'install and start minikube'
   env:
     CLUSTER: minikube
-    REGISTRY: minikube
+    REGISTRY: docker-daemon
