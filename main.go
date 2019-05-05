@@ -17,23 +17,27 @@
 package main
 
 import (
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
-	"cnab-k8s-installer-base/pkg/registry"
-	"cnab-k8s-installer-base/pkg/kab"
-	"cnab-k8s-installer-base/pkg/kustomize"
 	"flag"
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
-	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
+	"cnab-k8s-installer-base/pkg/kab"
+	"cnab-k8s-installer-base/pkg/kustomize"
+	"cnab-k8s-installer-base/pkg/registry"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
+	"k8s.io/client-go/kubernetes"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/azure"
+	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
