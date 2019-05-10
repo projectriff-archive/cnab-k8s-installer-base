@@ -30,11 +30,12 @@ steps:
   - template: ci/fetch-cnab-riff-step.yml
 
   - script: |
-      ./cnab/app/run $(cnabRiffDir)/cnab/app/kab/template.yaml
+      ./cnab/app/run
     workingDirectory: '$(modulePath)'
     displayName: 'run install'
     env:
       CNAB_ACTION: install
+      MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
       LOG_LEVEL: debug
       TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
