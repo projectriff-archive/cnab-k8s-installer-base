@@ -47,18 +47,12 @@ const (
 
 func main()  {
 
-	args := os.Args[1:]
-	var path string
-	if len(args) > 0 {
-		path = args[0]
-	} else {
-		path = "/cnab/app/kab/template.yaml"
-	}
-
 	setupLogging()
 
+	path := os.Getenv("MANIFEST_FILE")
 	action := os.Getenv("CNAB_ACTION")
 	action = strings.ToLower(action)
+	log.Debugf("performing action: %s, manifest file: %s", action, path)
 	switch action {
 	case "install":
 		install(path)

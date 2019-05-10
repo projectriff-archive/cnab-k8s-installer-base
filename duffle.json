@@ -38,6 +38,16 @@
                 "env": "NODE_PORT"
             },
             "default": "false"
+        },
+        "manifest_file": {
+            "type": "string",
+            "metadata": {
+                "description": "absolute path to the manifest file"
+            },
+            "destination": {
+                "env:": "MANIFEST_FILE"
+            },
+            "default": "/cnab/app/kab/manifest.yaml"
         }
     },
     "credentials": null
