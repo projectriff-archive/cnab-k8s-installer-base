@@ -1,4 +1,4 @@
-[![Build Status](https://dev.azure.com/projectriff/projectriff/_apis/build/status/projectriff.cnab-k8s-installer-base?branchName=master)](https://dev.azure.com/projectriff/projectriff/_build/latest?definitionId=15&branchName=master)
+[![Build Status](https://dev.azure.com/projectriff/projectriff/_apis/build/status/projectriff.cnab-k8s-installer-base?branchName=master)](https://dev.azure.com/projectriff/projectriff/_build/latest?definitionId=15&branchName=master) [![codecov](https://codecov.io/gh/projectriff/cnab-k8s-installer-base/branch/master/graph/badge.svg)](https://codecov.io/gh/projectriff/cnab-k8s-installer-base)
 
 # KAB - Kubernetes Application Bundle
 A CNAB bundle that allows creation of other declarative CNAB bundles

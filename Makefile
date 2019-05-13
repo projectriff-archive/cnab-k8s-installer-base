@@ -11,7 +11,7 @@ all: build test
 build: kab
 
 test:
-	GO111MODULE=on go test ./...
+	GO111MODULE=on go test ./... -race -coverprofile=coverage.txt -covermode=atomic
 
 check-mockery:
 	@which mockery > /dev/null || (echo mockery not found: issue \"GO111MODULE=off go get -u  github.com/vektra/mockery/.../\" && false)

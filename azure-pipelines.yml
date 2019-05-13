@@ -23,6 +23,10 @@ steps:
     workingDirectory: '$(modulePath)'
     displayName: 'build and unit test'
 
+  - bash: bash <(curl -s https://codecov.io/bash)
+    workingDirectory: '$(modulePath)'
+    displayName: 'publish code coverage'
+
   - template: ci/fetch-fats-step.yml
   - template: ci/start-minikube-steps.yml
   - template: ci/install-kubectl-steps.yml
