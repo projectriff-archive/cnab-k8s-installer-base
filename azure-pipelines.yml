@@ -11,7 +11,7 @@ variables:
   fatsDir: '$(system.defaultWorkingDirectory)/fats'
   fatsRefspec: b65bc2f1d14a80d9d9793e96766bc1d1b19508a4 # projectriff/fats master as of 2019-04-30
   cnabRiffDir: '$(system.defaultWorkingDirectory)/cnab-riff'
-  cnabRiffRefspec: 4a991ce947774a3ac3d000df3987de327a27c875 # projectriff/cnab-riff master as of 2019-04-17
+  cnabRiffRefspec: 6e962bfbbdee1300ee913f06c89c03bb86fd0ea4 # projectriff/cnab-riff master as of 2019-05-10
 
 pool:
   vmImage: 'ubuntu-16.04'
@@ -34,11 +34,12 @@ steps:
   - template: ci/fetch-cnab-riff-step.yml
 
   - script: |
-      ./cnab/app/run $(cnabRiffDir)/cnab/app/kab/template.yaml
+      ./cnab/app/run
     workingDirectory: '$(modulePath)'
     displayName: 'run install'
     env:
       CNAB_ACTION: install
+      MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
       LOG_LEVEL: debug
       TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
