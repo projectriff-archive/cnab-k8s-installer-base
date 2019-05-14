@@ -21,36 +21,44 @@ import (
 	"cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pkg/errors"
 	"github.com/stretchr/testify/mock"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-var _ = Describe("CRD", func() {
-	Describe("CRD definition", func() {
+var _ = Describe("create CRD", func() {
 
-		var (
-			mockExtensionClientSet *vendor_mocks_ext.Interface
-			mockExtensionInterface *vendor_mocks_ext.ApiextensionsV1beta1Interface
-			mockCrdi            *vendor_mocks_ext.CustomResourceDefinitionInterface
-			err                 error
-		)
+	var (
+		mockExtensionClientSet *vendor_mocks_ext.Interface
+		mockExtensionInterface *vendor_mocks_ext.ApiextensionsV1beta1Interface
+		mockCrdi               *vendor_mocks_ext.CustomResourceDefinitionInterface
+		err                    error
+	)
 
-		JustBeforeEach(func() {
-			mockExtensionClientSet = new(vendor_mocks_ext.Interface)
-			mockExtensionInterface = new(vendor_mocks_ext.ApiextensionsV1beta1Interface)
-			mockCrdi = new(vendor_mocks_ext.CustomResourceDefinitionInterface)
+	JustBeforeEach(func() {
+		mockExtensionClientSet = new(vendor_mocks_ext.Interface)
+		mockExtensionInterface = new(vendor_mocks_ext.ApiextensionsV1beta1Interface)
+		mockCrdi = new(vendor_mocks_ext.CustomResourceDefinitionInterface)
+	})
 
+	Context("when crd creation returns an error from api server", func() {
+		It("the exception is now swallowed", func() {
 			mockExtensionClientSet.On("ApiextensionsV1beta1").Return(mockExtensionInterface)
 			mockExtensionInterface.On("CustomResourceDefinitions").Return(mockCrdi)
-			mockCrdi.On("Create", mock.AnythingOfType("*v1beta1.CustomResourceDefinition")).Return(nil, errors.New("AlreadyExists"))
-
-		})
-
-		Context("when crd create has already been created", func() {
-			It("does not throw an exception", func() {
-				err = kab.CreateCRD(mockExtensionClientSet)
-				Expect(err).To(Not(BeNil()))
-			})
+			mockCrdi.On("Create", mock.AnythingOfType("*v1beta1.CustomResourceDefinition")).Return(nil, errors.NewUnauthorized("unknown"))
+			err = kab.CreateCRD(mockExtensionClientSet)
+			Expect(err).ToNot(BeNil())
 		})
 	})
+
+	Context("when crd already exists", func() {
+		It("an exception is not returned", func() {
+			mockExtensionClientSet.On("ApiextensionsV1beta1").Return(mockExtensionInterface)
+			mockExtensionInterface.On("CustomResourceDefinitions").Return(mockCrdi)
+			mockCrdi.On("Create", mock.AnythingOfType("*v1beta1.CustomResourceDefinition")).Return(nil, errors.NewAlreadyExists(schema.GroupResource{}, "manifests"))
+			err = kab.CreateCRD(mockExtensionClientSet)
+			Expect(err).To(BeNil())
+		})
+	})
+
 })
