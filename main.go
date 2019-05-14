@@ -50,6 +50,11 @@ func main()  {
 	setupLogging()
 
 	path := os.Getenv("MANIFEST_FILE")
+	if path == "" {
+		// revert after duffle fixes the export parameter issue
+		// https://github.com/deislabs/duffle/issues/753
+		path = "/cnab/app/kab/manifest.yaml"
+	}
 	action := os.Getenv("CNAB_ACTION")
 	action = strings.ToLower(action)
 	log.Debugf("performing action: %s, manifest file: %s", action, path)
