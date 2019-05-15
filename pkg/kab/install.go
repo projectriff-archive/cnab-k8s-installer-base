@@ -35,7 +35,7 @@ func (c *Client) Install(manifest *v1alpha1.Manifest, basedir string) error {
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not create kab CRD: %s ", err))
 	}
-	manifest, err = c.createCRDObject(manifest, backOffSettings())
+	manifest, err = c.CreateCRDObject(manifest, backOffSettings())
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not install riff: %s ", err))
 	}
@@ -57,7 +57,7 @@ func backOffSettings() wait.Backoff {
 	}
 }
 
-func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wait.Backoff) (*v1alpha1.Manifest, error) {
+func (c *Client) CreateCRDObject(manifest *v1alpha1.Manifest, backOffSettings wait.Backoff) (*v1alpha1.Manifest, error) {
 
 	log.Debugln("creating object", manifest.Name)
 	err := wait.ExponentialBackoff(backOffSettings, func() (bool, error) {
@@ -83,7 +83,7 @@ func (c *Client) createCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 }
 
 func isEmpty(manifest *v1alpha1.Manifest) bool {
-	if len(manifest.Spec.Resources) == 0 {
+	if manifest == nil || len(manifest.Spec.Resources) == 0 {
 		return true
 	}
 	return false
