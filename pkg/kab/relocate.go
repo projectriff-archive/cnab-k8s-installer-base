@@ -107,9 +107,13 @@ func replaceImagesInManifest(manifest *v1alpha1.Manifest, relocationMap map[stri
 func buildImageReplacer(relocationMap map[string]string) (*strings.Replacer, error) {
 	replacements := []string{}
 
+	log.Traceln("building image replacements")
 	for key, value := range relocationMap {
 		replacements = append(replacements, key, value)
+		log.Traceln(key, ":", value)
 	}
+	log.Traceln("done building image replacements")
+
 	return strings.NewReplacer(replacements...), nil
 }
 
@@ -117,6 +121,9 @@ func embedResourceContent(manifest *v1alpha1.Manifest) error {
 
 	for i := 0; i < len(manifest.Spec.Resources); i++ {
 		resource := &manifest.Spec.Resources[i]
+		if resource.Path == "" {
+			continue
+		}
 		content, err := fileutils.Read(resource.Path, "")
 		if err != nil {
 			return err
