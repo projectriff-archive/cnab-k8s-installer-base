@@ -17,12 +17,12 @@
 package kab
 
 import (
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"errors"
 	"fmt"
-	"github.com/projectriff/riff/pkg/env"
-	"github.com/projectriff/riff/pkg/fileutils"
-	"github.com/projectriff/riff/pkg/kubectl"
+	"github.com/pivotal/go-ape/pkg/furl"
+
+	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"cnab-k8s-installer-base/pkg/kubectl"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -39,7 +39,7 @@ func (c *Client) Install(manifest *v1alpha1.Manifest, basedir string) error {
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not install riff: %s ", err))
 	}
-	log.Infoln("Installing", env.Cli.Name, "components")
+	log.Infoln("Installing bundle components")
 	log.Infoln()
 	err = c.installAndCheckResources(manifest, basedir)
 	if err != nil {
@@ -67,7 +67,7 @@ func (c *Client) CreateCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 			return false, nil
 		}
 		if !isEmpty(old) {
-			return true, errors.New(fmt.Sprintf("%s already installed", env.Cli.Name))
+			return true, errors.New("bundle already installed")
 		}
 		_, err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Create(manifest)
 		if err != nil {
@@ -77,7 +77,7 @@ func (c *Client) CreateCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 		return true, nil
 	})
 	if err == wait.ErrWaitTimeout {
-		return nil, errors.New(fmt.Sprintf("timed out creating %s custom resource defiition", env.Cli.Name))
+		return nil, errors.New("timed out creating custom resource definition")
 	}
 	return manifest, err
 }
@@ -119,7 +119,7 @@ func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error
 			if res.Path == "" {
 				return false, errors.New(fmt.Sprintf("resource %s does not specify Content OR Path to yaml for install", res.Name))
 			}
-			installContent, err = fileutils.Read(res.Path, basedir)
+			installContent, err = furl.Read(res.Path, basedir)
 			if err != nil {
 				log.Debugln("error reading", err)
 				return false, err
@@ -134,13 +134,12 @@ func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error
 				log.Warningf(`It looks like you don't have cluster-admin permissions.
 
 To fix this you need to:
- 1. Delete the current failed installation using:
-      ` + env.Cli.Name + ` system uninstall --istio --force
+ 1. Delete the current failed installation.
  2. Give the user account used for installation cluster-admin permissions, you can use the following command:
       kubectl create clusterrolebinding cluster-admin-binding \
         --clusterrole=cluster-admin \
         --user=<install-user>
- 3. Re-install ` + env.Cli.Name + `
+ 3. Re-install the bundle
 
 `)
 				return false, err

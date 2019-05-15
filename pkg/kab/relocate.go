@@ -17,14 +17,16 @@
 package kab
 
 import (
+	"errors"
+	"strings"
+
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"cnab-k8s-installer-base/pkg/scan"
-	"errors"
-	"github.com/pivotal/go-ape"
+	"github.com/pivotal/go-ape/pkg/furl"
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/pathmapping"
 	log "github.com/sirupsen/logrus"
-	"strings"
+
 )
 
 func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) error {
@@ -124,7 +126,7 @@ func embedResourceContent(manifest *v1alpha1.Manifest) error {
 		if resource.Path == "" {
 			continue
 		}
-		content, err := fileutils.Read(resource.Path, "")
+		content, err := furl.Read(resource.Path, "")
 		if err != nil {
 			return err
 		}
