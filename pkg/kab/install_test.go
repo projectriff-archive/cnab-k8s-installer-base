@@ -48,9 +48,7 @@ var _ = Describe("test install", func() {
 
 	BeforeEach(func() {
 		kubeClient = new(vendor_mocks.Interface)
-		//mockCore = new(vendor_mocks.CoreV1Interface)
 		fakeKabClient = fake.NewSimpleClientset()
-		//mockNodes = new(vendor_mocks.NodeInterface)
 		mockKustomize = new(mockkustomize.Kustomizer)
 
 		client = kab.NewKnbClient(kubeClient, nil, fakeKabClient, nil, mockKustomize)
@@ -94,7 +92,6 @@ var _ = Describe("test install", func() {
 					},
 				},
 			}
-			//oldManifest := manifest.DeepCopy()
 			fakeKabClient.PrependReactor("get", "*", func(action testing.Action) (handled bool, ret runtime.Object, err error) {
 				return true, nil, errors.NewNotFound(schema.GroupResource{}, "test")
 			})
