@@ -50,21 +50,21 @@ var _ = Describe("RelocateManifest", func() {
 			Spec: v1alpha1.KabSpec{
 				Resources: []v1alpha1.KabResource{
 					{
-						Content: "spec:\n" +
-							"  template:\n" +
-							"    spec:\n" +
-							"      containers:\n" +
-							"      - -builder\n" +
-							"      - cluster\n" +
-							"      - INFO\n" +
-							"      image: gcr.io/knative-releases/x/y\n" +
-							"      name: build-webhook\n",
+						Content: `spec:
+  template:
+    spec:
+      containers:
+      - -builder
+      - cluster
+      - INFO
+      image: gcr.io/knative-releases/x/y
+      name: build-webhook`,
 					},
 					{
-						Content: "spec:\n" +
-							"  containers:\n" +
-							"  - image: mysql:5.6\n" +
-							"  name: mysql",
+						Content: `spec:
+  containers:
+  - image: mysql:5.6
+  name: mysql`,
 					},
 				},
 			},

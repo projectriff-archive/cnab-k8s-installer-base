@@ -23,7 +23,6 @@ import (
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned/fake"
 	"cnab-k8s-installer-base/pkg/kab"
 	"cnab-k8s-installer-base/pkg/kab/vendor_mocks"
-	vendor_mocks_ext "cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
 	mockkustomize "cnab-k8s-installer-base/pkg/kustomize/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -42,11 +41,6 @@ var _ = Describe("test install", func() {
 		client        *kab.Client
 		kubeClient    *vendor_mocks.Interface
 		fakeKabClient *fake.Clientset
-		//mockCore               *vendor_mocks.CoreV1Interface
-		mockExtensionClientSet *vendor_mocks_ext.Interface
-		mockExtensionInterface *vendor_mocks_ext.ApiextensionsV1beta1Interface
-		mockCrdi               *vendor_mocks_ext.CustomResourceDefinitionInterface
-		//mockNodes              *vendor_mocks.NodeInterface
 		mockKustomize *mockkustomize.Kustomizer
 		manifest      *v1alpha1.Manifest
 		err           error
@@ -112,21 +106,6 @@ var _ = Describe("test install", func() {
 			_, err = client.CreateCRDObject(manifest, wait.Backoff{Steps: 2})
 			Expect(err).To(MatchError(fmt.Sprintf("timed out creating %s custom resource defiition", env.Cli.Name)))
 			Expect(invocations).To(BeNumerically(">", 1))
-		})
-	})
-
-	Context("When the crd does not exist", func() {
-
-		mockExtensionClientSet = new(vendor_mocks_ext.Interface)
-		mockExtensionInterface = new(vendor_mocks_ext.ApiextensionsV1beta1Interface)
-		mockCrdi = new(vendor_mocks_ext.CustomResourceDefinitionInterface)
-
-		mockExtensionClientSet.On("ApiextensionsV1beta1").Return(mockExtensionInterface)
-		mockExtensionInterface.On("CustomResourceDefinitions").Return(mockCrdi)
-
-		It("the crd is created", func() {
-			//			err = client.Install(manifest, "")
-			//			Expect(err).To(BeNil())
 		})
 	})
 })
