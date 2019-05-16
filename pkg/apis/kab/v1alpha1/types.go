@@ -20,7 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ghodss/yaml"
-	"github.com/projectriff/riff/pkg/fileutils"
+	"github.com/pivotal/go-ape/pkg/furl"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net/url"
 	"path/filepath"
@@ -75,7 +75,7 @@ type ManifestList struct {
 
 func NewManifest(path string) (manifest *Manifest, err error) {
 	var m Manifest
-	yamlFile, err := fileutils.Read(path, "")
+	yamlFile, err := furl.Read(path, "")
 	if err != nil {
 		return nil, fmt.Errorf("error reading manifest file: %v", err)
 	}

@@ -17,8 +17,6 @@
 package kab_test
 
 import (
-	"fmt"
-
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned/fake"
 	"cnab-k8s-installer-base/pkg/kab"
@@ -26,7 +24,6 @@ import (
 	mockkustomize "cnab-k8s-installer-base/pkg/kustomize/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/projectriff/riff/pkg/env"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -48,6 +45,7 @@ var _ = Describe("test install", func() {
 
 	BeforeEach(func() {
 		kubeClient = new(vendor_mocks.Interface)
+		fakeKabClient = fake.NewSimpleClientset()
 		fakeKabClient = fake.NewSimpleClientset()
 		mockKustomize = new(mockkustomize.Kustomizer)
 
@@ -75,7 +73,7 @@ var _ = Describe("test install", func() {
 				return true, oldManifest, nil
 			})
 			_, err = client.CreateCRDObject(manifest, wait.Backoff{Steps: 2})
-			Expect(err).To(MatchError(fmt.Sprintf("%s already installed", env.Cli.Name)))
+			Expect(err).To(MatchError("bundle already installed"))
 		})
 
 		It("retries if the crd is not ready", func() {
@@ -101,7 +99,7 @@ var _ = Describe("test install", func() {
 				return true, nil, errors.NewNotFound(schema.GroupResource{}, "*")
 			})
 			_, err = client.CreateCRDObject(manifest, wait.Backoff{Steps: 2})
-			Expect(err).To(MatchError(fmt.Sprintf("timed out creating %s custom resource defiition", env.Cli.Name)))
+			Expect(err).To(MatchError("timed out creating custom resource definition"))
 			Expect(invocations).To(BeNumerically(">", 1))
 		})
 	})

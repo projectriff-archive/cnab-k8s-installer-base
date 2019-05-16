@@ -1,0 +1,15 @@
+---
+spec:
+  template:
+    spec:
+      containers:
+        - -builder
+        - cluster
+        - INFO
+      image: gcr.io/knative-releases/x/y
+      name: build-webhook
+---
+spec:
+  containers:
+    - image: mysql:5.6
+  name: mysql
