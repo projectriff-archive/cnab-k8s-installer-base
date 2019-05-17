@@ -43,4 +43,8 @@ steps:
       LOG_LEVEL: debug
       TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
+  - bash: ci/diagnostics.sh
+    condition: failed()
+    displayName: 'diagnostics'
+
   - template: ci/publish-docker-image-steps.yml
