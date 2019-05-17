@@ -21,9 +21,12 @@ import (
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned/fake"
 	"cnab-k8s-installer-base/pkg/kab"
 	"cnab-k8s-installer-base/pkg/kab/vendor_mocks"
+	vendor_mocks_ext "cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
+	"cnab-k8s-installer-base/pkg/kubectl/mocks"
 	mockkustomize "cnab-k8s-installer-base/pkg/kustomize/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/stretchr/testify/mock"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -46,10 +49,9 @@ var _ = Describe("test install", func() {
 	BeforeEach(func() {
 		kubeClient = new(vendor_mocks.Interface)
 		fakeKabClient = fake.NewSimpleClientset()
-		fakeKabClient = fake.NewSimpleClientset()
 		mockKustomize = new(mockkustomize.Kustomizer)
 
-		client = kab.NewKnbClient(kubeClient, nil, fakeKabClient, nil, mockKustomize)
+		client = kab.NewKnbClient(kubeClient, nil, fakeKabClient, nil, mockKustomize, nil)
 	})
 
 	Describe("test CreateCrdObject()", func() {
@@ -101,6 +103,76 @@ var _ = Describe("test install", func() {
 			_, err = client.CreateCRDObject(manifest, wait.Backoff{Steps: 2})
 			Expect(err).To(MatchError("timed out creating custom resource definition"))
 			Expect(invocations).To(BeNumerically(">", 1))
+		})
+	})
+
+	Describe("test install", func() {
+		var (
+			mockExtensionClientSet *vendor_mocks_ext.Interface
+			mockExtensionInterface *vendor_mocks_ext.ApiextensionsV1beta1Interface
+			mockCrdi               *vendor_mocks_ext.CustomResourceDefinitionInterface
+			mockKubectl            *mockkubectl.KubeCtl
+			err                    error
+		)
+
+		JustBeforeEach(func() {
+			mockExtensionClientSet = new(vendor_mocks_ext.Interface)
+			mockExtensionInterface = new(vendor_mocks_ext.ApiextensionsV1beta1Interface)
+			mockCrdi = new(vendor_mocks_ext.CustomResourceDefinitionInterface)
+			mockKubectl = new(mockkubectl.KubeCtl)
+			fakeKabClient = fake.NewSimpleClientset()
+			mockExtensionClientSet.On("ApiextensionsV1beta1").Return(mockExtensionInterface)
+			mockExtensionInterface.On("CustomResourceDefinitions").Return(mockCrdi)
+			mockCrdi.On("Create", mock.Anything).Return(nil, nil).Once()
+			fakeKabClient.PrependReactor("get", "*", func(action testing.Action) (handled bool, ret runtime.Object, err error) {
+				return true, nil, nil
+			})
+			fakeKabClient.PrependReactor("create", "*", func(action testing.Action) (handled bool, ret runtime.Object, err error) {
+				return true, nil, nil
+			})
+			client = kab.NewKnbClient(kubeClient, mockExtensionClientSet, fakeKabClient, nil, nil, mockKubectl)
+		})
+
+		JustAfterEach(func() {
+			mockCrdi.AssertExpectations(GinkgoT())
+		})
+
+		Context("when Install is called", func() {
+			It("The crd and crd object are created", func() {
+				manifest = &v1alpha1.Manifest{
+					ObjectMeta: v1.ObjectMeta{
+						Name: "test",
+					},
+					Spec: v1alpha1.KabSpec{
+						Resources: []v1alpha1.KabResource{},
+					},
+				}
+				err = client.Install(manifest)
+				Expect(err).To(BeNil())
+				Expect(len(fakeKabClient.Actions())).To(Equal(2))
+				Expect(fakeKabClient.Actions()[0].GetVerb()).To(Equal("get"))
+				Expect(fakeKabClient.Actions()[1].GetVerb()).To(Equal("create"))
+			})
+		})
+		Context("when manifest has a deferred resource", func() {
+			It("the resource is not installed", func() {
+				manifest = &v1alpha1.Manifest{
+					ObjectMeta: v1.ObjectMeta{
+						Name: "test",
+					},
+					Spec: v1alpha1.KabSpec{
+						Resources: []v1alpha1.KabResource{
+							{
+								Name: "deferred",
+								Deferred: true,
+							},
+						},
+					},
+				}
+				err = client.Install(manifest)
+				Expect(err).To(BeNil())
+				Expect(len(mockKubectl.Calls)).To(Equal(0))
+			})
 		})
 	})
 })

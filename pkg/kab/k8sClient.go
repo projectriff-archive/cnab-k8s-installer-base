@@ -18,6 +18,7 @@ package kab
 
 import (
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
+	"cnab-k8s-installer-base/pkg/kubectl"
 	"cnab-k8s-installer-base/pkg/registry"
 	"cnab-k8s-installer-base/pkg/kustomize"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -26,7 +27,7 @@ import (
 )
 
 const (
-	maxRetries             = 18 // the sum of all retries would add up to 1 minute
+	maxRetries             = 25
 	minRetryInterval       = 100 * time.Millisecond
 	exponentialBackoffBase = 1.3
 )
@@ -37,15 +38,17 @@ type Client struct {
 	kabClient      versioned.Interface
 	registryClient registry.Client
 	kustomizer     kustomize.Kustomizer
+	kubectl        kubectl.KubeCtl
 }
 
 func NewKnbClient(core kubernetes.Interface, ext apiext.Interface, kab versioned.Interface, registryClient registry.Client,
-	kustomizer kustomize.Kustomizer) *Client {
+	kustomizer kustomize.Kustomizer, kubectl kubectl.KubeCtl) *Client {
 	return &Client{
 		coreClient:     core,
 		extClient:      ext,
 		kabClient:      kab,
 		registryClient: registryClient,
 		kustomizer:     kustomizer,
+		kubectl:        kubectl,
 	}
 }

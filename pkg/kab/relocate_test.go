@@ -45,7 +45,7 @@ var _ = Describe("RelocateManifest", func() {
 			kubeClient = new(vendor_mocks.Interface)
 			mockRegistryClient = new(mockregistry.Client)
 
-			client = kab.NewKnbClient(kubeClient, nil, nil, mockRegistryClient, nil)
+			client = kab.NewKnbClient(kubeClient, nil, nil, mockRegistryClient, nil, nil)
 			manifest = &v1alpha1.Manifest{
 				Spec: v1alpha1.KabSpec{
 					Resources: []v1alpha1.KabResource{
@@ -113,7 +113,7 @@ var _ = Describe("RelocateManifest", func() {
 			kubeClient = new(vendor_mocks.Interface)
 			mockRegistryClient = new(mockregistry.Client)
 
-			client = kab.NewKnbClient(kubeClient, nil, nil, mockRegistryClient, nil)
+			client = kab.NewKnbClient(kubeClient, nil, nil, mockRegistryClient, nil, nil)
 			manifest = &v1alpha1.Manifest{
 				Spec: v1alpha1.KabSpec{
 					Resources: []v1alpha1.KabResource{

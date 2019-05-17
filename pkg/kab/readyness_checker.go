@@ -25,27 +25,30 @@ import (
 )
 
 // TODO this only supports checking Pods for phases, add more resources
-func (c *Client) IsResourceReady(check v1alpha1.ResourceChecks, namespace string) (bool, error) {
+func (rm *rm) IsResourceReady(check v1alpha1.ResourceChecks, namespace string) (bool, error) {
 	n := strings.ToUpper(check.Kind)
 	switch n {
 	case "POD":
-		return c.isPodReady(check, namespace)
+		return rm.isPodReady(check, namespace)
 	}
 	return false, errors.New(fmt.Sprintf("unknown resource kind: %s", check.Kind))
 }
 
-func (c *Client) isPodReady(check v1alpha1.ResourceChecks, namespace string) (bool, error) {
-	pods := c.coreClient.CoreV1().Pods(namespace)
+func (rm *rm) isPodReady(check v1alpha1.ResourceChecks, namespace string) (bool, error) {
+	pods := rm.coreClient.CoreV1().Pods(namespace)
 	podList, err := pods.List(metav1.ListOptions{
 		LabelSelector: convertMapToString(check.Selector.MatchLabels),
 	})
 	if err != nil {
 		return false, err
 	}
+	if len(podList.Items) == 0 {
+		return false, errors.New("could not find pods with given label selector")
+	}
 	for _, pod := range podList.Items {
-		if strings.EqualFold(string(pod.Status.Phase), check.Pattern) {
-			return true, nil
+		if !strings.EqualFold(string(pod.Status.Phase), check.Pattern) {
+			return false, nil
 		}
 	}
-	return false, nil
+	return true, nil
 }
