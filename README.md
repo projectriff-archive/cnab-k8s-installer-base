@@ -78,7 +78,7 @@ $ tree
 Change the Dockerfile to extend from the image for this base bundle and to copy your product's installation template to
 `/cnab/app/kab`, something like this:
 ```dockerfile
-FROM sbawaska/kab-cnab:latest
+FROM projectriff/cnab-k8s-installer-base:edge
 
 COPY Dockerfile /cnab
 COPY app/kab /cnab/app/kab
