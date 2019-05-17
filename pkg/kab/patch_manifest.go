@@ -29,9 +29,10 @@ import (
 )
 
 const (
-	MINIKUBE_NODE_NAME      = "minikube"
-	DOCKER_FOR_DESKTOP_NAME = "docker-for-desktop"
-	NODE_PORT_ENV_VAR       = "NODE_PORT"
+	MINIKUBE_NODE_NAME             = "minikube"
+	DOCKER_FOR_DESKTOP_NAME        = "docker-for-desktop"
+	NODE_PORT_ENV_VAR              = "NODE_PORT"
+	CNAB_INSTALLATION_NAME_ENV_VAR = "CNAB_INSTALLATION_NAME"
 )
 
 func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
@@ -46,7 +47,16 @@ func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
 		return err
 	}
 
+	setName(manifest)
+
 	return nil
+}
+
+func setName(manifest *v1alpha1.Manifest) {
+	installName := os.Getenv(CNAB_INSTALLATION_NAME_ENV_VAR)
+	if installName != "" {
+		manifest.Name = installName
+	}
 }
 
 func (c *Client) applyLabels(res *v1alpha1.KabResource) (content string, e error) {
