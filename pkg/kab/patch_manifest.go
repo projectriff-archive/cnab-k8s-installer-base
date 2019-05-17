@@ -29,9 +29,9 @@ import (
 )
 
 const (
-	MINIKUBE_NODE_NAME = "minikube"
+	MINIKUBE_NODE_NAME      = "minikube"
 	DOCKER_FOR_DESKTOP_NAME = "docker-for-desktop"
-	NODE_PORT_ENV_NAME = "NODE_PORT"
+	NODE_PORT_ENV_VAR       = "NODE_PORT"
 )
 
 func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
@@ -89,7 +89,7 @@ func (c *Client) patchForLocalCluster(res *v1alpha1.KabResource) (string, error)
 }
 
 func isNodePortSet() (bool, error) {
-	nodePort := os.Getenv(NODE_PORT_ENV_NAME)
+	nodePort := os.Getenv(NODE_PORT_ENV_VAR)
 	if nodePort == "" {
 		return false, nil
 	}

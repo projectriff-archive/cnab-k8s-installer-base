@@ -121,7 +121,7 @@ var _ = Describe("test patch for minikube", func() {
 	Context("When the node-port env variable is set", func() {
 
 		JustBeforeEach(func() {
-			os.Setenv(kab.NODE_PORT_ENV_NAME, "true")
+			os.Setenv(kab.NODE_PORT_ENV_VAR, "true")
 			content = "sometext: type: LoadBalancer"
 
 			kubeClient.On("CoreV1").Return(mockCore)
@@ -153,7 +153,7 @@ var _ = Describe("test patch for minikube", func() {
 		})
 
 		JustAfterEach(func() {
-			os.Unsetenv(kab.NODE_PORT_ENV_NAME)
+			os.Unsetenv(kab.NODE_PORT_ENV_VAR)
 		})
 	})
 
