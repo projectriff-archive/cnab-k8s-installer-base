@@ -27,6 +27,7 @@ import (
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
 	"cnab-k8s-installer-base/pkg/kab"
+	"cnab-k8s-installer-base/pkg/kubectl"
 	"cnab-k8s-installer-base/pkg/kustomize"
 	"cnab-k8s-installer-base/pkg/registry"
 
@@ -86,7 +87,7 @@ func install(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = knbClient.Install(manifest, BaseDir)
+	err = knbClient.Install(manifest)
 	if err != nil {
 		log.Fatalf("error while installing from %s: %v\n", path, err)
 	}
@@ -115,7 +116,9 @@ func createKnbClient() (*kab.Client, error) {
 	}
 	kustomizer := kustomize.MakeKustomizer(TIMEOUT)
 
-	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient, kustomizer)
+	ctl := kubectl.RealKubeCtl()
+
+	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient, kustomizer, ctl)
 	return knbClient, nil
 }
 

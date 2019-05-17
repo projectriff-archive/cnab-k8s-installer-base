@@ -19,18 +19,15 @@ package kab
 import (
 	"errors"
 	"fmt"
-	"github.com/pivotal/go-ape/pkg/furl"
+	"strings"
 
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/kubectl"
 	log "github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
-	"strings"
-	"time"
 )
 
-func (c *Client) Install(manifest *v1alpha1.Manifest, basedir string) error {
+func (c *Client) Install(manifest *v1alpha1.Manifest) error {
 	err := CreateCRD(c.extClient)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not create kab CRD: %s ", err))
@@ -41,7 +38,7 @@ func (c *Client) Install(manifest *v1alpha1.Manifest, basedir string) error {
 	}
 	log.Infoln("Installing bundle components")
 	log.Infoln()
-	err = c.installAndCheckResources(manifest, basedir)
+	err = c.installAndCheckResources(manifest)
 	if err != nil {
 		return errors.New(fmt.Sprintf("Could not install riff: %s ", err))
 	}
@@ -89,94 +86,22 @@ func isEmpty(manifest *v1alpha1.Manifest) bool {
 	return false
 }
 
-func (c *Client) installAndCheckResources(manifest *v1alpha1.Manifest, basedir string) error {
+func (c *Client) installAndCheckResources(manifest *v1alpha1.Manifest) error {
+	rm := NewResourceManager(c.kubectl, c.coreClient)
 	for _, resource := range manifest.Spec.Resources {
 		if resource.Deferred {
 			log.Debugf("Skipping install of %s\n", resource.Name)
 			continue
 		}
-		err := c.installResource(resource, basedir)
+		err := rm.Install(resource, backOffSettings())
 		if err != nil {
 			return err
 		}
-		err = c.checkResource(resource)
+		err = rm.Check(resource, backOffSettings())
 		if err != nil {
 			return err
 		}
 	}
-	return nil
-}
-
-func (c *Client) installResource(res v1alpha1.KabResource, basedir string) error {
-	var installContent []byte
-	var err error
-
-	log.Infof("installing %s...", res.Name)
-	err = wait.ExponentialBackoff(backOffSettings(), func() (bool, error) {
-		if res.Content != "" {
-			installContent = []byte(res.Content)
-		} else {
-			if res.Path == "" {
-				return false, errors.New(fmt.Sprintf("resource %s does not specify Content OR Path to yaml for install", res.Name))
-			}
-			installContent, err = furl.Read(res.Path, basedir)
-			if err != nil {
-				log.Debugln("error reading", err)
-				return false, err
-			}
-
-		}
-
-		kubectl := kubectl.RealKubeCtl()
-		resLog, err := kubectl.ExecStdin([]string{"apply", "-f", "-"}, &installContent)
-		if err != nil {
-			if strings.Contains(resLog, "forbidden") {
-				log.Warningf(`It looks like you don't have cluster-admin permissions.
-
-To fix this you need to:
- 1. Delete the current failed installation.
- 2. Give the user account used for installation cluster-admin permissions, you can use the following command:
-      kubectl create clusterrolebinding cluster-admin-binding \
-        --clusterrole=cluster-admin \
-        --user=<install-user>
- 3. Re-install the bundle
-
-`)
-				return false, err
-			}
-			log.Debugf("retrying installing resource: %s due to error %+v\n", res.Name, err)
-			return false, nil
-		}
-		return true, nil
-	})
-	if err == wait.ErrWaitTimeout {
-		return errors.New(fmt.Sprintf("could not create resource: %s", res.Name))
-	}
-	return err
-}
-
-func (c *Client) checkResource(resource v1alpha1.KabResource) error {
-	cnt := 1
-	for _, check := range resource.Checks {
-		var ready bool
-		var err error
-		for i := 0; i < 360; i++ {
-			ready, err = c.IsResourceReady(check, resource.Namespace)
-			if err != nil {
-				return err
-			}
-			if ready {
-				break
-			}
-
-			time.Sleep(1 * time.Second)
-			cnt++
-		}
-		if !ready {
-			return errors.New(fmt.Sprintf("The resource %s did not initialize", resource.Name))
-		}
-	}
-	log.Infof("done installing %s", resource.Name)
 	return nil
 }
 

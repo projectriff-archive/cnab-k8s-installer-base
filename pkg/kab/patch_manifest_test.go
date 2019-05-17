@@ -49,7 +49,7 @@ var _ = Describe("test patch for minikube", func() {
 		mockKustomize = new(mockkustomize.Kustomizer)
 		content = "sometext: type: LoadBalancer"
 
-		client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize)
+		client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
 	})
 
 	Context("When the node is minikube", func() {
