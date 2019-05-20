@@ -45,6 +45,7 @@ steps:
 
   - bash: ci/diagnostics.sh
     condition: failed()
+    workingDirectory: '$(modulePath)'
     displayName: 'diagnostics'
 
   - template: ci/publish-docker-image-steps.yml
