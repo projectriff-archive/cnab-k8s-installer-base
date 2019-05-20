@@ -42,21 +42,24 @@ import (
 )
 
 const (
-	BaseDir = "/cnab/app/kab"
-	TIMEOUT = 30 * time.Second
+	KUSTOMIZE_TIMEOUT       = 30 * time.Second
+	CNAB_ACTION_ENV_VAR     = "CNAB_ACTION"
+	MANIFEST_FILE_ENV_VAR   = "MANIFEST_FILE"
+	TARGET_REGISTRY_ENV_VAR = "TARGET_REGISTRY"
+	LOG_LEVEL_ENV_VAR       = "LOG_LEVEL"
 )
 
-func main()  {
+func main() {
 
 	setupLogging()
 
-	path := os.Getenv("MANIFEST_FILE")
+	path := os.Getenv(MANIFEST_FILE_ENV_VAR)
 	if path == "" {
 		// revert after duffle fixes the export parameter issue
 		// https://github.com/deislabs/duffle/issues/753
 		path = "/cnab/app/kab/manifest.yaml"
 	}
-	action := os.Getenv("CNAB_ACTION")
+	action := os.Getenv(CNAB_ACTION_ENV_VAR)
 	action = strings.ToLower(action)
 	log.Debugf("performing action: %s, manifest file: %s", action, path)
 	switch action {
@@ -83,7 +86,7 @@ func install(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = knbClient.Relocate(manifest, os.Getenv("TARGET_REGISTRY"))
+	err = knbClient.Relocate(manifest, os.Getenv(TARGET_REGISTRY_ENV_VAR))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -114,7 +117,7 @@ func createKnbClient() (*kab.Client, error) {
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Could not create docker client: %s", err))
 	}
-	kustomizer := kustomize.MakeKustomizer(TIMEOUT)
+	kustomizer := kustomize.MakeKustomizer(KUSTOMIZE_TIMEOUT)
 
 	ctl := kubectl.RealKubeCtl()
 
@@ -176,7 +179,7 @@ func setupLogging() {
 }
 
 func getLogLevel() log.Level {
-	requestedLevel := os.Getenv("LOG_LEVEL")
+	requestedLevel := os.Getenv(LOG_LEVEL_ENV_VAR)
 	if requestedLevel == "" {
 		return log.InfoLevel
 	}
