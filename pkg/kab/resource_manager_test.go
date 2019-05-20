@@ -223,10 +223,10 @@ spec:
 		})
 		Context("when a pod resource type is used", func() {
 			Context("When the pod is not found", func() {
-				It("the check fails", func() {
+				It("the operation is retried", func() {
 					mockKubeClient.On("CoreV1").Return(mockCore)
 					mockCore.On("Pods", mock.Anything).Return(mockPods)
-					mockPods.On("List", mock.Anything).Return(&v12.PodList{}, nil).Once()
+					mockPods.On("List", mock.Anything).Return(&v12.PodList{}, nil).Twice()
 
 					resMan := kab.NewResourceManager(nil, mockKubeClient)
 					labelSelector := v1.LabelSelector{
@@ -244,7 +244,7 @@ spec:
 					}
 					err = resMan.Check(resource, backoffSettings)
 					Expect(err).ToNot(BeNil())
-					Expect(err).To(MatchError("could not find pods with given label selector"))
+					Expect(err).To(MatchError("resource r1 did not initialize"))
 				})
 			})
 			Context("When the pod is found but the status is not the desired status", func() {
