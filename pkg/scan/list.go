@@ -22,17 +22,22 @@ import (
 	"strings"
 
 	"github.com/ghodss/yaml"
+	"github.com/pivotal/go-ape/pkg/furl"
 )
 
-func ListImages(resourceName string, contents string, baseDir string) ([]string, error) {
+func ListImages(res string, baseDir string) ([]string, error) {
+	fmt.Printf("Scanning %s\n", res)
+	contents, err := furl.Read(res, baseDir)
+	if err != nil {
+		return nil, err
+	}
 
-	var err error
 	imgs := []string{}
 
-	docs := strings.Split(contents, "---\n")
+	docs := strings.Split(string(contents), "---\n")
 	if runtime.GOOS == "windows" {
 		// allow lines to end in LF or CRLF since either may occur
-		d := strings.Split(contents, "---\r\n")
+		d := strings.Split(string(contents), "---\r\n")
 		if len(d) > len(docs) {
 			docs = d
 		}
@@ -42,7 +47,7 @@ func ListImages(resourceName string, contents string, baseDir string) ([]string,
 			y := make(map[string]interface{})
 			err = yaml.Unmarshal([]byte(doc), &y)
 			if err != nil {
-				return nil, fmt.Errorf("error parsing resource %s: %v", resourceName, err)
+				return nil, fmt.Errorf("error parsing resource file %s: %v", res, err)
 			}
 
 			visitImages(y, func(imageName string) {
