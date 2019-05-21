@@ -54,13 +54,13 @@ func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
 }
 
 func setName(manifest *v1alpha1.Manifest) {
-	installName := getInstallationName()
+	installName := GetInstallationName()
 	if installName != "" {
 		manifest.Name = installName
 	}
 }
 
-func getInstallationName() string {
+func GetInstallationName() string {
 	installName := os.Getenv(CNAB_INSTALLATION_NAME_ENV_VAR)
 	return installName
 }
@@ -88,7 +88,7 @@ func addLabels(labels map[string]string) map[string]string {
 	if labels == nil {
 		labels = map[string]string{}
 	}
-	labels[LABEL_KEY_NAME] = getInstallationName()
+	labels[LABEL_KEY_NAME] = GetInstallationName()
 	return labels
 }
 

@@ -18,11 +18,14 @@ package scan
 
 import (
 	"fmt"
+	"runtime"
+	"sort"
+	"strings"
+
 	"github.com/ghodss/yaml"
 	"github.com/pivotal/go-ape/pkg/furl"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
-	"runtime"
-	"strings"
+
 )
 
 func ListKind(res string, baseDir string) ([]string, error) {
@@ -63,5 +66,6 @@ func ListKindFromContent(contents []byte) ([]string, error) {
 		retVal[i] = k
 		i++
 	}
+	sort.Strings(retVal) // for deterministic order in tests
 	return retVal, nil
 }
