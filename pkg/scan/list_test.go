@@ -4,9 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"cnab-k8s-installer-base/pkg/scan"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/pivotal-cf/pfs/pkg/scan"
 )
 
 var _ = Describe("ListImages", func() {
@@ -137,7 +137,7 @@ var _ = Describe("ListImages", func() {
 		})
 
 		It("should return a suitable error", func() {
-			Expect(err).To(MatchError(HavePrefix("error parsing resource file")))
+			Expect(err).To(MatchError(HavePrefix("error parsing content")))
 		})
 	})
 })

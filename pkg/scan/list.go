@@ -31,7 +31,11 @@ func ListImages(res string, baseDir string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	return ListImagesFromContent(contents)
+}
 
+func ListImagesFromContent(contents []byte) ([]string, error) {
+	var err error
 	imgs := []string{}
 
 	docs := strings.Split(string(contents), "---\n")
@@ -47,7 +51,7 @@ func ListImages(res string, baseDir string) ([]string, error) {
 			y := make(map[string]interface{})
 			err = yaml.Unmarshal([]byte(doc), &y)
 			if err != nil {
-				return nil, fmt.Errorf("error parsing resource file %s: %v", res, err)
+				return nil, fmt.Errorf("error parsing content: %v", err)
 			}
 
 			visitImages(y, func(imageName string) {

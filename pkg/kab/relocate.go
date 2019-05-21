@@ -165,7 +165,7 @@ func getAllImages(manifest *v1alpha1.Manifest) ([]string, error) {
 	images := []string{}
 
 	err := manifest.VisitResources(func(res v1alpha1.KabResource) error {
-		tmpImgs, err := scan.ListImages(res.Name, res.Content, "")
+		tmpImgs, err := scan.ListImagesFromContent([]byte(res.Content))
 		if err != nil {
 			return err
 		}
