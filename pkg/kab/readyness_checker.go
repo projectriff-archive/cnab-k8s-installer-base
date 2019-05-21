@@ -43,7 +43,7 @@ func (rm *rm) isPodReady(check v1alpha1.ResourceChecks, namespace string) (bool,
 		return false, err
 	}
 	if len(podList.Items) == 0 {
-		return false, errors.New("could not find pods with given label selector")
+		return false, nil
 	}
 	for _, pod := range podList.Items {
 		if !strings.EqualFold(string(pod.Status.Phase), check.Pattern) {
