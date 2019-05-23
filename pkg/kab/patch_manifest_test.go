@@ -295,4 +295,74 @@ var _ = Describe("test patching manifest", func() {
 			})
 		})
 	})
+
+	Describe("applying installation label", func() {
+		var (
+			client        *kab.Client
+			kubeClient    *vendor_mocks.Interface
+			mockCore      *vendor_mocks.CoreV1Interface
+			mockNodes     *vendor_mocks.NodeInterface
+			mockKustomize *mockkustomize.Kustomizer
+			manifest      *v1alpha1.Manifest
+			err           error
+		)
+
+		BeforeEach(func() {
+			kubeClient = new(vendor_mocks.Interface)
+			mockCore = new(vendor_mocks.CoreV1Interface)
+			mockNodes = new(vendor_mocks.NodeInterface)
+			mockKustomize = new(mockkustomize.Kustomizer)
+			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(""), nil)
+			kubeClient.On("CoreV1").Return(mockCore)
+			mockCore.On("Nodes").Return(mockNodes)
+			mockNodes.On("Get", "minikube", mock.Anything).Return(nil, nil)
+			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
+
+			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
+		})
+		JustBeforeEach(func() {
+			os.Setenv(kab.CNAB_INSTALLATION_NAME_ENV_VAR, "myInstallation")
+		})
+		JustAfterEach(func() {
+			os.Unsetenv(kab.CNAB_INSTALLATION_NAME_ENV_VAR)
+		})
+
+		Context("when resource does not have labels", func() {
+			It("the installation label is the only label applied", func() {
+				manifest = &v1alpha1.Manifest{
+					Spec: v1alpha1.KabSpec{
+						Resources: []v1alpha1.KabResource{
+							{
+								Name: "foo",
+							},
+						},
+					},
+				}
+				err = client.PatchManifest(manifest)
+				Expect(err).To(BeNil())
+				Expect(len(manifest.Spec.Resources[0].Labels)).To(Equal(1))
+				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue(kab.LABEL_KEY_NAME, "myInstallation"))
+			})
+		})
+		Context("when resource has labels", func() {
+			It("the installation label is appended to the existing labels", func() {
+				manifest = &v1alpha1.Manifest{
+					Spec: v1alpha1.KabSpec{
+						Resources: []v1alpha1.KabResource{
+							{
+								Name: "foo",
+								Labels: map[string]string{"k1":"v1"},
+							},
+						},
+					},
+				}
+				err = client.PatchManifest(manifest)
+				Expect(err).To(BeNil())
+				Expect(len(manifest.Spec.Resources[0].Labels)).To(Equal(2))
+				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue("k1", "v1"))
+				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue(kab.LABEL_KEY_NAME, "myInstallation"))
+			})
+		})
+	})
 })

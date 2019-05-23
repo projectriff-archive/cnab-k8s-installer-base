@@ -33,6 +33,7 @@ const (
 	DOCKER_FOR_DESKTOP_NAME        = "docker-for-desktop"
 	NODE_PORT_ENV_VAR              = "NODE_PORT"
 	CNAB_INSTALLATION_NAME_ENV_VAR = "CNAB_INSTALLATION_NAME"
+	LABEL_KEY_NAME                 = "cnab-k8s-installer-installation-name"
 )
 
 func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
@@ -53,15 +54,23 @@ func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
 }
 
 func setName(manifest *v1alpha1.Manifest) {
-	installName := os.Getenv(CNAB_INSTALLATION_NAME_ENV_VAR)
+	installName := GetInstallationName()
 	if installName != "" {
 		manifest.Name = installName
 	}
 }
 
+func GetInstallationName() string {
+	installName := os.Getenv(CNAB_INSTALLATION_NAME_ENV_VAR)
+	return installName
+}
+
 func (c *Client) applyLabels(res *v1alpha1.KabResource) (content string, e error) {
 	var path *url.URL
 	var err error
+
+	labels := addLabels(res.Labels)
+	res.Labels = labels
 
 	log.Tracef("Applying labels resource: %s Labels: %+v...", res.Name, res.Labels)
 
@@ -73,6 +82,14 @@ func (c *Client) applyLabels(res *v1alpha1.KabResource) (content string, e error
 	log.Traceln("done")
 
 	return string(byteContent), nil
+}
+
+func addLabels(labels map[string]string) map[string]string {
+	if labels == nil {
+		labels = map[string]string{}
+	}
+	labels[LABEL_KEY_NAME] = GetInstallationName()
+	return labels
 }
 
 func (c *Client) patchForLocalCluster(res *v1alpha1.KabResource) (string, error) {

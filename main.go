@@ -66,6 +66,7 @@ func main() {
 	case "install":
 		install(path)
 	case "uninstall":
+		uninstall()
 	case "upgrade":
 	default:
 		log.Fatalf("unknown action '%s'. please set CNAB_ACTION environment variable", action)
@@ -93,6 +94,17 @@ func install(path string) {
 	err = knbClient.Install(manifest)
 	if err != nil {
 		log.Fatalf("error while installing from %s: %v\n", path, err)
+	}
+}
+
+func uninstall()  {
+	knbClient, err := createKnbClient()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	err = knbClient.Uninstall(kab.GetInstallationName())
+	if err != nil {
+		log.Fatalln(err)
 	}
 }
 
