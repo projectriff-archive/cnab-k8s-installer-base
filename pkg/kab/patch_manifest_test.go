@@ -342,7 +342,7 @@ var _ = Describe("test patching manifest", func() {
 				err = client.PatchManifest(manifest)
 				Expect(err).To(BeNil())
 				Expect(len(manifest.Spec.Resources[0].Labels)).To(Equal(1))
-				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue("bundle-installation-name", "myInstallation"))
+				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue(kab.LABEL_KEY_NAME, "myInstallation"))
 			})
 		})
 		Context("when resource has labels", func() {
@@ -361,7 +361,7 @@ var _ = Describe("test patching manifest", func() {
 				Expect(err).To(BeNil())
 				Expect(len(manifest.Spec.Resources[0].Labels)).To(Equal(2))
 				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue("k1", "v1"))
-				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue("bundle-installation-name", "myInstallation"))
+				Expect(manifest.Spec.Resources[0].Labels).Should(HaveKeyWithValue(kab.LABEL_KEY_NAME, "myInstallation"))
 			})
 		})
 	})

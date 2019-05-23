@@ -33,7 +33,7 @@ const (
 	DOCKER_FOR_DESKTOP_NAME        = "docker-for-desktop"
 	NODE_PORT_ENV_VAR              = "NODE_PORT"
 	CNAB_INSTALLATION_NAME_ENV_VAR = "CNAB_INSTALLATION_NAME"
-	LABEL_KEY_NAME                 = "bundle-installation-name"
+	LABEL_KEY_NAME                 = "cnab-k8s-installer-installation-name"
 )
 
 func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
