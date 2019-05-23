@@ -83,7 +83,7 @@ var _ = Describe("LookupManifest Tests", func() {
 			Expect(err).To(MatchError("could not find manifest for installation name: myInstallation"))
 		})
 	})
-	Context("When there are more than one namespaces", func() {
+	Context("When there is more than one namespaces", func() {
 		It("all namespaces are looked up to find a manifest", func() {
 			manifest := &v1alpha1.Manifest{}
 			mockNamespace.On("List", mock.Anything).Return(&v12.NamespaceList{
