@@ -45,7 +45,7 @@ spec:
     path: https://storage.googleapis.com/projectriff/riff-buildtemplate/riff-cnb-clusterbuildtemplate-0.2.0-snapshot-ci-63cd05079e1f.yaml
 ```
 The `.spec.resources` section expects a list of resources that make up your product. The resource to be installed could
-either be a url or its contents can inlined in the manifest. Please see [types.go](https://github.com/projectriff/cnab-k8s-installer-base/blob/master/pkg/apis/kab/v1alpha1/types.go)
+either be a url or its contents can be inlined in the manifest. Please see [types.go](https://github.com/projectriff/cnab-k8s-installer-base/blob/master/pkg/apis/kab/v1alpha1/types.go)
 for the complete structure of the manifest.
 
 ### Resource Dependencies
@@ -57,7 +57,7 @@ the `sidecar-injector` Pod is running before the next resource is installed. At 
 ## Custom Resource Definition
 This base bundle defines a CRD named `manifests.projectriff.io`, and it will create objects of this CRD for all bundles
 that extend this bundle. This will allow your product's configuration to be stored in the k8s cluster itself. This
-project also defines a golang client so that you'r product's config can be looked up programmatically.
+project also defines a golang client so that your product's config can be looked up programmatically.
 
 ## Steps for creating your installer bundle
 
