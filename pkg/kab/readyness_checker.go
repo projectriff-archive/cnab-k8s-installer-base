@@ -25,17 +25,17 @@ import (
 )
 
 // TODO this only supports checking Pods for phases, add more resources
-func (rm *rm) IsResourceReady(check v1alpha1.ResourceChecks, namespace string) (bool, error) {
+func (rm *rm) IsResourceReady(check v1alpha1.ResourceChecks) (bool, error) {
 	n := strings.ToUpper(check.Kind)
 	switch n {
 	case "POD":
-		return rm.isPodReady(check, namespace)
+		return rm.isPodReady(check)
 	}
 	return false, errors.New(fmt.Sprintf("unknown resource kind: %s", check.Kind))
 }
 
-func (rm *rm) isPodReady(check v1alpha1.ResourceChecks, namespace string) (bool, error) {
-	pods := rm.coreClient.CoreV1().Pods(namespace)
+func (rm *rm) isPodReady(check v1alpha1.ResourceChecks) (bool, error) {
+	pods := rm.coreClient.CoreV1().Pods(check.Namespace)
 	podList, err := pods.List(metav1.ListOptions{
 		LabelSelector: convertMapToString(check.Selector.MatchLabels),
 	})

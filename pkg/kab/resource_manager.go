@@ -94,7 +94,7 @@ func (rm *rm) Check(res v1alpha1.KabResource, backOffSettings wait.Backoff) erro
 		err := wait.ExponentialBackoff(backOffSettings, func() (bool, error) {
 			var ready bool
 			var innerErr error
-			ready, innerErr = rm.IsResourceReady(check, res.Namespace)
+			ready, innerErr = rm.IsResourceReady(check)
 			if innerErr != nil {
 				return false, innerErr
 			}

@@ -40,20 +40,20 @@ type Manifest struct {
 }
 
 type ResourceChecks struct {
-	Kind     string               `json:"kind,omitempty"`
-	Selector metav1.LabelSelector `json:"selector,omitempty"`
-	JsonPath string               `json:"jsonpath,omitempty"`
-	Pattern  string               `json:"pattern,omitempty"`
+	Kind      string               `json:"kind,omitempty"`
+	Namespace string               `json:"namespace,omitempty"`
+	Selector  metav1.LabelSelector `json:"selector,omitempty"`
+	JsonPath  string               `json:"jsonpath,omitempty"`
+	Pattern   string               `json:"pattern,omitempty"`
 }
 
 type KabResource struct {
-	Path      string            `json:"path,omitempty"`
-	Content   string            `json:"content,omitempty"`
-	Name      string            `json:"name,omitempty"`
-	Namespace string            `json:"namespace,omitempty"`
-	Labels    map[string]string `json:"labels,omitempty"`
-	Deferred  bool              `json:"deferred,omitempty"`
-	Checks    []ResourceChecks  `json:"checks,omitempty"`
+	Path     string            `json:"path,omitempty"`
+	Content  string            `json:"content,omitempty"`
+	Name     string            `json:"name,omitempty"`
+	Labels   map[string]string `json:"labels,omitempty"`
+	Deferred bool              `json:"deferred,omitempty"`
+	Checks   []ResourceChecks  `json:"checks,omitempty"`
 }
 
 type KabSpec struct {
