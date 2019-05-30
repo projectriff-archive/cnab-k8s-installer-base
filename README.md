@@ -32,11 +32,11 @@ metadata:
 spec:
   resources:
   - name: istio
-    namespace: istio-system
     path: https://storage.googleapis.com/knative-releases/serving/previous/v0.3.0/istio.yaml
     checks:
     - jsonpath: .status.phase
       kind: Pod
+      namespace: istio-system
       pattern: Running
       selector:
         matchLabels:
