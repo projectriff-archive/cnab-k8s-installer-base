@@ -66,6 +66,8 @@ var _ = Describe("test patching manifest", func() {
 
 				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
 					errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
+				mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "docker-desktop"))
 
 				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 			})
@@ -99,6 +101,43 @@ var _ = Describe("test patching manifest", func() {
 
 				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
 					errors.NewNotFound(schema.GroupResource{}, "minikube"))
+				mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "docker-desktop"))
+
+				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
+			})
+
+			It("the content is patched", func() {
+				manifest = &v1alpha1.Manifest{
+					Spec: v1alpha1.KabSpec{
+						Resources: []v1alpha1.KabResource{
+							{
+								Name:    "foo",
+								Content: content,
+							},
+						},
+					},
+				}
+				err = client.PatchManifest(manifest)
+				Expect(err).To(BeNil())
+				Expect(manifest.Spec.Resources[0].Content).ToNot(ContainSubstring("type: LoadBalancer"))
+				Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("type: NodePort"))
+			})
+		})
+
+		Context("When the node is docker-desktop", func() {
+
+			JustBeforeEach(func() {
+				content = "sometext: type: LoadBalancer"
+
+				kubeClient.On("CoreV1").Return(mockCore)
+				mockCore.On("Nodes").Return(mockNodes)
+				mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil, nil)
+
+				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "minikube"))
+				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
 
 				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 			})
@@ -134,6 +173,9 @@ var _ = Describe("test patching manifest", func() {
 
 				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
 					errors.NewNotFound(schema.GroupResource{}, "minikube"))
+
+				mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "docker-desktop"))
 
 				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 			})
@@ -172,6 +214,9 @@ var _ = Describe("test patching manifest", func() {
 				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
 					errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
 
+				mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "docker-desktop"))
+
 				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 			})
 
@@ -193,7 +238,7 @@ var _ = Describe("test patching manifest", func() {
 			})
 		})
 
-		Context("When there is an error getting nodes", func() {
+		Context("When there is an error getting node minikube", func() {
 
 			JustBeforeEach(func() {
 				kubeClient.On("CoreV1").Return(mockCore)
@@ -201,6 +246,68 @@ var _ = Describe("test patching manifest", func() {
 
 				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
 					errors.NewForbidden(schema.GroupResource{}, "", err))
+
+				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
+			})
+
+			It("an error is returned", func() {
+				manifest = &v1alpha1.Manifest{
+					Spec: v1alpha1.KabSpec{
+						Resources: []v1alpha1.KabResource{
+							{
+								Name:    "foo",
+								Content: content,
+							},
+						},
+					},
+				}
+				err = client.PatchManifest(manifest)
+				Expect(err).ToNot(BeNil())
+			})
+		})
+
+		Context("When there is an error getting node docker-for-desktop", func() {
+
+			JustBeforeEach(func() {
+				kubeClient.On("CoreV1").Return(mockCore)
+				mockCore.On("Nodes").Return(mockNodes)
+
+				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "minikube"))
+				mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "docker-desktop"))
+				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
+					errors.NewForbidden(schema.GroupResource{}, "docker-for-desktop", err))
+				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
+			})
+
+			It("an error is returned", func() {
+				manifest = &v1alpha1.Manifest{
+					Spec: v1alpha1.KabSpec{
+						Resources: []v1alpha1.KabResource{
+							{
+								Name:    "foo",
+								Content: content,
+							},
+						},
+					},
+				}
+				err = client.PatchManifest(manifest)
+				Expect(err).ToNot(BeNil())
+			})
+		})
+		Context("When there is an error getting nodes", func() {
+
+			JustBeforeEach(func() {
+				kubeClient.On("CoreV1").Return(mockCore)
+				mockCore.On("Nodes").Return(mockNodes)
+
+				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "minikube"))
+				mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+					errors.NewForbidden(schema.GroupResource{}, "docker-for-desktop", err))
+				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
+					errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
 
 				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 			})
@@ -246,6 +353,8 @@ var _ = Describe("test patching manifest", func() {
 			mockNodes.On("Get", "minikube", mock.Anything).Return(nil, nil)
 			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
 				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
+			mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "docker-desktop"))
 
 			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
 		})
@@ -318,6 +427,8 @@ var _ = Describe("test patching manifest", func() {
 			mockNodes.On("Get", "minikube", mock.Anything).Return(nil, nil)
 			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
 				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
+			mockNodes.On("Get", "docker-desktop", mock.Anything).Return(nil,
+				errors.NewNotFound(schema.GroupResource{}, "docker-desktop"))
 
 			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
 		})

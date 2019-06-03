@@ -30,6 +30,7 @@ import (
 
 const (
 	MINIKUBE_NODE_NAME             = "minikube"
+	DOCKER_DESKTOP_NAME            = "docker-desktop"
 	DOCKER_FOR_DESKTOP_NAME        = "docker-for-desktop"
 	NODE_PORT_ENV_VAR              = "NODE_PORT"
 	CNAB_INSTALLATION_NAME_ENV_VAR = "CNAB_INSTALLATION_NAME"
@@ -102,12 +103,16 @@ func (c *Client) patchForLocalCluster(res *v1alpha1.KabResource) (string, error)
 	if err != nil {
 		return "", err
 	}
+	dockerDesktop, err := c.nodeExists(DOCKER_DESKTOP_NAME)
+	if err != nil {
+		return "", err
+	}
 	nodePort, err := isNodePortSet()
 	if err != nil {
 		return "", err
 	}
 
-	if minikube || dockerForDesktop || nodePort {
+	if minikube || dockerDesktop || dockerForDesktop || nodePort {
 		byteContent := []byte(res.Content)
 		byteContent = bytes.Replace(byteContent, []byte("type: LoadBalancer"), []byte("type: NodePort"), -1)
 		return string(byteContent), nil
