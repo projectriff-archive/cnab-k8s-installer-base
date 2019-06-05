@@ -56,7 +56,9 @@ func ListKindFromContent(contents []byte) ([]string, error) {
 			if err != nil {
 				return nil, fmt.Errorf("error parsing content: %v", err)
 			}
-			types[tm.Kind] = true
+			if tm.Kind != "" {
+				types[tm.Kind] = true
+			}
 		}
 	}
 

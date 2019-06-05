@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "MANIFEST"
+kubectl get manifests.projectriff.io $CNAB_INSTALLATION_NAME -oyaml
+echo "RESOURCES"
 kubectl get deployments,services,pods --all-namespaces || true
 echo "FAILING PODS:"
 kubectl get pods --all-namespaces --field-selector=status.phase!=Running \
