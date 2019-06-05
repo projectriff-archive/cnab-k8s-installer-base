@@ -85,3 +85,7 @@ COPY app/kab /cnab/app/kab
 ```
 
 Finally, create your application's manifest as defined above under `app/kab`.
+
+## Developing
+
+Please refer to the [developer's guide](docs/developer-guide.md).
