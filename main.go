@@ -39,6 +39,7 @@ import (
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 const (
@@ -97,7 +98,7 @@ func install(path string) {
 	}
 }
 
-func uninstall()  {
+func uninstall() {
 	knbClient, err := createKnbClient()
 	if err != nil {
 		log.Fatalln(err)
@@ -146,12 +147,42 @@ func getRestConfig() (*rest.Config, error) {
 	}
 	flag.Parse()
 
+	err := patchForDockerDesktop(*kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		return nil, err
 	}
 	return config, nil
+}
+
+// replace the master server URL for docker desktop from localhost to host.docker.internal
+// so that it can be discovered from within the container executing CNAB install
+func patchForDockerDesktop(kubeconfig string) error {
+
+	loader := clientcmd.NewDefaultClientConfigLoadingRules()
+	loader.ExplicitPath = kubeconfig
+
+	config, err := loader.Load()
+	if err != nil {
+		return err
+	}
+	currContext := config.CurrentContext
+	if currContext == kab.DOCKER_DESKTOP_NAME || currContext == kab.DOCKER_FOR_DESKTOP_NAME {
+		var cluster *api.Cluster
+		cluster = config.Clusters[config.CurrentContext]
+		cluster.Server = strings.Replace(cluster.Server, "localhost", "host.docker.internal", -1)
+		err = clientcmd.WriteToFile(*config, kubeconfig)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func getCoreClient(config *rest.Config) (kubernetes.Interface, error) {
