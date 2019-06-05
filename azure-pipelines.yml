@@ -11,7 +11,8 @@ variables:
   fatsDir: '$(system.defaultWorkingDirectory)/fats'
   fatsRefspec: b65bc2f1d14a80d9d9793e96766bc1d1b19508a4 # projectriff/fats master as of 2019-04-30
   cnabRiffDir: '$(system.defaultWorkingDirectory)/cnab-riff'
-  cnabRiffRefspec: 6e962bfbbdee1300ee913f06c89c03bb86fd0ea4 # projectriff/cnab-riff master as of 2019-05-10
+  cnabRiffRefspec: 9bc33ad76c7382564ba96372619e2589a369853b # projectriff/cnab-riff master as of 2019-05-23
+  installationName: myinstall
 
 pool:
   vmImage: 'ubuntu-16.04'
@@ -36,9 +37,21 @@ steps:
   - script: |
       ./cnab/app/run
     workingDirectory: '$(modulePath)'
-    displayName: 'run install'
+    displayName: 'install'
     env:
       CNAB_ACTION: install
+      CNAB_INSTALLATION_NAME: '$(installationName)'
+      MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
+      LOG_LEVEL: debug
+      TARGET_REGISTRY: registry.kube-system.svc.cluster.local
+
+  - script: |
+      ./cnab/app/run
+    workingDirectory: '$(modulePath)'
+    displayName: 'uninstall'
+    env:
+      CNAB_ACTION: uninstall
+      CNAB_INSTALLATION_NAME: '$(installationName)'
       MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
       LOG_LEVEL: debug
       TARGET_REGISTRY: registry.kube-system.svc.cluster.local
