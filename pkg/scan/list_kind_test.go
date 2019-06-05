@@ -43,6 +43,17 @@ var _ = Describe("ListKind", func() {
 		kinds, err = scan.ListKind(res, baseDir)
 	})
 
+	Context("when the resource file does not contain 'kind' key", func() {
+		BeforeEach(func() {
+			res = "simple.yaml"
+		})
+
+		It("an empty list is returned", func() {
+			Expect(err).NotTo(HaveOccurred())
+			Expect(kinds).To(BeEmpty())
+		})
+	})
+
 	Context("when the resource file contains block scalars", func() {
 		BeforeEach(func() {
 			res = "block.yaml"
