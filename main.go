@@ -138,6 +138,14 @@ func createKnbClient() (*kab.Client, error) {
 }
 
 func getRestConfig() (*rest.Config, error) {
+	config, err := getOutOfClusterRestConfig()
+	if err != nil {
+		return getInClusterRestConfig()
+	}
+	return config, nil
+}
+
+func getOutOfClusterRestConfig() (*rest.Config, error) {
 	var kubeconfig *string
 	if home := homeDir(); home != "" {
 		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
@@ -148,6 +156,14 @@ func getRestConfig() (*rest.Config, error) {
 
 	// use the current context in kubeconfig
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+	return config, nil
+}
+
+func getInClusterRestConfig() (*rest.Config, error) {
+	config, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, err
 	}
