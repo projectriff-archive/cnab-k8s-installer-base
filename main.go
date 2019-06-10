@@ -140,6 +140,7 @@ func createKnbClient() (*kab.Client, error) {
 func getRestConfig() (*rest.Config, error) {
 	config, err := getOutOfClusterRestConfig()
 	if err != nil {
+		log.Debugln("error getting out of cluster rest config, trying in cluster")
 		return getInClusterRestConfig()
 	}
 	return config, nil
