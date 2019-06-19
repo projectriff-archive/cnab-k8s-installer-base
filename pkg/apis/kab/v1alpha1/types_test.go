@@ -17,10 +17,10 @@
 package v1alpha1_test
 
 import (
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"errors"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"path/filepath"
 	"runtime"
 )

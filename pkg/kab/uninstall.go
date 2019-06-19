@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"strings"
 
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/scan"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"

@@ -17,8 +17,8 @@
 package kab
 
 import (
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/kubectl"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
 	"errors"
 	"fmt"
 	"github.com/pivotal/go-ape/pkg/furl"

@@ -19,9 +19,9 @@
 package fake
 
 import (
-	clientset "cnab-k8s-installer-base/pkg/client/clientset/versioned"
-	projectriffv1alpha1 "cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1"
-	fakeprojectriffv1alpha1 "cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1/fake"
+	clientset "github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned"
+	projectriffv1alpha1 "github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1"
+	fakeprojectriffv1alpha1 "github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -41,7 +41,7 @@ func NewSimpleClientset(objects ...runtime.Object) *Clientset {
 		}
 	}
 
-	cs := &Clientset{}
+	cs := &Clientset{tracker: o}
 	cs.discovery = &fakediscovery.FakeDiscovery{Fake: &cs.Fake}
 	cs.AddReactor("*", "*", testing.ObjectReaction(o))
 	cs.AddWatchReactor("*", func(action testing.Action) (handled bool, ret watch.Interface, err error) {
@@ -63,20 +63,20 @@ func NewSimpleClientset(objects ...runtime.Object) *Clientset {
 type Clientset struct {
 	testing.Fake
 	discovery *fakediscovery.FakeDiscovery
+	tracker   testing.ObjectTracker
 }
 
 func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 	return c.discovery
 }
 
+func (c *Clientset) Tracker() testing.ObjectTracker {
+	return c.tracker
+}
+
 var _ clientset.Interface = &Clientset{}
 
 // ProjectriffV1alpha1 retrieves the ProjectriffV1alpha1Client
 func (c *Clientset) ProjectriffV1alpha1() projectriffv1alpha1.ProjectriffV1alpha1Interface {
-	return &fakeprojectriffv1alpha1.FakeProjectriffV1alpha1{Fake: &c.Fake}
-}
-
-// Projectriff retrieves the ProjectriffV1alpha1Client
-func (c *Clientset) Projectriff() projectriffv1alpha1.ProjectriffV1alpha1Interface {
 	return &fakeprojectriffv1alpha1.FakeProjectriffV1alpha1{Fake: &c.Fake}
 }

@@ -1,0 +1,86 @@
+# Gopkg.toml example
+#
+# Refer to https://golang.github.io/dep/docs/Gopkg.toml.html
+# for detailed Gopkg.toml documentation.
+#
+# required = ["github.com/user/thing/cmd/thing"]
+# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
+#
+# [[constraint]]
+#   name = "github.com/user/project"
+#   version = "1.0.0"
+#
+# [[constraint]]
+#   name = "github.com/user/project2"
+#   branch = "dev"
+#   source = "github.com/myfork/project2"
+#
+# [[override]]
+#   name = "github.com/x/y"
+#   version = "2.4.0"
+#
+# [prune]
+#   non-go = false
+#   go-tests = true
+#   unused-packages = true
+
+
+[[constraint]]
+  name = "github.com/ghodss/yaml"
+  version = "1.0.0"
+
+[[constraint]]
+  name = "github.com/onsi/ginkgo"
+  version = "1.8.0"
+
+[[constraint]]
+  name = "github.com/onsi/gomega"
+  version = "1.5.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/pivotal/go-ape"
+
+[[constraint]]
+  name = "github.com/pivotal/image-relocation"
+  revision = "532dd0b42e7a50010d7868364309cd314a2bb376"
+
+[[override]]
+  name = "github.com/google/go-containerregistry"
+  revision = "5296537b6d5d12241dd0a8b1ef70a59cba62f48c"
+
+[[constraint]]
+  name = "github.com/pkg/errors"
+  version = "0.8.1"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "1.4.2"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "1.3.0"
+
+[[constraint]]
+  name = "k8s.io/api"
+  version = "kubernetes-1.13.0"
+
+[[constraint]]
+  name = "k8s.io/apiextensions-apiserver"
+  revision = "01b4f3c039db586ed6ec299cf30cc0e5a2a625d1"
+
+[[constraint]]
+  name = "k8s.io/apimachinery"
+  revision = "4521e64aecd39e2ab6ae86b59ae7ec273271621a"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "10.0.0"
+
+[[constraint]]
+  name = "sigs.k8s.io/kustomize"
+  version = "2.1.0"
+
+[prune]
+  go-tests = true
+  unused-packages = true

@@ -19,7 +19,7 @@
 package versioned
 
 import (
-	projectriffv1alpha1 "cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1"
+	projectriffv1alpha1 "github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -28,8 +28,6 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	ProjectriffV1alpha1() projectriffv1alpha1.ProjectriffV1alpha1Interface
-	// Deprecated: please explicitly pick a version if possible.
-	Projectriff() projectriffv1alpha1.ProjectriffV1alpha1Interface
 }
 
 // Clientset contains the clients for groups. Each group has exactly one
@@ -41,12 +39,6 @@ type Clientset struct {
 
 // ProjectriffV1alpha1 retrieves the ProjectriffV1alpha1Client
 func (c *Clientset) ProjectriffV1alpha1() projectriffv1alpha1.ProjectriffV1alpha1Interface {
-	return c.projectriffV1alpha1
-}
-
-// Deprecated: Projectriff retrieves the default version of ProjectriffClient.
-// Please explicitly pick a version.
-func (c *Clientset) Projectriff() projectriffv1alpha1.ProjectriffV1alpha1Interface {
 	return c.projectriffV1alpha1
 }
 

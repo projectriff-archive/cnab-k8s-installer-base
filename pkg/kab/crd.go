@@ -17,7 +17,7 @@
 package kab
 
 import (
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	extApi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"

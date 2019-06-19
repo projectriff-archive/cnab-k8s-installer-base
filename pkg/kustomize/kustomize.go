@@ -21,9 +21,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
+	"sigs.k8s.io/kustomize/pkg/resmap"
+	"sigs.k8s.io/kustomize/pkg/resource"
 
 	"github.com/pivotal/go-ape/pkg/furl"
-	"sigs.k8s.io/kustomize/k8sdeps"
+    "sigs.k8s.io/kustomize/k8sdeps/kunstruct"
+	"sigs.k8s.io/kustomize/k8sdeps/transformer"
+	"sigs.k8s.io/kustomize/k8sdeps/validator"
 	"sigs.k8s.io/kustomize/pkg/commands/build"
 	"sigs.k8s.io/kustomize/pkg/fs"
 	"sort"
@@ -97,10 +101,13 @@ resources:
 
 func (kust *kustomizer) runBuild() ([]byte, error) {
 	var out bytes.Buffer
-	kustomizeFactory := k8sdeps.NewFactory()
-	kustomizeBuildCommand := build.NewCmdBuild(&out, kust.fs, kustomizeFactory.ResmapF, kustomizeFactory.TransformerF)
+	uf := kunstruct.NewKunstructuredFactoryImpl()
+	rf := resmap.NewFactory(resource.NewFactory(uf))
+	v := validator.NewKustValidator()
+	tf := transformer.NewFactoryImpl()
+	kustomizeBuildCommand := build.NewCmdBuild(&out, kust.fs, v, rf, tf)
 	kustomizeBuildCommand.SetArgs([]string{kust.fakeDir})
-	kustomizeBuildCommand.SetOutput(ioutil.Discard)
+	kustomizeBuildCommand.SetOut(ioutil.Discard)
 	_, err := kustomizeBuildCommand.ExecuteC()
 	if err != nil {
 		return nil, err
