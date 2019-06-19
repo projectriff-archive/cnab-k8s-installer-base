@@ -27,7 +27,6 @@ gen-mocks: check-mockery check-jq
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/ext   -outpkg vendor_mocks_ext    -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset/typed/apiextensions/v1beta1 -name ApiextensionsV1beta1Interface
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks/ext   -outpkg vendor_mocks_ext    -dir $(call source_of,k8s.io/apiextensions-apiserver)/pkg/client/clientset/clientset/typed/apiextensions/v1beta1 -name CustomResourceDefinitionInterface
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name CoreV1Interface
-	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name NodeInterface
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name NamespaceInterface
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name PodInterface
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes                                                               -name Interface

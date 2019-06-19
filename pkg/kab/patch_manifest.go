@@ -24,13 +24,9 @@ import (
 
 	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	log "github.com/sirupsen/logrus"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 const (
-	MINIKUBE_NODE_NAME             = "minikube"
-	DOCKER_FOR_DESKTOP_NAME        = "docker-for-desktop"
 	NODE_PORT_ENV_VAR              = "NODE_PORT"
 	CNAB_INSTALLATION_NAME_ENV_VAR = "CNAB_INSTALLATION_NAME"
 	LABEL_KEY_NAME                 = "cnab-k8s-installer-installation-name"
@@ -43,7 +39,7 @@ func (c *Client) PatchManifest(manifest *v1alpha1.Manifest) error {
 		return err
 	}
 
-	err = manifest.PatchResourceContent(c.patchForLocalCluster)
+	err = manifest.PatchResourceContent(c.patchForNodePort)
 	if err != nil {
 		return err
 	}
@@ -92,22 +88,14 @@ func addLabels(labels map[string]string) map[string]string {
 	return labels
 }
 
-func (c *Client) patchForLocalCluster(res *v1alpha1.KabResource) (string, error) {
+func (c *Client) patchForNodePort(res *v1alpha1.KabResource) (string, error) {
 	var err error
-	minikube, err := c.nodeExists(MINIKUBE_NODE_NAME)
-	if err != nil {
-		return "", err
-	}
-	dockerForDesktop, err := c.nodeExists(DOCKER_FOR_DESKTOP_NAME)
-	if err != nil {
-		return "", err
-	}
 	nodePort, err := isNodePortSet()
 	if err != nil {
 		return "", err
 	}
 
-	if minikube || dockerForDesktop || nodePort {
+	if nodePort {
 		byteContent := []byte(res.Content)
 		byteContent = bytes.Replace(byteContent, []byte("type: LoadBalancer"), []byte("type: NodePort"), -1)
 		return string(byteContent), nil
@@ -125,15 +113,4 @@ func isNodePortSet() (bool, error) {
 		return false, err
 	}
 	return retVal, nil
-}
-
-func (c *Client) nodeExists(nodeName string) (bool, error) {
-	_, err := c.coreClient.CoreV1().Nodes().Get(nodeName, v1.GetOptions{})
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			return false, nil
-		}
-		return false, err
-	}
-	return true, nil
 }
