@@ -26,9 +26,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 var _ = Describe("test patching manifest", func() {
@@ -37,8 +35,6 @@ var _ = Describe("test patching manifest", func() {
 		var (
 			client        *kab.Client
 			kubeClient    *vendor_mocks.Interface
-			mockCore      *vendor_mocks.CoreV1Interface
-			mockNodes     *vendor_mocks.NodeInterface
 			mockKustomize *mockkustomize.Kustomizer
 			manifest      *v1alpha1.Manifest
 			content       string
@@ -47,78 +43,15 @@ var _ = Describe("test patching manifest", func() {
 
 		BeforeEach(func() {
 			kubeClient = new(vendor_mocks.Interface)
-			mockCore = new(vendor_mocks.CoreV1Interface)
-			mockNodes = new(vendor_mocks.NodeInterface)
 			mockKustomize = new(mockkustomize.Kustomizer)
 			content = "sometext: type: LoadBalancer"
 
 			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
 		})
 
-		Context("When the node is minikube", func() {
-
-			JustBeforeEach(func() {
-				content = "sometext: type: LoadBalancer"
-
-				kubeClient.On("CoreV1").Return(mockCore)
-				mockCore.On("Nodes").Return(mockNodes)
-				mockNodes.On("Get", "minikube", mock.Anything).Return(nil, nil)
-
-				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
-					errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
-
-				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
-			})
-
-			It("the content is patched", func() {
-				manifest = &v1alpha1.Manifest{
-					Spec: v1alpha1.KabSpec{
-						Resources: []v1alpha1.KabResource{
-							{
-								Name:    "foo",
-								Content: content,
-							},
-						},
-					},
-				}
-				err = client.PatchManifest(manifest)
-				Expect(err).To(BeNil())
-				Expect(manifest.Spec.Resources[0].Content).ToNot(ContainSubstring("type: LoadBalancer"))
-				Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("type: NodePort"))
-			})
-		})
-
-		Context("When the node is docker-for-desktop", func() {
-
-			JustBeforeEach(func() {
-				content = "sometext: type: LoadBalancer"
-
-				kubeClient.On("CoreV1").Return(mockCore)
-				mockCore.On("Nodes").Return(mockNodes)
-				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil, nil)
-
-				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
-					errors.NewNotFound(schema.GroupResource{}, "minikube"))
-
-				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
-			})
-
-			It("the content is patched", func() {
-				manifest = &v1alpha1.Manifest{
-					Spec: v1alpha1.KabSpec{
-						Resources: []v1alpha1.KabResource{
-							{
-								Name:    "foo",
-								Content: content,
-							},
-						},
-					},
-				}
-				err = client.PatchManifest(manifest)
-				Expect(err).To(BeNil())
-				Expect(manifest.Spec.Resources[0].Content).ToNot(ContainSubstring("type: LoadBalancer"))
-				Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("type: NodePort"))
-			})
+		JustAfterEach(func() {
+			kubeClient.AssertExpectations(GinkgoT())
+			mockKustomize.AssertExpectations(GinkgoT())
 		})
 
 		Context("When the node-port env variable is set", func() {
@@ -126,14 +59,6 @@ var _ = Describe("test patching manifest", func() {
 			JustBeforeEach(func() {
 				os.Setenv(kab.NODE_PORT_ENV_VAR, "true")
 				content = "sometext: type: LoadBalancer"
-
-				kubeClient.On("CoreV1").Return(mockCore)
-				mockCore.On("Nodes").Return(mockNodes)
-				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
-					errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
-
-				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
-					errors.NewNotFound(schema.GroupResource{}, "minikube"))
 
 				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 			})
@@ -163,15 +88,6 @@ var _ = Describe("test patching manifest", func() {
 		Context("When the node is neither minikube nor docker-for-desktop", func() {
 
 			JustBeforeEach(func() {
-				kubeClient.On("CoreV1").Return(mockCore)
-				mockCore.On("Nodes").Return(mockNodes)
-
-				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
-					errors.NewNotFound(schema.GroupResource{}, "minikube"))
-
-				mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
-					errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
-
 				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
 			})
 
@@ -192,42 +108,12 @@ var _ = Describe("test patching manifest", func() {
 				Expect(manifest.Spec.Resources[0].Content).ToNot(ContainSubstring("type: NodePort"))
 			})
 		})
-
-		Context("When there is an error getting nodes", func() {
-
-			JustBeforeEach(func() {
-				kubeClient.On("CoreV1").Return(mockCore)
-				mockCore.On("Nodes").Return(mockNodes)
-
-				mockNodes.On("Get", "minikube", mock.Anything).Return(nil,
-					errors.NewForbidden(schema.GroupResource{}, "", err))
-
-				mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(content), nil)
-			})
-
-			It("an error is returned", func() {
-				manifest = &v1alpha1.Manifest{
-					Spec: v1alpha1.KabSpec{
-						Resources: []v1alpha1.KabResource{
-							{
-								Name:    "foo",
-								Content: content,
-							},
-						},
-					},
-				}
-				err = client.PatchManifest(manifest)
-				Expect(err).ToNot(BeNil())
-			})
-		})
 	})
 
 	Describe("patch manifest name", func() {
 		var (
 			client        *kab.Client
 			kubeClient    *vendor_mocks.Interface
-			mockCore      *vendor_mocks.CoreV1Interface
-			mockNodes     *vendor_mocks.NodeInterface
 			mockKustomize *mockkustomize.Kustomizer
 			manifest      *v1alpha1.Manifest
 			installName   string
@@ -236,18 +122,16 @@ var _ = Describe("test patching manifest", func() {
 
 		BeforeEach(func() {
 			kubeClient = new(vendor_mocks.Interface)
-			mockCore = new(vendor_mocks.CoreV1Interface)
-			mockNodes = new(vendor_mocks.NodeInterface)
 			mockKustomize = new(mockkustomize.Kustomizer)
 			installName = "myInstallation"
 			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(""), nil)
-			kubeClient.On("CoreV1").Return(mockCore)
-			mockCore.On("Nodes").Return(mockNodes)
-			mockNodes.On("Get", "minikube", mock.Anything).Return(nil, nil)
-			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
-				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
 
 			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
+		})
+
+		JustAfterEach(func() {
+			kubeClient.AssertExpectations(GinkgoT())
+			mockKustomize.AssertExpectations(GinkgoT())
 		})
 
 		Context("when the installation name is specified in env var", func() {
@@ -300,8 +184,6 @@ var _ = Describe("test patching manifest", func() {
 		var (
 			client        *kab.Client
 			kubeClient    *vendor_mocks.Interface
-			mockCore      *vendor_mocks.CoreV1Interface
-			mockNodes     *vendor_mocks.NodeInterface
 			mockKustomize *mockkustomize.Kustomizer
 			manifest      *v1alpha1.Manifest
 			err           error
@@ -309,15 +191,8 @@ var _ = Describe("test patching manifest", func() {
 
 		BeforeEach(func() {
 			kubeClient = new(vendor_mocks.Interface)
-			mockCore = new(vendor_mocks.CoreV1Interface)
-			mockNodes = new(vendor_mocks.NodeInterface)
 			mockKustomize = new(mockkustomize.Kustomizer)
 			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(""), nil)
-			kubeClient.On("CoreV1").Return(mockCore)
-			mockCore.On("Nodes").Return(mockNodes)
-			mockNodes.On("Get", "minikube", mock.Anything).Return(nil, nil)
-			mockNodes.On("Get", "docker-for-desktop", mock.Anything).Return(nil,
-				errors.NewNotFound(schema.GroupResource{}, "docker-for-desktop"))
 
 			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
 		})
@@ -326,6 +201,8 @@ var _ = Describe("test patching manifest", func() {
 		})
 		JustAfterEach(func() {
 			os.Unsetenv(kab.CNAB_INSTALLATION_NAME_ENV_VAR)
+			kubeClient.AssertExpectations(GinkgoT())
+			mockKustomize.AssertExpectations(GinkgoT())
 		})
 
 		Context("when resource does not have labels", func() {
