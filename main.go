@@ -53,13 +53,13 @@ func main() {
 
 	setupLogging()
 
-	path := os.Getenv(MANIFEST_FILE_ENV_VAR)
+	path := getEnv(MANIFEST_FILE_ENV_VAR)
 	if path == "" {
 		// revert after duffle fixes the export parameter issue
 		// https://github.com/deislabs/duffle/issues/753
 		path = "/cnab/app/kab/manifest.yaml"
 	}
-	action := os.Getenv(CNAB_ACTION_ENV_VAR)
+	action := getEnv(CNAB_ACTION_ENV_VAR)
 	action = strings.ToLower(action)
 	log.Debugf("performing action: %s, manifest file: %s", action, path)
 	switch action {
@@ -87,7 +87,7 @@ func install(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = knbClient.Relocate(manifest, os.Getenv(TARGET_REGISTRY_ENV_VAR))
+	err = knbClient.Relocate(manifest, getEnv(TARGET_REGISTRY_ENV_VAR))
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -208,7 +208,7 @@ func setupLogging() {
 }
 
 func getLogLevel() log.Level {
-	requestedLevel := os.Getenv(LOG_LEVEL_ENV_VAR)
+	requestedLevel := getEnv(LOG_LEVEL_ENV_VAR)
 	if requestedLevel == "" {
 		return log.InfoLevel
 	}
@@ -217,4 +217,13 @@ func getLogLevel() log.Level {
 		log.Fatalf("Unknown log level %s", requestedLevel)
 	}
 	return level
+}
+
+// duffle sets the env value to "<nil>", so restore normal behavior
+func getEnv(env_var string) (string) {
+	val := os.Getenv(env_var)
+	if strings.Contains(val, "nil") {
+		return ""
+	}
+	return val
 }
