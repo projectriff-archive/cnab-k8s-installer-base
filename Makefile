@@ -35,7 +35,7 @@ install: build
 	cp $(OUTPUT) $(GOBIN)
 
 kab: $(GO_SOURCES) VERSION
-	GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o $(OUTPUT) -v
+	GO111MODULE=on CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -o $(OUTPUT) -v
 
 define source_of
 	$(shell GO111MODULE=on go mod download -json | jq -r 'select(.Path == "$(1)").Dir' | tr '\\' '/'  2> /dev/null)
