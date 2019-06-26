@@ -17,8 +17,8 @@
 package kab_test
 
 import (
-	"cnab-k8s-installer-base/pkg/kab"
-	"cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"

@@ -17,8 +17,8 @@
 package kustomize_test
 
 import (
-	"cnab-k8s-installer-base/pkg/kustomize"
-	"cnab-k8s-installer-base/pkg/test_support"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/test_support"
 	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

@@ -20,8 +20,8 @@ import (
 	"errors"
 	"strings"
 
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/scan"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	"github.com/pivotal/go-ape/pkg/furl"
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/pathmapping"

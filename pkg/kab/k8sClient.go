@@ -17,10 +17,10 @@
 package kab
 
 import (
-	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
-	"cnab-k8s-installer-base/pkg/kubectl"
-	"cnab-k8s-installer-base/pkg/registry"
-	"cnab-k8s-installer-base/pkg/kustomize"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/registry"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 	"time"

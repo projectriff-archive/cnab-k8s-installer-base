@@ -1,4 +1,4 @@
-module cnab-k8s-installer-base
+module github.com/projectriff/cnab-k8s-installer-base
 
 require (
 	github.com/Azure/go-autorest/autorest v0.1.0 // indirect
