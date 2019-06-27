@@ -17,18 +17,18 @@
 package kab_test
 
 import (
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned/fake"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks"
 	vendor_mocks_ext "github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl/mocks"
+	mockkubectl "github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl/mocks"
 	mockkustomize "github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize/mocks"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"github.com/stretchr/testify/mock"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -163,7 +163,7 @@ var _ = Describe("test install", func() {
 					Spec: v1alpha1.KabSpec{
 						Resources: []v1alpha1.KabResource{
 							{
-								Name: "deferred",
+								Name:     "deferred",
 								Deferred: true,
 							},
 						},

@@ -19,13 +19,13 @@ package kab_test
 import (
 	"errors"
 
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/registry/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/pivotal/image-relocation/pkg/image"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks"
+	mockregistry "github.com/projectriff/cnab-k8s-installer-base/pkg/registry/mocks"
 	"github.com/stretchr/testify/mock"
 )
 

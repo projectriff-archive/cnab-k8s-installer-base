@@ -18,12 +18,12 @@ package v1alpha1
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 const (
-	GroupName = "projectriff.io"
+	GroupName     = "projectriff.io"
 	VersionNumber = "v1alpha1"
 )
 
@@ -35,7 +35,7 @@ var (
 	}
 
 	SchemeBuilder = runtime.NewSchemeBuilder(addKnownTypes)
-	AddToScheme = SchemeBuilder.AddToScheme
+	AddToScheme   = SchemeBuilder.AddToScheme
 )
 
 func Kind(kind string) schema.GroupKind {
@@ -51,7 +51,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&metav1.ListOptions{},
 		&metav1.DeleteOptions{},
 		&metav1.GetOptions{},
-		)
+	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
 }

@@ -17,12 +17,13 @@
 package v1alpha1_test
 
 import (
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"errors"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	"path/filepath"
 	"runtime"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 )
 
 var _ = Describe("Manifest", func() {
@@ -163,7 +164,7 @@ var _ = Describe("Manifest", func() {
 
 		Context("When the function modifies attributes other than content", func() {
 			It("those modifications are preserved", func() {
-				lables := map[string]string{"k1":"v1", "k2":"v2"}
+				lables := map[string]string{"k1": "v1", "k2": "v2"}
 				err = manifest.PatchResourceContent(func(res *v1alpha1.KabResource) (string, error) {
 					if res.Name == "istio" {
 						res.Labels = lables

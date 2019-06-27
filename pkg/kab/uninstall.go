@@ -25,8 +25,7 @@ import (
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (c *Client) Uninstall(name string) error {
@@ -58,7 +57,7 @@ func (c *Client) Uninstall(name string) error {
 		return e.New(fmt.Sprintf("error while uninstalling: %v, due to: %s", err, out))
 	}
 
-	log.Infoln("uninstalling bundle manifest from cluster",)
+	log.Infoln("uninstalling bundle manifest from cluster")
 	err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Delete(manifest.Name, &v1.DeleteOptions{})
 	if err != nil {
 		return e.New(fmt.Sprintf("error while deleting the manifest: %v", err))

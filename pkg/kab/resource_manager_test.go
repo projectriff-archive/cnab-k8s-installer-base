@@ -17,16 +17,17 @@
 package kab_test
 
 import (
+	"errors"
+
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl/mocks"
-	"errors"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	mockkubectl "github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl/mocks"
 	"github.com/stretchr/testify/mock"
 	v12 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
@@ -185,9 +186,9 @@ spec:
 	Describe("Check Tests", func() {
 		var (
 			backoffSettings wait.Backoff
-			mockKubeClient    *vendor_mocks.Interface
-			mockCore      *vendor_mocks.CoreV1Interface
-			mockPods      *vendor_mocks.PodInterface
+			mockKubeClient  *vendor_mocks.Interface
+			mockCore        *vendor_mocks.CoreV1Interface
+			mockPods        *vendor_mocks.PodInterface
 			err             error
 		)
 
@@ -230,13 +231,13 @@ spec:
 
 					resMan := kab.NewResourceManager(nil, mockKubeClient)
 					labelSelector := v1.LabelSelector{
-						MatchLabels: map[string]string{"istio":"sidecar-injector"},
+						MatchLabels: map[string]string{"istio": "sidecar-injector"},
 					}
 					resource := v1alpha1.KabResource{
 						Name: "r1",
 						Checks: []v1alpha1.ResourceChecks{
 							{
-								Kind: "Pod",
+								Kind:     "Pod",
 								JsonPath: ".status.phase",
 								Selector: labelSelector,
 							},
@@ -255,25 +256,25 @@ spec:
 						Items: []v12.Pod{
 							{
 								ObjectMeta: v1.ObjectMeta{
-									Labels: map[string]string{"istio":"sidecar-injector"},
+									Labels: map[string]string{"istio": "sidecar-injector"},
 								},
-								Status: v12.PodStatus{Phase:"ImagePullBackoff"},
+								Status: v12.PodStatus{Phase: "ImagePullBackoff"},
 							},
 						},
 					}, nil).Twice()
 
 					resMan := kab.NewResourceManager(nil, mockKubeClient)
 					labelSelector := v1.LabelSelector{
-						MatchLabels: map[string]string{"istio":"sidecar-injector"},
+						MatchLabels: map[string]string{"istio": "sidecar-injector"},
 					}
 					resource := v1alpha1.KabResource{
 						Name: "r1",
 						Checks: []v1alpha1.ResourceChecks{
 							{
-								Kind: "Pod",
+								Kind:     "Pod",
 								JsonPath: ".status.phase",
 								Selector: labelSelector,
-								Pattern: "Running",
+								Pattern:  "Running",
 							},
 						},
 					}
@@ -291,32 +292,32 @@ spec:
 						Items: []v12.Pod{
 							{
 								ObjectMeta: v1.ObjectMeta{
-									Labels: map[string]string{"istio":"sidecar-injector"},
+									Labels: map[string]string{"istio": "sidecar-injector"},
 								},
-								Status: v12.PodStatus{Phase:"Running"},
+								Status: v12.PodStatus{Phase: "Running"},
 							},
 							{
 								ObjectMeta: v1.ObjectMeta{
-									Labels: map[string]string{"foo":"bar"},
+									Labels: map[string]string{"foo": "bar"},
 								},
-								Status: v12.PodStatus{Phase:"ImagePullBackoff"},
+								Status: v12.PodStatus{Phase: "ImagePullBackoff"},
 							},
 						},
 					}, nil)
 
 					resMan := kab.NewResourceManager(nil, mockKubeClient)
 					labelSelectorIstio := v1.LabelSelector{
-						MatchLabels: map[string]string{"istio":"sidecar-injector"},
+						MatchLabels: map[string]string{"istio": "sidecar-injector"},
 					}
 
 					resource := v1alpha1.KabResource{
 						Name: "r1",
 						Checks: []v1alpha1.ResourceChecks{
 							{
-								Kind: "Pod",
+								Kind:     "Pod",
 								JsonPath: ".status.phase",
 								Selector: labelSelectorIstio,
-								Pattern: "Running",
+								Pattern:  "Running",
 							},
 						},
 					}
@@ -329,33 +330,33 @@ spec:
 			Context("With multiple resource checks, when one resource check succeeds but the other fails", func() {
 				It("the check fails", func() {
 					labelSelectorIstio := v1.LabelSelector{
-						MatchLabels: map[string]string{"istio":"sidecar-injector"},
+						MatchLabels: map[string]string{"istio": "sidecar-injector"},
 					}
 					labelSelectorfoo := v1.LabelSelector{
-						MatchLabels: map[string]string{"foo":"bar"},
+						MatchLabels: map[string]string{"foo": "bar"},
 					}
 
 					mockKubeClient.On("CoreV1").Return(mockCore)
 					mockCore.On("Pods", mock.Anything).Return(mockPods)
 
-					mockPods.On("List", v1.ListOptions{LabelSelector:"istio=sidecar-injector"}).Return(&v12.PodList{
+					mockPods.On("List", v1.ListOptions{LabelSelector: "istio=sidecar-injector"}).Return(&v12.PodList{
 						Items: []v12.Pod{
 							{
 								ObjectMeta: v1.ObjectMeta{
-									Labels: map[string]string{"istio":"sidecar-injector"},
+									Labels: map[string]string{"istio": "sidecar-injector"},
 								},
-								Status: v12.PodStatus{Phase:"Running"},
+								Status: v12.PodStatus{Phase: "Running"},
 							},
 						},
 					}, nil).Once()
 
-					mockPods.On("List", v1.ListOptions{LabelSelector:"foo=bar"}).Return(&v12.PodList{
+					mockPods.On("List", v1.ListOptions{LabelSelector: "foo=bar"}).Return(&v12.PodList{
 						Items: []v12.Pod{
 							{
 								ObjectMeta: v1.ObjectMeta{
-									Labels: map[string]string{"foo":"bar"},
+									Labels: map[string]string{"foo": "bar"},
 								},
-								Status: v12.PodStatus{Phase:"ImagePullBackoff"},
+								Status: v12.PodStatus{Phase: "ImagePullBackoff"},
 							},
 						},
 					}, nil).Twice()
@@ -366,16 +367,16 @@ spec:
 						Name: "r1",
 						Checks: []v1alpha1.ResourceChecks{
 							{
-								Kind: "Pod",
+								Kind:     "Pod",
 								JsonPath: ".status.phase",
 								Selector: labelSelectorIstio,
-								Pattern: "Running",
+								Pattern:  "Running",
 							},
 							{
-								Kind: "Pod",
+								Kind:     "Pod",
 								JsonPath: ".status.phase",
 								Selector: labelSelectorfoo,
-								Pattern: "Running",
+								Pattern:  "Running",
 							},
 						},
 					}
@@ -393,25 +394,25 @@ spec:
 						Items: []v12.Pod{
 							{
 								ObjectMeta: v1.ObjectMeta{
-									Labels: map[string]string{"istio":"sidecar-injector"},
+									Labels: map[string]string{"istio": "sidecar-injector"},
 								},
-								Status: v12.PodStatus{Phase:"Running"},
+								Status: v12.PodStatus{Phase: "Running"},
 							},
 						},
 					}, nil)
 
 					resMan := kab.NewResourceManager(nil, mockKubeClient)
 					labelSelector := v1.LabelSelector{
-						MatchLabels: map[string]string{"istio":"sidecar-injector"},
+						MatchLabels: map[string]string{"istio": "sidecar-injector"},
 					}
 					resource := v1alpha1.KabResource{
 						Name: "r1",
 						Checks: []v1alpha1.ResourceChecks{
 							{
-								Kind: "Pod",
+								Kind:     "Pod",
 								JsonPath: ".status.phase",
 								Selector: labelSelector,
-								Pattern: "Running",
+								Pattern:  "Running",
 							},
 						},
 					}

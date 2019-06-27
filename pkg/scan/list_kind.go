@@ -24,8 +24,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/pivotal/go-ape/pkg/furl"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func ListKind(res string, baseDir string) ([]string, error) {
