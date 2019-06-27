@@ -20,6 +20,8 @@ pool:
 name: $(Date:yyyyMMdd)$(Rev:.r)
 steps:
   - template: ci/go-build-step.yml
+  - script: go get golang.org/x/tools/cmd/goimports
+    displayName: 'get goimports'
   - script: make
     workingDirectory: '$(modulePath)'
     displayName: 'build and unit test'
