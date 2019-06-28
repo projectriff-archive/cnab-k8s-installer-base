@@ -19,13 +19,13 @@ package kab_test
 import (
 	"os"
 
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/client/clientset/versioned/fake"
-	"cnab-k8s-installer-base/pkg/kab"
-	"cnab-k8s-installer-base/pkg/kab/vendor_mocks"
-	"cnab-k8s-installer-base/pkg/kubectl/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned/fake"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks"
+	mockkubectl "github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl/mocks"
 	"github.com/stretchr/testify/mock"
 	v12 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"

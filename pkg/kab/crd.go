@@ -17,8 +17,9 @@
 package kab
 
 import (
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"fmt"
+
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	log "github.com/sirupsen/logrus"
 	extApi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	extClientset "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
@@ -38,11 +39,11 @@ func CreateCRD(clientset extClientset.Interface) error {
 			},
 			TypeMeta: meta_v1.TypeMeta{
 				APIVersion: "apiextensions.k8s.io/v1beta1",
-				Kind: "CustomResourceDefinition",
+				Kind:       "CustomResourceDefinition",
 			},
 			Spec: extApi.CustomResourceDefinitionSpec{
 				Group: v1alpha1.GroupName,
-				Versions: []extApi.CustomResourceDefinitionVersion {
+				Versions: []extApi.CustomResourceDefinitionVersion{
 					{
 						Name:    v1alpha1.VersionNumber,
 						Served:  true,
@@ -52,8 +53,8 @@ func CreateCRD(clientset extClientset.Interface) error {
 				Scope: extApi.ClusterScoped,
 				Names: extApi.CustomResourceDefinitionNames{
 					Singular: "manifest",
-					Plural: NAME,
-					Kind: "Manifest",
+					Plural:   NAME,
+					Kind:     "Manifest",
 				},
 			},
 		})

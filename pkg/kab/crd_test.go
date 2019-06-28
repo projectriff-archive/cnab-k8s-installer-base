@@ -17,10 +17,10 @@
 package kab_test
 
 import (
-	"cnab-k8s-installer-base/pkg/kab"
-	"cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
+	vendor_mocks_ext "github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks/ext"
 	"github.com/stretchr/testify/mock"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime/schema"

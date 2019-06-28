@@ -24,12 +24,12 @@ import (
 	"strings"
 	"time"
 
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/client/clientset/versioned"
-	"cnab-k8s-installer-base/pkg/kab"
-	"cnab-k8s-installer-base/pkg/kubectl"
-	"cnab-k8s-installer-base/pkg/kustomize"
-	"cnab-k8s-installer-base/pkg/registry"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/registry"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -97,7 +97,7 @@ func install(path string) {
 	}
 }
 
-func uninstall()  {
+func uninstall() {
 	knbClient, err := createKnbClient()
 	if err != nil {
 		log.Fatalln(err)
@@ -220,7 +220,7 @@ func getLogLevel() log.Level {
 }
 
 // duffle sets the env value to "<nil>", so restore normal behavior
-func getEnv(env_var string) (string) {
+func getEnv(env_var string) string {
 	val := os.Getenv(env_var)
 	if strings.Contains(val, "nil") {
 		return ""

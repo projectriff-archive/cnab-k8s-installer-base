@@ -19,7 +19,7 @@
 package fake
 
 import (
-	v1alpha1 "cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1"
+	v1alpha1 "github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned/typed/kab/v1alpha1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )

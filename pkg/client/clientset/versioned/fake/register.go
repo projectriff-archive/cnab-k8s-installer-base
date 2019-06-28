@@ -19,7 +19,7 @@
 package fake
 
 import (
-	projectriffv1alpha1 "cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	projectriffv1alpha1 "github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

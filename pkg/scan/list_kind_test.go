@@ -20,9 +20,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"cnab-k8s-installer-base/pkg/scan"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 )
 
 var _ = Describe("ListKind", func() {

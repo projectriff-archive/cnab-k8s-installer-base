@@ -21,12 +21,11 @@ import (
 	"fmt"
 	"strings"
 
-	"cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"cnab-k8s-installer-base/pkg/scan"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
-
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func (c *Client) Uninstall(name string) error {
@@ -58,8 +57,8 @@ func (c *Client) Uninstall(name string) error {
 		return e.New(fmt.Sprintf("error while uninstalling: %v, due to: %s", err, out))
 	}
 
-	log.Infoln("uninstalling bundle manifest from cluster",)
-	err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Delete(manifest.Name, &v1.DeleteOptions{})
+	log.Infoln("uninstalling bundle manifest from cluster")
+	err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Delete(manifest.Name, &metav1.DeleteOptions{})
 	if err != nil {
 		return e.New(fmt.Sprintf("error while deleting the manifest: %v", err))
 	}
@@ -67,12 +66,12 @@ func (c *Client) Uninstall(name string) error {
 }
 
 func (c *Client) LookupManifest(name string) (*v1alpha1.Manifest, error) {
-	namespaceList, err := c.coreClient.CoreV1().Namespaces().List(v1.ListOptions{})
+	namespaceList, err := c.coreClient.CoreV1().Namespaces().List(metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 	for _, ns := range namespaceList.Items {
-		manifest, err := c.kabClient.ProjectriffV1alpha1().Manifests(ns.Name).Get(name, v1.GetOptions{})
+		manifest, err := c.kabClient.ProjectriffV1alpha1().Manifests(ns.Name).Get(name, metav1.GetOptions{})
 		if err != nil {
 			if errors.IsNotFound(err) {
 				continue

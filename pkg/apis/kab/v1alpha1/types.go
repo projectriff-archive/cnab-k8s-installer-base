@@ -19,12 +19,13 @@ package v1alpha1
 import (
 	"errors"
 	"fmt"
-	"github.com/ghodss/yaml"
-	"github.com/pivotal/go-ape/pkg/furl"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"net/url"
 	"path/filepath"
 	"strings"
+
+	"github.com/ghodss/yaml"
+	"github.com/pivotal/go-ape/pkg/furl"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // +genclient

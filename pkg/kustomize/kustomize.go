@@ -22,13 +22,14 @@ import (
 	"io/ioutil"
 	"net/url"
 
+	"sort"
+	"strings"
+	"time"
+
 	"github.com/pivotal/go-ape/pkg/furl"
 	"sigs.k8s.io/kustomize/k8sdeps"
 	"sigs.k8s.io/kustomize/pkg/commands/build"
 	"sigs.k8s.io/kustomize/pkg/fs"
-	"sort"
-	"strings"
-	"time"
 )
 
 type Kustomizer interface {
