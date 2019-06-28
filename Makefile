@@ -14,7 +14,7 @@ test:
 	GO111MODULE=on go test ./... -race -coverprofile=coverage.txt -covermode=atomic
 
 check-goimports:
-	@which goimports > /dev/null || (echo goimports not found: issue \"GO111MODULE=off go get golang.org/x/tools/cmd/goimports\" && false)
+	@which goimports > /dev/null || (echo goimports not found: issue \"go get golang.org/x/tools/cmd/goimports\" && false)
 
 goimports: check-goimports
 	@goimports -w pkg main.go
