@@ -4,9 +4,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 )
 
 var _ = Describe("ListImages", func() {

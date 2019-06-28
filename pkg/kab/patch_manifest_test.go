@@ -19,14 +19,14 @@ package kab_test
 import (
 	"os"
 
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize/mocks"
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	mockkustomize "github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize/mocks"
 	"github.com/stretchr/testify/mock"
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var _ = Describe("test patching manifest", func() {
@@ -143,7 +143,7 @@ var _ = Describe("test patching manifest", func() {
 			})
 			It("the installation name is used for manifest", func() {
 				manifest = &v1alpha1.Manifest{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "defaultName",
 					},
 					Spec: v1alpha1.KabSpec{
@@ -162,7 +162,7 @@ var _ = Describe("test patching manifest", func() {
 		Context("when the installation name is not specified in env var", func() {
 			It("the installation name remains unchanged", func() {
 				manifest = &v1alpha1.Manifest{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "defaultName",
 					},
 					Spec: v1alpha1.KabSpec{
@@ -228,8 +228,8 @@ var _ = Describe("test patching manifest", func() {
 					Spec: v1alpha1.KabSpec{
 						Resources: []v1alpha1.KabResource{
 							{
-								Name: "foo",
-								Labels: map[string]string{"k1":"v1"},
+								Name:   "foo",
+								Labels: map[string]string{"k1": "v1"},
 							},
 						},
 					},

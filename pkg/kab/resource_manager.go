@@ -17,15 +17,16 @@
 package kab
 
 import (
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/pivotal/go-ape/pkg/furl"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/kubernetes"
-	"strings"
 )
 
 type rm struct {

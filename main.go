@@ -97,7 +97,7 @@ func install(path string) {
 	}
 }
 
-func uninstall()  {
+func uninstall() {
 	knbClient, err := createKnbClient()
 	if err != nil {
 		log.Fatalln(err)
@@ -220,7 +220,7 @@ func getLogLevel() log.Level {
 }
 
 // duffle sets the env value to "<nil>", so restore normal behavior
-func getEnv(env_var string) (string) {
+func getEnv(env_var string) string {
 	val := os.Getenv(env_var)
 	if strings.Contains(val, "nil") {
 		return ""

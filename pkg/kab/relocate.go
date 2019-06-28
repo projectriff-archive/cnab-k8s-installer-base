@@ -20,13 +20,12 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	"github.com/pivotal/go-ape/pkg/furl"
 	"github.com/pivotal/image-relocation/pkg/image"
 	"github.com/pivotal/image-relocation/pkg/pathmapping"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	log "github.com/sirupsen/logrus"
-
 )
 
 func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) error {

@@ -17,11 +17,12 @@
 package kab
 
 import (
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"errors"
 	"fmt"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
+
+	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // TODO this only supports checking Pods for phases, add more resources
