@@ -28,7 +28,7 @@ import (
 	mockkustomize "github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize/mocks"
 	"github.com/stretchr/testify/mock"
 	"k8s.io/apimachinery/pkg/api/errors"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -58,7 +58,7 @@ var _ = Describe("test install", func() {
 
 		It("allows only one crd object to be created", func() {
 			manifest = &v1alpha1.Manifest{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "test",
 				},
 				Spec: v1alpha1.KabSpec{
@@ -80,7 +80,7 @@ var _ = Describe("test install", func() {
 
 		It("retries if the crd is not ready", func() {
 			manifest = &v1alpha1.Manifest{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "test",
 				},
 				Spec: v1alpha1.KabSpec{
@@ -140,7 +140,7 @@ var _ = Describe("test install", func() {
 		Context("when Install is called", func() {
 			It("The crd and crd object are created", func() {
 				manifest = &v1alpha1.Manifest{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "test",
 					},
 					Spec: v1alpha1.KabSpec{
@@ -157,7 +157,7 @@ var _ = Describe("test install", func() {
 		Context("when manifest has a deferred resource", func() {
 			It("the resource is not installed", func() {
 				manifest = &v1alpha1.Manifest{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "test",
 					},
 					Spec: v1alpha1.KabSpec{

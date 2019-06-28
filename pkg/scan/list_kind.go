@@ -24,7 +24,7 @@ import (
 
 	"github.com/ghodss/yaml"
 	"github.com/pivotal/go-ape/pkg/furl"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func ListKind(res string, baseDir string) ([]string, error) {
@@ -50,7 +50,7 @@ func ListKindFromContent(contents []byte) ([]string, error) {
 	}
 	for _, doc := range docs {
 		if strings.TrimSpace(doc) != "" {
-			tm := v1.TypeMeta{}
+			tm := metav1.TypeMeta{}
 			err = yaml.Unmarshal([]byte(doc), &tm)
 			if err != nil {
 				return nil, fmt.Errorf("error parsing content: %v", err)

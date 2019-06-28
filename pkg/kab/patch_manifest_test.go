@@ -26,7 +26,7 @@ import (
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab/vendor_mocks"
 	mockkustomize "github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize/mocks"
 	"github.com/stretchr/testify/mock"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 var _ = Describe("test patching manifest", func() {
@@ -143,7 +143,7 @@ var _ = Describe("test patching manifest", func() {
 			})
 			It("the installation name is used for manifest", func() {
 				manifest = &v1alpha1.Manifest{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "defaultName",
 					},
 					Spec: v1alpha1.KabSpec{
@@ -162,7 +162,7 @@ var _ = Describe("test patching manifest", func() {
 		Context("when the installation name is not specified in env var", func() {
 			It("the installation name remains unchanged", func() {
 				manifest = &v1alpha1.Manifest{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "defaultName",
 					},
 					Spec: v1alpha1.KabSpec{
