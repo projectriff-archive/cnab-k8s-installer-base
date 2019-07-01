@@ -31,12 +31,13 @@ import (
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/registry"
 
+	// load credential helpers
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/azure"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
