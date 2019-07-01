@@ -17,37 +17,22 @@
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
-	"path/filepath"
+	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/registry"
 
-	// load credential helpers
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
-	KUSTOMIZE_TIMEOUT       = 30 * time.Second
-	CNAB_ACTION_ENV_VAR     = "CNAB_ACTION"
-	MANIFEST_FILE_ENV_VAR   = "MANIFEST_FILE"
-	TARGET_REGISTRY_ENV_VAR = "TARGET_REGISTRY"
-	LOG_LEVEL_ENV_VAR       = "LOG_LEVEL"
+	CNAB_ACTION_ENV_VAR            = "CNAB_ACTION"
+	CNAB_INSTALLATION_NAME_ENV_VAR = "CNAB_INSTALLATION_NAME"
+	MANIFEST_FILE_ENV_VAR          = "MANIFEST_FILE"
+	NODE_PORT_ENV_VAR              = "NODE_PORT"
+	LOG_LEVEL_ENV_VAR              = "LOG_LEVEL"
 )
 
 func main() {
@@ -66,9 +51,10 @@ func main() {
 	switch action {
 	case "install":
 		install(path)
-	case "uninstall":
-		uninstall()
-	case "upgrade":
+	// TODO restore uninstall
+	// case "uninstall":
+	// 	uninstall()
+	// case "upgrade":
 	default:
 		log.Fatalf("unknown action '%s'. please set CNAB_ACTION environment variable", action)
 	}
@@ -80,127 +66,16 @@ func install(path string) {
 		_, err = fmt.Fprintf(os.Stderr, "error while reading from %s: %v", path, err)
 		os.Exit(1)
 	}
-	knbClient, err := createKnbClient()
-	if err != nil {
-		log.Fatalln(err)
+	for _, resource := range manifest.Spec.Resources {
+		cmd := exec.Command("kapp", "deploy", "-y", "-a", resource.Name, "-f", resource.Path)
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		err := cmd.Run()
+		if err != nil {
+			_, err = fmt.Fprintf(os.Stderr, "error while applying %s: %v", resource.Name, err)
+			os.Exit(1)
+		}
 	}
-	err = knbClient.PatchManifest(manifest)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	err = knbClient.Relocate(manifest, getEnv(TARGET_REGISTRY_ENV_VAR))
-	if err != nil {
-		log.Fatalln(err)
-	}
-	err = knbClient.Install(manifest)
-	if err != nil {
-		log.Fatalf("error while installing from %s: %v\n", path, err)
-	}
-}
-
-func uninstall() {
-	knbClient, err := createKnbClient()
-	if err != nil {
-		log.Fatalln(err)
-	}
-	err = knbClient.Uninstall(kab.GetInstallationName())
-	if err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func createKnbClient() (*kab.Client, error) {
-	config, err := getRestConfig()
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not get kubernetes configuration: %s", err))
-	}
-	coreClient, err := getCoreClient(config)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not create kubernetes core client: %s", err))
-	}
-	extClient, err := getExtensionClient(config)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not create kubernetes extension client: %s", err))
-	}
-	kabClient, err := getKabClient(config)
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not create kubernetes kab client: %s", err))
-	}
-	dClient, err := registry.NewClient()
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not create docker client: %s", err))
-	}
-	kustomizer := kustomize.MakeKustomizer(KUSTOMIZE_TIMEOUT)
-
-	ctl := kubectl.RealKubeCtl()
-
-	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient, kustomizer, ctl)
-	return knbClient, nil
-}
-
-func getRestConfig() (*rest.Config, error) {
-	config, err := getOutOfClusterRestConfig()
-	if err != nil {
-		log.Debugln("error getting out of cluster rest config, trying in cluster")
-		return getInClusterRestConfig()
-	}
-	return config, nil
-}
-
-func getOutOfClusterRestConfig() (*rest.Config, error) {
-	var kubeconfig *string
-	if home := homeDir(); home != "" {
-		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-	} else {
-		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-	}
-	flag.Parse()
-
-	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
-	if err != nil {
-		return nil, err
-	}
-	return config, nil
-}
-
-func getInClusterRestConfig() (*rest.Config, error) {
-	config, err := rest.InClusterConfig()
-	if err != nil {
-		return nil, err
-	}
-	return config, nil
-}
-
-func getCoreClient(config *rest.Config) (kubernetes.Interface, error) {
-	clientset, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-	return clientset, nil
-}
-
-func getExtensionClient(config *rest.Config) (apiext.Interface, error) {
-	extClient, err := apiext.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-	return extClient, nil
-}
-
-func getKabClient(config *rest.Config) (versioned.Interface, error) {
-	kabClient, err := versioned.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-	return kabClient, nil
-}
-
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
 }
 
 func setupLogging() {

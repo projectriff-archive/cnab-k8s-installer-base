@@ -59,16 +59,6 @@ var _ = Describe("Manifest", func() {
 			})
 		})
 
-		Context("when the manifest has the wrong version", func() {
-			BeforeEach(func() {
-				manifestPath = "./fixtures/wrongversion.yaml"
-			})
-
-			It("should return a suitable error", func() {
-				Expect(err).To(MatchError(ContainSubstring("Unsupported version")))
-			})
-		})
-
 		Context("when the manifest contains a resource with an absolute path", func() {
 			BeforeEach(func() {
 				manifestPath = filepath.Join("fixtures")

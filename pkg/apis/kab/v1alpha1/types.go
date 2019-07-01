@@ -17,7 +17,6 @@
 package v1alpha1
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 	"path/filepath"
@@ -87,11 +86,6 @@ func NewManifest(path string) (manifest *Manifest, err error) {
 			return nil, fmt.Errorf("error parsing manifest file: %v. Please ensure that manifest has supported version", err)
 		}
 		return nil, fmt.Errorf("error parsing manifest file: %v", err)
-	}
-
-	supportedVersion := fmt.Sprintf("%s/%s", GroupName, VersionNumber)
-	if !strings.EqualFold(m.APIVersion, supportedVersion) {
-		return nil, errors.New(fmt.Sprintf("Unsupported version %s. Supported version is %s", m.APIVersion, supportedVersion))
 	}
 
 	err = m.VisitResources(checkResourcePath)

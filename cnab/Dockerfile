@@ -1,12 +1,9 @@
-FROM golang:1.12.4-alpine3.9
+FROM ubuntu:18.04 as kapp
+RUN apt-get update && apt-get install -y curl
+RUN curl -Ls https://github.com/k14s/kapp/releases/download/v0.9.0/kapp-linux-amd64 > /usr/local/bin/kapp \
+  && chmod 755 /usr/local/bin/kapp
 
-RUN apk --no-cache add curl \
-  && curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl \
-  && mv ./kubectl /usr/local/bin \
-  && chmod 755 /usr/local/bin/kubectl \
-  && apk del curl
-
-COPY Dockerfile /cnab/Dockerfile
+FROM ubuntu:18.04
 COPY app/run /cnab/app/run
-
+COPY --from=kapp /usr/local/bin/kapp /usr/local/bin/kapp
 CMD ["/cnab/app/run"]
