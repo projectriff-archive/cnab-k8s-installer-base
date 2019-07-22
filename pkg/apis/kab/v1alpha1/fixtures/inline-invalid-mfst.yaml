@@ -1,0 +1,11 @@
+apiVersion: projectriff.io/v1alpha1
+kind: Manifest
+metadata:
+  labels:
+    riff-install: "true"
+  name: riff-install
+spec:
+  resources:
+    - name: istio
+      namespace: istio-system
+      path: no-such.yaml

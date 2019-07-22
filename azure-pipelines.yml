@@ -9,7 +9,7 @@ variables:
   GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
   modulePath: '$(GOPATH)/src/github.com/$(build.repository.name)' # Path to the module's code
   fatsDir: '$(system.defaultWorkingDirectory)/fats'
-  fatsRefspec: b65bc2f1d14a80d9d9793e96766bc1d1b19508a4 # projectriff/fats master as of 2019-04-30
+  fatsRefspec: 5f535a2689e203937c79ab87828c2af585159aca # projectriff/fats master as of 2019-07-22
   cnabRiffDir: '$(system.defaultWorkingDirectory)/cnab-riff'
   cnabRiffRefspec: 9bc33ad76c7382564ba96372619e2589a369853b # projectriff/cnab-riff master as of 2019-05-23
   installationName: myinstall
