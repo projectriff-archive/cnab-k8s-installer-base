@@ -102,6 +102,18 @@ func NewManifest(path string) (manifest *Manifest, err error) {
 	return &m, nil
 }
 
+// Embeds the contents of Path url into Content field for all resources
+func (m *Manifest) InlineContent() error {
+	err := m.PatchResourceContent(func(res *KabResource) (string, error) {
+		contentBytes, err := furl.Read(res.Path, "")
+		if err != nil {
+			return "", err
+		}
+		return string(contentBytes), nil
+	})
+	return err
+}
+
 func (m *Manifest) VisitResources(f func(res KabResource) error) error {
 
 	for _, resource := range m.Spec.Resources {

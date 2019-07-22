@@ -197,4 +197,32 @@ var _ = Describe("Manifest", func() {
 			})
 		})
 	})
+
+	Describe("InlineContent", func() {
+
+		var (
+			manifestPath string
+			manifest     *v1alpha1.Manifest
+			err          error
+		)
+
+		Context("When there is a valid path specified", func() {
+			It("content of resource is updated", func() {
+				manifestPath = "./fixtures/inline-mfst.yaml"
+				manifest, err = v1alpha1.NewManifest(manifestPath)
+				err = manifest.InlineContent()
+				Expect(err).ToNot(HaveOccurred())
+				Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("test-ns"))
+			})
+		})
+
+		Context("When there is an invalid path specified", func() {
+			It("throws an exception", func() {
+				manifestPath = "./fixtures/inline-invalid-mfst.yaml"
+				manifest, err = v1alpha1.NewManifest(manifestPath)
+				err = manifest.InlineContent()
+				Expect(err).To(HaveOccurred())
+			})
+		})
+	})
 })
