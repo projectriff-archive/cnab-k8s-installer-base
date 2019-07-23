@@ -51,7 +51,7 @@ var _ = Describe("test install", func() {
 		fakeKabClient = fake.NewSimpleClientset()
 		mockKustomize = new(mockkustomize.Kustomizer)
 
-		client = kab.NewKnbClient(kubeClient, nil, fakeKabClient, nil, mockKustomize, nil)
+		client = kab.NewKnbClient(kubeClient, nil, fakeKabClient, mockKustomize, nil)
 	})
 
 	Describe("test CreateCrdObject()", func() {
@@ -130,7 +130,7 @@ var _ = Describe("test install", func() {
 			fakeKabClient.PrependReactor("create", "*", func(action testing.Action) (handled bool, ret runtime.Object, err error) {
 				return true, nil, nil
 			})
-			client = kab.NewKnbClient(kubeClient, mockExtensionClientSet, fakeKabClient, nil, nil, mockKubectl)
+			client = kab.NewKnbClient(kubeClient, mockExtensionClientSet, fakeKabClient, nil, mockKubectl)
 		})
 
 		JustAfterEach(func() {

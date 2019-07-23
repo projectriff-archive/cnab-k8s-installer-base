@@ -45,7 +45,6 @@ steps:
       CNAB_INSTALLATION_NAME: '$(installationName)'
       MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
       LOG_LEVEL: debug
-      TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
   - script: |
       ./cnab/app/run
@@ -56,7 +55,6 @@ steps:
       CNAB_INSTALLATION_NAME: '$(installationName)'
       MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
       LOG_LEVEL: debug
-      TARGET_REGISTRY: registry.kube-system.svc.cluster.local
 
   - bash: ci/diagnostics.sh
     condition: failed()

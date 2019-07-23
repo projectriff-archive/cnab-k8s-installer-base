@@ -22,7 +22,6 @@ import (
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/registry"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
 )
@@ -34,22 +33,19 @@ const (
 )
 
 type Client struct {
-	coreClient     kubernetes.Interface
-	extClient      apiext.Interface
-	kabClient      versioned.Interface
-	registryClient registry.Client
-	kustomizer     kustomize.Kustomizer
-	kubectl        kubectl.KubeCtl
+	coreClient kubernetes.Interface
+	extClient  apiext.Interface
+	kabClient  versioned.Interface
+	kustomizer kustomize.Kustomizer
+	kubectl    kubectl.KubeCtl
 }
 
-func NewKnbClient(core kubernetes.Interface, ext apiext.Interface, kab versioned.Interface, registryClient registry.Client,
-	kustomizer kustomize.Kustomizer, kubectl kubectl.KubeCtl) *Client {
+func NewKnbClient(core kubernetes.Interface, ext apiext.Interface, kab versioned.Interface, kustomizer kustomize.Kustomizer, kubectl kubectl.KubeCtl) *Client {
 	return &Client{
-		coreClient:     core,
-		extClient:      ext,
-		kabClient:      kab,
-		registryClient: registryClient,
-		kustomizer:     kustomizer,
-		kubectl:        kubectl,
+		coreClient: core,
+		extClient:  ext,
+		kabClient:  kab,
+		kustomizer: kustomizer,
+		kubectl:    kubectl,
 	}
 }

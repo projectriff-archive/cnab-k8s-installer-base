@@ -24,30 +24,25 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kab"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kustomize"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/registry"
-
-	// load credential helpers
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
+	_ "k8s.io/client-go/plugin/pkg/client/auth" // load credential helpers
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
-	KUSTOMIZE_TIMEOUT       = 30 * time.Second
-	CNAB_ACTION_ENV_VAR     = "CNAB_ACTION"
-	MANIFEST_FILE_ENV_VAR   = "MANIFEST_FILE"
-	TARGET_REGISTRY_ENV_VAR = "TARGET_REGISTRY"
-	LOG_LEVEL_ENV_VAR       = "LOG_LEVEL"
+	KUSTOMIZE_TIMEOUT     = 30 * time.Second
+	CNAB_ACTION_ENV_VAR   = "CNAB_ACTION"
+	MANIFEST_FILE_ENV_VAR = "MANIFEST_FILE"
+	LOG_LEVEL_ENV_VAR     = "LOG_LEVEL"
 )
 
 func main() {
@@ -88,7 +83,7 @@ func install(path string) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	err = knbClient.Relocate(manifest, getEnv(TARGET_REGISTRY_ENV_VAR))
+	err = knbClient.MaybeRelocate(manifest)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -126,15 +121,11 @@ func createKnbClient() (*kab.Client, error) {
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("Could not create kubernetes kab client: %s", err))
 	}
-	dClient, err := registry.NewClient()
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("Could not create docker client: %s", err))
-	}
 	kustomizer := kustomize.MakeKustomizer(KUSTOMIZE_TIMEOUT)
 
 	ctl := kubectl.RealKubeCtl()
 
-	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, dClient, kustomizer, ctl)
+	knbClient := kab.NewKnbClient(coreClient, extClient, kabClient, kustomizer, ctl)
 	return knbClient, nil
 }
 

@@ -54,7 +54,7 @@ var _ = Describe("LookupManifest Tests", func() {
 		mockKubeClient.On("CoreV1").Return(mockCore)
 		mockCore.On("Namespaces").Return(mockNamespace)
 
-		client = kab.NewKnbClient(mockKubeClient, nil, fakeKabClient, nil, nil, nil)
+		client = kab.NewKnbClient(mockKubeClient, nil, fakeKabClient, nil, nil)
 	})
 
 	Context("When there is error listing manifests", func() {
@@ -140,7 +140,7 @@ var _ = Describe("LookupManifest Tests", func() {
 		mockKubeClient.On("CoreV1").Return(mockCore)
 		mockCore.On("Namespaces").Return(mockNamespace)
 
-		client = kab.NewKnbClient(mockKubeClient, nil, fakeKabClient, nil, nil, mockKubectl)
+		client = kab.NewKnbClient(mockKubeClient, nil, fakeKabClient, nil, mockKubectl)
 	})
 
 	JustBeforeEach(func() {
