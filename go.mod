@@ -20,7 +20,6 @@ require (
 	github.com/onsi/gomega v1.5.0
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pivotal/go-ape v0.0.0-20190410083726-7e1e93138a02
-	github.com/pivotal/image-relocation v0.0.0-20190416232339-532dd0b42e7a
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.4.0
 	github.com/spf13/cobra v0.0.3 // indirect
