@@ -46,7 +46,7 @@ var _ = Describe("test patching manifest", func() {
 			mockKustomize = new(mockkustomize.Kustomizer)
 			content = "sometext: type: LoadBalancer"
 
-			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
+			client = kab.NewKnbClient(kubeClient, nil, nil, mockKustomize, nil)
 		})
 
 		JustAfterEach(func() {
@@ -126,7 +126,7 @@ var _ = Describe("test patching manifest", func() {
 			installName = "myInstallation"
 			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(""), nil)
 
-			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
+			client = kab.NewKnbClient(kubeClient, nil, nil, mockKustomize, nil)
 		})
 
 		JustAfterEach(func() {
@@ -194,7 +194,7 @@ var _ = Describe("test patching manifest", func() {
 			mockKustomize = new(mockkustomize.Kustomizer)
 			mockKustomize.On("ApplyLabels", mock.Anything, mock.Anything).Return([]byte(""), nil)
 
-			client = kab.NewKnbClient(kubeClient, nil, nil, nil, mockKustomize, nil)
+			client = kab.NewKnbClient(kubeClient, nil, nil, mockKustomize, nil)
 		})
 		JustBeforeEach(func() {
 			os.Setenv(kab.CNAB_INSTALLATION_NAME_ENV_VAR, "myInstallation")

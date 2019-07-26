@@ -1,0 +1,4 @@
+{
+  "gcr.io/knative-releases/x/y": "my.private.repo/gcr.io-knative-releases-x-y-relocated",
+  "mysql:5.6" : "my.private.repo/mysql-relocated:5.6"
+}

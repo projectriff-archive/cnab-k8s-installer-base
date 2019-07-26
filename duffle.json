@@ -23,16 +23,7 @@
         }
     },
     "parameters": {
-        "target_registry": {
-            "type": "string",
-            "metadata": {
-                "description": "URL of the registry where the images should be pushed to e.g: localhost:5000/testuser"
-            },
-            "destination": {
-                "env": "TARGET_REGISTRY"
-            }
-        },
-        "node_port": {
+         "node_port": {
             "type": "boolean",
             "destination": {
                 "env": "NODE_PORT"

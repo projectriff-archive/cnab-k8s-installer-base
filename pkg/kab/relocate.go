@@ -17,95 +17,69 @@
 package kab
 
 import (
-	"errors"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/pivotal/go-ape/pkg/furl"
-	"github.com/pivotal/image-relocation/pkg/image"
-	"github.com/pivotal/image-relocation/pkg/pathmapping"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
-	"github.com/projectriff/cnab-k8s-installer-base/pkg/scan"
 	log "github.com/sirupsen/logrus"
 )
 
-func (c *Client) Relocate(manifest *v1alpha1.Manifest, targetRegistry string) error {
-	if targetRegistry == "" {
-		log.Traceln("skipping image relocation")
+const standardRelocationMappingMountPoint = "/cnab/app/relocation-mapping.json"
+
+var relocationMappingMountPoint = standardRelocationMappingMountPoint
+
+// MaybeRelocate relocates the given manifest if a relocation mapping is present and otherwise does not modify the manifest.
+func (c *Client) MaybeRelocate(manifest *v1alpha1.Manifest) error {
+	relocationMap, err := getRelocationMapping()
+	if err != nil {
+		return err
+	}
+	// If there is no relocation mapping, return without modifying the manifest.
+	if relocationMap == nil {
 		return nil
 	}
 
-	var err error
-
-	err = embedResourceContent(manifest)
-	if err != nil {
+	if err := embedResourceContent(manifest); err != nil {
 		return err
 	}
 
-	relocationMap, err := buildRelocationImageMap(manifest, targetRegistry)
-
-	err = c.updateRegistry(relocationMap)
-	if err != nil {
-		return err
-	}
-	// TODO add a images section to the manifest
-
-	err = replaceImagesInManifest(manifest, relocationMap)
+	replaceImagesInManifest(manifest, relocationMap)
 
 	return nil
 }
 
-// pull images, push them to the target registry and update the relocationMap with the
-// newly pushed digested images
-func (c *Client) updateRegistry(relocationMap map[string]string) error {
-	log.Infoln("Relocating images...")
-
-	for fromRef, toRef := range relocationMap {
-		digestedRef, err := c.registryClient.Relocate(fromRef, toRef)
-		if err != nil {
-			return err
-		}
-		relocationMap[fromRef] = digestedRef.String()
+func getRelocationMapping() (map[string]string, error) {
+	if _, err := os.Stat(relocationMappingMountPoint); os.IsNotExist(err) {
+		return nil, nil
 	}
-	log.Infoln("finished relocating images")
 
-	return nil
+	relMap := make(map[string]string)
+	relMapBytes, err := ioutil.ReadFile(relocationMappingMountPoint)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read relocation mapping from %s: %v", relocationMappingMountPoint, err)
+	}
+
+	if err = json.Unmarshal(relMapBytes, &relMap); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal relocation mapping: %v", err)
+	}
+
+	return relMap, nil
 }
 
-func buildRelocationImageMap(manifest *v1alpha1.Manifest, targetRegistry string) (map[string]string, error) {
-	relocationMap := map[string]string{}
-	images, err := getAllImages(manifest)
-	if err != nil {
-		return nil, err
-	}
-	relocatedImages, err := getRelocatedImages(targetRegistry, images)
-	if err != nil {
-		return nil, err
-	}
-	if len(images) != len(relocatedImages) {
-		return nil, errors.New("length of images and relocated images should be same")
-	}
-	log.Traceln("Relocation Image Map:")
-	for i, fromRef := range images {
-		relocationMap[fromRef] = relocatedImages[i]
-		log.Traceln(fromRef, " : ", relocatedImages[i])
-	}
-
-	return relocationMap, nil
-}
-
-func replaceImagesInManifest(manifest *v1alpha1.Manifest, relocationMap map[string]string) error {
-	replacer, err := buildImageReplacer(relocationMap)
-	if err != nil {
-		return err
-	}
+func replaceImagesInManifest(manifest *v1alpha1.Manifest, relocationMap map[string]string) {
+	replacer := buildImageReplacer(relocationMap)
 	for i := 0; i < len(manifest.Spec.Resources); i++ {
 		resource := &manifest.Spec.Resources[i]
 		resource.Content = replacer.Replace(resource.Content)
 	}
-	return nil
+	return
 }
 
-func buildImageReplacer(relocationMap map[string]string) (*strings.Replacer, error) {
+func buildImageReplacer(relocationMap map[string]string) *strings.Replacer {
 	replacements := []string{}
 
 	log.Traceln("building image replacements")
@@ -115,11 +89,10 @@ func buildImageReplacer(relocationMap map[string]string) (*strings.Replacer, err
 	}
 	log.Traceln("done building image replacements")
 
-	return strings.NewReplacer(replacements...), nil
+	return strings.NewReplacer(replacements...)
 }
 
 func embedResourceContent(manifest *v1alpha1.Manifest) error {
-
 	for i := 0; i < len(manifest.Spec.Resources); i++ {
 		resource := &manifest.Spec.Resources[i]
 		if resource.Path == "" {
@@ -135,42 +108,4 @@ func embedResourceContent(manifest *v1alpha1.Manifest) error {
 		}
 	}
 	return nil
-}
-
-func getRelocatedImages(targetRegistry string, images []string) ([]string, error) {
-	mapping := getMapping(targetRegistry)
-	relocatedImages := []string{}
-	for _, img := range images {
-		relocatedImg, err := mapping(img)
-		if err != nil {
-			return []string{}, err
-		}
-		relocatedImages = append(relocatedImages, relocatedImg)
-	}
-	return relocatedImages, nil
-}
-
-func getMapping(repoPrefix string) func(string) (string, error) {
-	return func(originalImage string) (string, error) {
-		n, err := image.NewName(originalImage)
-		if err != nil {
-			return "", err
-		}
-		return pathmapping.FlattenRepoPathPreserveTagDigest(repoPrefix, n).String(), nil
-	}
-}
-
-func getAllImages(manifest *v1alpha1.Manifest) ([]string, error) {
-	images := []string{}
-
-	err := manifest.VisitResources(func(res v1alpha1.KabResource) error {
-		tmpImgs, err := scan.ListImagesFromContent([]byte(res.Content))
-		if err != nil {
-			return err
-		}
-		images = append(images, tmpImgs...)
-		return nil
-	})
-
-	return images, err
 }
