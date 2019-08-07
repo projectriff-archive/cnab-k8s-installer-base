@@ -45,6 +45,8 @@ steps:
       CNAB_INSTALLATION_NAME: '$(installationName)'
       MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
       LOG_LEVEL: debug
+  - script: kubectl get namespaces | grep -E "knative-serving|istio-system|riff-system"
+    displayName: 'verify install'
 
   - script: |
       ./cnab/app/run
@@ -55,6 +57,8 @@ steps:
       CNAB_INSTALLATION_NAME: '$(installationName)'
       MANIFEST_FILE: $(cnabRiffDir)/cnab/app/kab/manifest.yaml
       LOG_LEVEL: debug
+  - script: kubectl get namespaces | ( ! grep -E "knative-serving|istio-system|riff-system" )
+    displayName: 'verify uninstall'
 
   - bash: ci/diagnostics.sh
     condition: failed()
