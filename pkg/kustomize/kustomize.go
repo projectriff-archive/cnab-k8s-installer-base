@@ -20,27 +20,23 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"net/url"
-
 	"sort"
 	"strings"
 	"time"
 
-	"github.com/pivotal/go-ape/pkg/furl"
 	"sigs.k8s.io/kustomize/k8sdeps"
 	"sigs.k8s.io/kustomize/pkg/commands/build"
 	"sigs.k8s.io/kustomize/pkg/fs"
 )
 
 type Kustomizer interface {
-	// Applies the provided labels to the provided remote or local resource definition
+
+	// Applies the provided labels to the resource definition
 	// Returns the customized resource contents
 	// Returns an error if
-	// - the URL scheme is not supported (only file, http and https are)
-	// - retrieving the content fails
 	// - applying the customization fails
 	// As of the current implementation, it is not safe to call this function concurrently
-	ApplyLabels(resourceUri *url.URL, labels map[string]string) ([]byte, error)
+	ApplyLabels(resourceDefinition string, labels map[string]string) ([]byte, error)
 }
 
 type kustomizer struct {
@@ -57,8 +53,8 @@ func MakeKustomizer(timeout time.Duration) Kustomizer {
 	}
 }
 
-func (kust *kustomizer) ApplyLabels(resourceUri *url.URL, labels map[string]string) ([]byte, error) {
-	resourcePath, err := kust.writeResourceFile(resourceUri)
+func (kust *kustomizer) ApplyLabels(resourceDefinition string, labels map[string]string) ([]byte, error) {
+	resourcePath, err := kust.writeResourceFile([]byte(resourceDefinition))
 	if err != nil {
 		return nil, err
 	}
@@ -69,13 +65,9 @@ func (kust *kustomizer) ApplyLabels(resourceUri *url.URL, labels map[string]stri
 	return kust.runBuild()
 }
 
-func (kust *kustomizer) writeResourceFile(resourceUri *url.URL) (string, error) {
-	resourceContents, err := furl.ReadUrl(resourceUri, kust.httpTimeout)
-	if err != nil {
-		return "", err
-	}
+func (kust *kustomizer) writeResourceFile(resourceContents []byte) (string, error) {
 	resourcePath := "resource.yaml"
-	err = kust.fs.WriteFile(kust.fakeDir+resourcePath, []byte(resourceContents))
+	err := kust.fs.WriteFile(kust.fakeDir+resourcePath, []byte(resourceContents))
 	if err != nil {
 		return "", err
 	}

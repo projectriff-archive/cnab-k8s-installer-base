@@ -21,7 +21,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pivotal/go-ape/pkg/furl"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/kubectl"
 	log "github.com/sirupsen/logrus"
@@ -52,15 +51,7 @@ func (rm *rm) Install(res v1alpha1.KabResource, backOffSettings wait.Backoff) er
 		if res.Content != "" {
 			installContent = []byte(res.Content)
 		} else {
-			if res.Path == "" {
-				return false, errors.New(fmt.Sprintf("resource %s does not specify Content OR Path to yaml for install", res.Name))
-			}
-			installContent, err = furl.Read(res.Path, "")
-			if err != nil {
-				log.Debugln("error reading", err)
-				return false, err
-			}
-
+			return false, errors.New(fmt.Sprintf("resource %s does not have Content for installation", res.Name))
 		}
 
 		resLog, err := rm.kubectl.ExecStdin([]string{"apply", "-f", "-"}, &installContent)

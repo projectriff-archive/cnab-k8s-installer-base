@@ -206,22 +206,39 @@ var _ = Describe("Manifest", func() {
 			err          error
 		)
 
-		Context("When there is a valid path specified", func() {
-			It("content of resource is updated", func() {
-				manifestPath = "./fixtures/inline-mfst.yaml"
-				manifest, err = v1alpha1.NewManifest(manifestPath)
-				err = manifest.InlineContent()
-				Expect(err).ToNot(HaveOccurred())
-				Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("test-ns"))
+		Context("when the resource content is empty", func() {
+
+			Context("When there is a valid path specified", func() {
+				It("content of resource is updated", func() {
+					manifestPath = "./fixtures/inline-mfst.yaml"
+					manifest, err = v1alpha1.NewManifest(manifestPath)
+					Expect(err).ToNot(HaveOccurred())
+					err = manifest.InlineContent()
+					Expect(err).ToNot(HaveOccurred())
+					Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("test-ns"))
+				})
+			})
+
+			Context("When there is an invalid path specified", func() {
+				It("throws an exception", func() {
+					manifestPath = "./fixtures/inline-invalid-mfst.yaml"
+					manifest, err = v1alpha1.NewManifest(manifestPath)
+					Expect(err).ToNot(HaveOccurred())
+					err = manifest.InlineContent()
+					Expect(err).To(HaveOccurred())
+				})
 			})
 		})
-
-		Context("When there is an invalid path specified", func() {
-			It("throws an exception", func() {
-				manifestPath = "./fixtures/inline-invalid-mfst.yaml"
-				manifest, err = v1alpha1.NewManifest(manifestPath)
-				err = manifest.InlineContent()
-				Expect(err).To(HaveOccurred())
+		Context("when the resource content is not empty", func() {
+			Context("when there is a valid path specified", func() {
+				It("does not overwrite the resource content", func() {
+					manifestPath = "./fixtures/inline-mfst-with-content.yaml"
+					manifest, err = v1alpha1.NewManifest(manifestPath)
+					Expect(err).ToNot(HaveOccurred())
+					err = manifest.InlineContent()
+					Expect(err).ToNot(HaveOccurred())
+					Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("my content"))
+				})
 			})
 		})
 	})
