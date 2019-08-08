@@ -115,7 +115,16 @@ func (m *Manifest) InlineContent() error {
 		}
 		return string(contentBytes), nil
 	})
-	return err
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(m.Spec.Resources); i++ {
+		resource := &m.Spec.Resources[i]
+		resource.Path = fmt.Sprintf("kab-resolved:%s", resource.Path)
+	}
+
+	return nil
 }
 
 func (m *Manifest) VisitResources(f func(res KabResource) error) error {

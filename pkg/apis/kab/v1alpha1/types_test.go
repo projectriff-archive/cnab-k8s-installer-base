@@ -216,6 +216,7 @@ var _ = Describe("Manifest", func() {
 					err = manifest.InlineContent()
 					Expect(err).ToNot(HaveOccurred())
 					Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("test-ns"))
+					Expect(manifest.Spec.Resources[0].Path).To(ContainSubstring("kab-resolved:"))
 				})
 			})
 
@@ -238,6 +239,7 @@ var _ = Describe("Manifest", func() {
 					err = manifest.InlineContent()
 					Expect(err).ToNot(HaveOccurred())
 					Expect(manifest.Spec.Resources[0].Content).To(ContainSubstring("my content"))
+					Expect(manifest.Spec.Resources[0].Path).To(ContainSubstring("kab-resolved:"))
 				})
 			})
 		})
