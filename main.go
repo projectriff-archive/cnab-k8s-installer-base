@@ -24,6 +24,9 @@ import (
 	"strings"
 	"time"
 
+	// load credential helpers
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
+
 	"github.com/pkg/errors"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned"
@@ -33,7 +36,6 @@ import (
 	log "github.com/sirupsen/logrus"
 	apiext "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
 	"k8s.io/client-go/kubernetes"
-	_ "k8s.io/client-go/plugin/pkg/client/auth" // load credential helpers
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
