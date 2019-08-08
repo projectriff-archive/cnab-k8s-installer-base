@@ -77,6 +77,12 @@ func install(path string) {
 		_, err = fmt.Fprintf(os.Stderr, "error while reading from %s: %v", path, err)
 		os.Exit(1)
 	}
+	err = manifest.InlineContent()
+	if err != nil {
+		_, err = fmt.Fprintf(os.Stderr, "error while reading manifest: %v", err)
+		os.Exit(1)
+	}
+
 	knbClient, err := createKnbClient()
 	if err != nil {
 		log.Fatalln(err)

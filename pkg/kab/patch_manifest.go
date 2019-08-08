@@ -18,7 +18,6 @@ package kab
 
 import (
 	"bytes"
-	"net/url"
 	"os"
 	"strconv"
 
@@ -62,19 +61,17 @@ func GetInstallationName() string {
 }
 
 func (c *Client) applyLabels(res *v1alpha1.KabResource) (content string, e error) {
-	var path *url.URL
-	var err error
 
 	labels := addLabels(res.Labels)
 	res.Labels = labels
 
 	log.Tracef("Applying labels resource: %s Labels: %+v...", res.Name, res.Labels)
 
-	path, err = url.Parse(res.Path)
+	byteContent, err := c.kustomizer.ApplyLabels(res.Content, res.Labels)
 	if err != nil {
 		return "", err
 	}
-	byteContent, err := c.kustomizer.ApplyLabels(path, res.Labels)
+
 	log.Traceln("done")
 
 	return string(byteContent), nil
