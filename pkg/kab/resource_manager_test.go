@@ -113,7 +113,7 @@ spec:
   name: mysql
 `
 				resource := v1alpha1.KabResource{
-					Path: "fixtures/test-resource.yaml",
+					Content: contentString,
 				}
 
 				byteContent := []byte(contentString)
@@ -178,7 +178,7 @@ spec:
 
 				err = resMan.Install(resource, backoffSettings)
 				Expect(err).ToNot(BeNil())
-				Expect(err).To(MatchError("resource e1 does not specify Content OR Path to yaml for install"))
+				Expect(err).To(MatchError("resource e1 does not have Content for installation"))
 			})
 		})
 	})

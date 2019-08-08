@@ -119,31 +119,19 @@ var _ = Describe("RelocateManifest", func() {
 			kubeClient = new(vendor_mocks.Interface)
 
 			client = NewKnbClient(kubeClient, nil, nil, nil, nil)
+			content, err := ioutil.ReadFile("fixtures/test-resource.yaml")
+			Expect(err).To(BeNil())
+
 			manifest = &v1alpha1.Manifest{
 				Spec: v1alpha1.KabSpec{
 					Resources: []v1alpha1.KabResource{
 						{
-							Path: "fixtures/test-resource.yaml",
+							Content: string(content),
 						},
 					},
 				},
 			}
 			destRepo = "my.private.repo"
-		})
-		Context("when the resoure file path is invalid", func() {
-			It("an error is returned", func() {
-				manifest = &v1alpha1.Manifest{
-					Spec: v1alpha1.KabSpec{
-						Resources: []v1alpha1.KabResource{
-							{
-								Path: "fixtures/invalid.yaml",
-							},
-						},
-					},
-				}
-				err = client.MaybeRelocate(manifest)
-				Expect(err).ToNot(BeNil())
-			})
 		})
 		Context("When the resource file path is valid", func() {
 			It("repository relocation is successful", func() {

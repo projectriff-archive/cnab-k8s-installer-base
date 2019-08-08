@@ -23,7 +23,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/pivotal/go-ape/pkg/furl"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	log "github.com/sirupsen/logrus"
 )
@@ -41,10 +40,6 @@ func (c *Client) MaybeRelocate(manifest *v1alpha1.Manifest) error {
 	// If there is no relocation mapping, return without modifying the manifest.
 	if relocationMap == nil {
 		return nil
-	}
-
-	if err := embedResourceContent(manifest); err != nil {
-		return err
 	}
 
 	replaceImagesInManifest(manifest, relocationMap)
@@ -90,22 +85,4 @@ func buildImageReplacer(relocationMap map[string]string) *strings.Replacer {
 	log.Traceln("done building image replacements")
 
 	return strings.NewReplacer(replacements...)
-}
-
-func embedResourceContent(manifest *v1alpha1.Manifest) error {
-	for i := 0; i < len(manifest.Spec.Resources); i++ {
-		resource := &manifest.Spec.Resources[i]
-		if resource.Path == "" {
-			continue
-		}
-		content, err := furl.Read(resource.Path, "")
-		if err != nil {
-			return err
-		}
-		strContent := string(content)
-		if strContent != "" {
-			resource.Content = strContent
-		}
-	}
-	return nil
 }
