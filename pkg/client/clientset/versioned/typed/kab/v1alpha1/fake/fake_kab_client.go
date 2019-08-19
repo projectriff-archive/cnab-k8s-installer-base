@@ -28,8 +28,8 @@ type FakeProjectriffV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeProjectriffV1alpha1) Manifests(namespace string) v1alpha1.ManifestInterface {
-	return &FakeManifests{c, namespace}
+func (c *FakeProjectriffV1alpha1) Manifests() v1alpha1.ManifestInterface {
+	return &FakeManifests{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate

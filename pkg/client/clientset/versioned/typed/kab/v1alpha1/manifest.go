@@ -32,7 +32,7 @@ import (
 // ManifestsGetter has a method to return a ManifestInterface.
 // A group's client should implement this interface.
 type ManifestsGetter interface {
-	Manifests(namespace string) ManifestInterface
+	Manifests() ManifestInterface
 }
 
 // ManifestInterface has methods to work with Manifest resources.
@@ -52,14 +52,12 @@ type ManifestInterface interface {
 // manifests implements ManifestInterface
 type manifests struct {
 	client rest.Interface
-	ns     string
 }
 
 // newManifests returns a Manifests
-func newManifests(c *ProjectriffV1alpha1Client, namespace string) *manifests {
+func newManifests(c *ProjectriffV1alpha1Client) *manifests {
 	return &manifests{
 		client: c.RESTClient(),
-		ns:     namespace,
 	}
 }
 
@@ -67,7 +65,6 @@ func newManifests(c *ProjectriffV1alpha1Client, namespace string) *manifests {
 func (c *manifests) Get(name string, options v1.GetOptions) (result *v1alpha1.Manifest, err error) {
 	result = &v1alpha1.Manifest{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("manifests").
 		Name(name).
 		VersionedParams(&options, scheme.ParameterCodec).
@@ -84,7 +81,6 @@ func (c *manifests) List(opts v1.ListOptions) (result *v1alpha1.ManifestList, er
 	}
 	result = &v1alpha1.ManifestList{}
 	err = c.client.Get().
-		Namespace(c.ns).
 		Resource("manifests").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -101,7 +97,6 @@ func (c *manifests) Watch(opts v1.ListOptions) (watch.Interface, error) {
 	}
 	opts.Watch = true
 	return c.client.Get().
-		Namespace(c.ns).
 		Resource("manifests").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -112,7 +107,6 @@ func (c *manifests) Watch(opts v1.ListOptions) (watch.Interface, error) {
 func (c *manifests) Create(manifest *v1alpha1.Manifest) (result *v1alpha1.Manifest, err error) {
 	result = &v1alpha1.Manifest{}
 	err = c.client.Post().
-		Namespace(c.ns).
 		Resource("manifests").
 		Body(manifest).
 		Do().
@@ -124,7 +118,6 @@ func (c *manifests) Create(manifest *v1alpha1.Manifest) (result *v1alpha1.Manife
 func (c *manifests) Update(manifest *v1alpha1.Manifest) (result *v1alpha1.Manifest, err error) {
 	result = &v1alpha1.Manifest{}
 	err = c.client.Put().
-		Namespace(c.ns).
 		Resource("manifests").
 		Name(manifest.Name).
 		Body(manifest).
@@ -139,7 +132,6 @@ func (c *manifests) Update(manifest *v1alpha1.Manifest) (result *v1alpha1.Manife
 func (c *manifests) UpdateStatus(manifest *v1alpha1.Manifest) (result *v1alpha1.Manifest, err error) {
 	result = &v1alpha1.Manifest{}
 	err = c.client.Put().
-		Namespace(c.ns).
 		Resource("manifests").
 		Name(manifest.Name).
 		SubResource("status").
@@ -152,7 +144,6 @@ func (c *manifests) UpdateStatus(manifest *v1alpha1.Manifest) (result *v1alpha1.
 // Delete takes name of the manifest and deletes it. Returns an error if one occurs.
 func (c *manifests) Delete(name string, options *v1.DeleteOptions) error {
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("manifests").
 		Name(name).
 		Body(options).
@@ -167,7 +158,6 @@ func (c *manifests) DeleteCollection(options *v1.DeleteOptions, listOptions v1.L
 		timeout = time.Duration(*listOptions.TimeoutSeconds) * time.Second
 	}
 	return c.client.Delete().
-		Namespace(c.ns).
 		Resource("manifests").
 		VersionedParams(&listOptions, scheme.ParameterCodec).
 		Timeout(timeout).
@@ -180,7 +170,6 @@ func (c *manifests) DeleteCollection(options *v1.DeleteOptions, listOptions v1.L
 func (c *manifests) Patch(name string, pt types.PatchType, data []byte, subresources ...string) (result *v1alpha1.Manifest, err error) {
 	result = &v1alpha1.Manifest{}
 	err = c.client.Patch(pt).
-		Namespace(c.ns).
 		Resource("manifests").
 		SubResource(subresources...).
 		Name(name).
