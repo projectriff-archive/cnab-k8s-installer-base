@@ -38,6 +38,7 @@ gen-mocks: check-mockery check-jq
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name NamespaceInterface
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes/typed/core/v1                                                 -name PodInterface
 	GO111MODULE=on mockery -output pkg/kab/vendor_mocks   -outpkg vendor_mocks    -dir $(call source_of,k8s.io/client-go)/kubernetes                                                               -name Interface
+	make goimports
 
 install: build
 	cp $(OUTPUT) $(GOBIN)

@@ -19,10 +19,10 @@ package kab
 import (
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	log "github.com/sirupsen/logrus"
+	k8serr "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/wait"
 )
@@ -59,7 +59,7 @@ func (c *Client) CreateCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 	log.Debugln("creating object", manifest.Name)
 	err := wait.ExponentialBackoff(backOffSettings, func() (bool, error) {
 		old, err := c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Get(manifest.Name, metav1.GetOptions{})
-		if err != nil && !strings.Contains(err.Error(), "not found") {
+		if err != nil && !k8serr.IsNotFound(err) {
 			log.Debugln("error looking up object", err)
 			return false, nil
 		}
