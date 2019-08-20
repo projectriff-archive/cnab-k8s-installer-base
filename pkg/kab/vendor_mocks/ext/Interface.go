@@ -6,6 +6,8 @@ import (
 	mock "github.com/stretchr/testify/mock"
 	discovery "k8s.io/client-go/discovery"
 
+	v1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
+
 	v1beta1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1beta1"
 )
 
@@ -14,16 +16,16 @@ type Interface struct {
 	mock.Mock
 }
 
-// Apiextensions provides a mock function with given fields:
-func (_m *Interface) Apiextensions() v1beta1.ApiextensionsV1beta1Interface {
+// ApiextensionsV1 provides a mock function with given fields:
+func (_m *Interface) ApiextensionsV1() v1.ApiextensionsV1Interface {
 	ret := _m.Called()
 
-	var r0 v1beta1.ApiextensionsV1beta1Interface
-	if rf, ok := ret.Get(0).(func() v1beta1.ApiextensionsV1beta1Interface); ok {
+	var r0 v1.ApiextensionsV1Interface
+	if rf, ok := ret.Get(0).(func() v1.ApiextensionsV1Interface); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v1beta1.ApiextensionsV1beta1Interface)
+			r0 = ret.Get(0).(v1.ApiextensionsV1Interface)
 		}
 	}
 

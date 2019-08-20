@@ -124,6 +124,29 @@ func (_m *PodInterface) Get(name string, options metav1.GetOptions) (*v1.Pod, er
 	return r0, r1
 }
 
+// GetEphemeralContainers provides a mock function with given fields: podName, options
+func (_m *PodInterface) GetEphemeralContainers(podName string, options metav1.GetOptions) (*v1.EphemeralContainers, error) {
+	ret := _m.Called(podName, options)
+
+	var r0 *v1.EphemeralContainers
+	if rf, ok := ret.Get(0).(func(string, metav1.GetOptions) *v1.EphemeralContainers); ok {
+		r0 = rf(podName, options)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1.EphemeralContainers)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, metav1.GetOptions) error); ok {
+		r1 = rf(podName, options)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLogs provides a mock function with given fields: name, opts
 func (_m *PodInterface) GetLogs(name string, opts *v1.PodLogOptions) *rest.Request {
 	ret := _m.Called(name, opts)
@@ -209,6 +232,29 @@ func (_m *PodInterface) Update(_a0 *v1.Pod) (*v1.Pod, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(*v1.Pod) error); ok {
 		r1 = rf(_a0)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UpdateEphemeralContainers provides a mock function with given fields: podName, ephemeralContainers
+func (_m *PodInterface) UpdateEphemeralContainers(podName string, ephemeralContainers *v1.EphemeralContainers) (*v1.EphemeralContainers, error) {
+	ret := _m.Called(podName, ephemeralContainers)
+
+	var r0 *v1.EphemeralContainers
+	if rf, ok := ret.Get(0).(func(string, *v1.EphemeralContainers) *v1.EphemeralContainers); ok {
+		r0 = rf(podName, ephemeralContainers)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*v1.EphemeralContainers)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, *v1.EphemeralContainers) error); ok {
+		r1 = rf(podName, ephemeralContainers)
 	} else {
 		r1 = ret.Error(1)
 	}
