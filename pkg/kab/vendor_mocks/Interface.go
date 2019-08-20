@@ -3,8 +3,8 @@
 package vendor_mocks
 
 import (
+	appsv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 	appsv1beta1 "k8s.io/client-go/kubernetes/typed/apps/v1beta1"
-	auditregistrationv1alpha1 "k8s.io/client-go/kubernetes/typed/auditregistration/v1alpha1"
 
 	authenticationv1 "k8s.io/client-go/kubernetes/typed/authentication/v1"
 
@@ -22,6 +22,8 @@ import (
 
 	certificatesv1beta1 "k8s.io/client-go/kubernetes/typed/certificates/v1beta1"
 
+	coordinationv1 "k8s.io/client-go/kubernetes/typed/coordination/v1"
+
 	coordinationv1beta1 "k8s.io/client-go/kubernetes/typed/coordination/v1beta1"
 
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -36,6 +38,12 @@ import (
 
 	networkingv1 "k8s.io/client-go/kubernetes/typed/networking/v1"
 
+	networkingv1beta1 "k8s.io/client-go/kubernetes/typed/networking/v1beta1"
+
+	nodev1alpha1 "k8s.io/client-go/kubernetes/typed/node/v1alpha1"
+
+	nodev1beta1 "k8s.io/client-go/kubernetes/typed/node/v1beta1"
+
 	policyv1beta1 "k8s.io/client-go/kubernetes/typed/policy/v1beta1"
 
 	rbacv1 "k8s.io/client-go/kubernetes/typed/rbac/v1"
@@ -43,6 +51,8 @@ import (
 	rbacv1alpha1 "k8s.io/client-go/kubernetes/typed/rbac/v1alpha1"
 
 	rbacv1beta1 "k8s.io/client-go/kubernetes/typed/rbac/v1beta1"
+
+	schedulingv1 "k8s.io/client-go/kubernetes/typed/scheduling/v1"
 
 	schedulingv1alpha1 "k8s.io/client-go/kubernetes/typed/scheduling/v1alpha1"
 
@@ -56,9 +66,9 @@ import (
 
 	storagev1beta1 "k8s.io/client-go/kubernetes/typed/storage/v1beta1"
 
-	v1 "k8s.io/client-go/kubernetes/typed/apps/v1"
+	v1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1"
 
-	v1alpha1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1alpha1"
+	v1alpha1 "k8s.io/client-go/kubernetes/typed/auditregistration/v1alpha1"
 
 	v1beta1 "k8s.io/client-go/kubernetes/typed/admissionregistration/v1beta1"
 
@@ -76,32 +86,16 @@ type Interface struct {
 	mock.Mock
 }
 
-// Admissionregistration provides a mock function with given fields:
-func (_m *Interface) Admissionregistration() v1beta1.AdmissionregistrationV1beta1Interface {
+// AdmissionregistrationV1 provides a mock function with given fields:
+func (_m *Interface) AdmissionregistrationV1() v1.AdmissionregistrationV1Interface {
 	ret := _m.Called()
 
-	var r0 v1beta1.AdmissionregistrationV1beta1Interface
-	if rf, ok := ret.Get(0).(func() v1beta1.AdmissionregistrationV1beta1Interface); ok {
+	var r0 v1.AdmissionregistrationV1Interface
+	if rf, ok := ret.Get(0).(func() v1.AdmissionregistrationV1Interface); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v1beta1.AdmissionregistrationV1beta1Interface)
-		}
-	}
-
-	return r0
-}
-
-// AdmissionregistrationV1alpha1 provides a mock function with given fields:
-func (_m *Interface) AdmissionregistrationV1alpha1() v1alpha1.AdmissionregistrationV1alpha1Interface {
-	ret := _m.Called()
-
-	var r0 v1alpha1.AdmissionregistrationV1alpha1Interface
-	if rf, ok := ret.Get(0).(func() v1alpha1.AdmissionregistrationV1alpha1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v1alpha1.AdmissionregistrationV1alpha1Interface)
+			r0 = ret.Get(0).(v1.AdmissionregistrationV1Interface)
 		}
 	}
 
@@ -124,32 +118,16 @@ func (_m *Interface) AdmissionregistrationV1beta1() v1beta1.Admissionregistratio
 	return r0
 }
 
-// Apps provides a mock function with given fields:
-func (_m *Interface) Apps() v1.AppsV1Interface {
-	ret := _m.Called()
-
-	var r0 v1.AppsV1Interface
-	if rf, ok := ret.Get(0).(func() v1.AppsV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v1.AppsV1Interface)
-		}
-	}
-
-	return r0
-}
-
 // AppsV1 provides a mock function with given fields:
-func (_m *Interface) AppsV1() v1.AppsV1Interface {
+func (_m *Interface) AppsV1() appsv1.AppsV1Interface {
 	ret := _m.Called()
 
-	var r0 v1.AppsV1Interface
-	if rf, ok := ret.Get(0).(func() v1.AppsV1Interface); ok {
+	var r0 appsv1.AppsV1Interface
+	if rf, ok := ret.Get(0).(func() appsv1.AppsV1Interface); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(v1.AppsV1Interface)
+			r0 = ret.Get(0).(appsv1.AppsV1Interface)
 		}
 	}
 
@@ -188,48 +166,16 @@ func (_m *Interface) AppsV1beta2() v1beta2.AppsV1beta2Interface {
 	return r0
 }
 
-// Auditregistration provides a mock function with given fields:
-func (_m *Interface) Auditregistration() auditregistrationv1alpha1.AuditregistrationV1alpha1Interface {
-	ret := _m.Called()
-
-	var r0 auditregistrationv1alpha1.AuditregistrationV1alpha1Interface
-	if rf, ok := ret.Get(0).(func() auditregistrationv1alpha1.AuditregistrationV1alpha1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(auditregistrationv1alpha1.AuditregistrationV1alpha1Interface)
-		}
-	}
-
-	return r0
-}
-
 // AuditregistrationV1alpha1 provides a mock function with given fields:
-func (_m *Interface) AuditregistrationV1alpha1() auditregistrationv1alpha1.AuditregistrationV1alpha1Interface {
+func (_m *Interface) AuditregistrationV1alpha1() v1alpha1.AuditregistrationV1alpha1Interface {
 	ret := _m.Called()
 
-	var r0 auditregistrationv1alpha1.AuditregistrationV1alpha1Interface
-	if rf, ok := ret.Get(0).(func() auditregistrationv1alpha1.AuditregistrationV1alpha1Interface); ok {
+	var r0 v1alpha1.AuditregistrationV1alpha1Interface
+	if rf, ok := ret.Get(0).(func() v1alpha1.AuditregistrationV1alpha1Interface); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(auditregistrationv1alpha1.AuditregistrationV1alpha1Interface)
-		}
-	}
-
-	return r0
-}
-
-// Authentication provides a mock function with given fields:
-func (_m *Interface) Authentication() authenticationv1.AuthenticationV1Interface {
-	ret := _m.Called()
-
-	var r0 authenticationv1.AuthenticationV1Interface
-	if rf, ok := ret.Get(0).(func() authenticationv1.AuthenticationV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(authenticationv1.AuthenticationV1Interface)
+			r0 = ret.Get(0).(v1alpha1.AuditregistrationV1alpha1Interface)
 		}
 	}
 
@@ -268,22 +214,6 @@ func (_m *Interface) AuthenticationV1beta1() authenticationv1beta1.Authenticatio
 	return r0
 }
 
-// Authorization provides a mock function with given fields:
-func (_m *Interface) Authorization() authorizationv1.AuthorizationV1Interface {
-	ret := _m.Called()
-
-	var r0 authorizationv1.AuthorizationV1Interface
-	if rf, ok := ret.Get(0).(func() authorizationv1.AuthorizationV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(authorizationv1.AuthorizationV1Interface)
-		}
-	}
-
-	return r0
-}
-
 // AuthorizationV1 provides a mock function with given fields:
 func (_m *Interface) AuthorizationV1() authorizationv1.AuthorizationV1Interface {
 	ret := _m.Called()
@@ -310,22 +240,6 @@ func (_m *Interface) AuthorizationV1beta1() authorizationv1beta1.AuthorizationV1
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(authorizationv1beta1.AuthorizationV1beta1Interface)
-		}
-	}
-
-	return r0
-}
-
-// Autoscaling provides a mock function with given fields:
-func (_m *Interface) Autoscaling() autoscalingv1.AutoscalingV1Interface {
-	ret := _m.Called()
-
-	var r0 autoscalingv1.AutoscalingV1Interface
-	if rf, ok := ret.Get(0).(func() autoscalingv1.AutoscalingV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(autoscalingv1.AutoscalingV1Interface)
 		}
 	}
 
@@ -380,22 +294,6 @@ func (_m *Interface) AutoscalingV2beta2() v2beta2.AutoscalingV2beta2Interface {
 	return r0
 }
 
-// Batch provides a mock function with given fields:
-func (_m *Interface) Batch() batchv1.BatchV1Interface {
-	ret := _m.Called()
-
-	var r0 batchv1.BatchV1Interface
-	if rf, ok := ret.Get(0).(func() batchv1.BatchV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(batchv1.BatchV1Interface)
-		}
-	}
-
-	return r0
-}
-
 // BatchV1 provides a mock function with given fields:
 func (_m *Interface) BatchV1() batchv1.BatchV1Interface {
 	ret := _m.Called()
@@ -444,22 +342,6 @@ func (_m *Interface) BatchV2alpha1() v2alpha1.BatchV2alpha1Interface {
 	return r0
 }
 
-// Certificates provides a mock function with given fields:
-func (_m *Interface) Certificates() certificatesv1beta1.CertificatesV1beta1Interface {
-	ret := _m.Called()
-
-	var r0 certificatesv1beta1.CertificatesV1beta1Interface
-	if rf, ok := ret.Get(0).(func() certificatesv1beta1.CertificatesV1beta1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(certificatesv1beta1.CertificatesV1beta1Interface)
-		}
-	}
-
-	return r0
-}
-
 // CertificatesV1beta1 provides a mock function with given fields:
 func (_m *Interface) CertificatesV1beta1() certificatesv1beta1.CertificatesV1beta1Interface {
 	ret := _m.Called()
@@ -476,16 +358,16 @@ func (_m *Interface) CertificatesV1beta1() certificatesv1beta1.CertificatesV1bet
 	return r0
 }
 
-// Coordination provides a mock function with given fields:
-func (_m *Interface) Coordination() coordinationv1beta1.CoordinationV1beta1Interface {
+// CoordinationV1 provides a mock function with given fields:
+func (_m *Interface) CoordinationV1() coordinationv1.CoordinationV1Interface {
 	ret := _m.Called()
 
-	var r0 coordinationv1beta1.CoordinationV1beta1Interface
-	if rf, ok := ret.Get(0).(func() coordinationv1beta1.CoordinationV1beta1Interface); ok {
+	var r0 coordinationv1.CoordinationV1Interface
+	if rf, ok := ret.Get(0).(func() coordinationv1.CoordinationV1Interface); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(coordinationv1beta1.CoordinationV1beta1Interface)
+			r0 = ret.Get(0).(coordinationv1.CoordinationV1Interface)
 		}
 	}
 
@@ -502,22 +384,6 @@ func (_m *Interface) CoordinationV1beta1() coordinationv1beta1.CoordinationV1bet
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(coordinationv1beta1.CoordinationV1beta1Interface)
-		}
-	}
-
-	return r0
-}
-
-// Core provides a mock function with given fields:
-func (_m *Interface) Core() corev1.CoreV1Interface {
-	ret := _m.Called()
-
-	var r0 corev1.CoreV1Interface
-	if rf, ok := ret.Get(0).(func() corev1.CoreV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(corev1.CoreV1Interface)
 		}
 	}
 
@@ -556,22 +422,6 @@ func (_m *Interface) Discovery() discovery.DiscoveryInterface {
 	return r0
 }
 
-// Events provides a mock function with given fields:
-func (_m *Interface) Events() eventsv1beta1.EventsV1beta1Interface {
-	ret := _m.Called()
-
-	var r0 eventsv1beta1.EventsV1beta1Interface
-	if rf, ok := ret.Get(0).(func() eventsv1beta1.EventsV1beta1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(eventsv1beta1.EventsV1beta1Interface)
-		}
-	}
-
-	return r0
-}
-
 // EventsV1beta1 provides a mock function with given fields:
 func (_m *Interface) EventsV1beta1() eventsv1beta1.EventsV1beta1Interface {
 	ret := _m.Called()
@@ -582,22 +432,6 @@ func (_m *Interface) EventsV1beta1() eventsv1beta1.EventsV1beta1Interface {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(eventsv1beta1.EventsV1beta1Interface)
-		}
-	}
-
-	return r0
-}
-
-// Extensions provides a mock function with given fields:
-func (_m *Interface) Extensions() extensionsv1beta1.ExtensionsV1beta1Interface {
-	ret := _m.Called()
-
-	var r0 extensionsv1beta1.ExtensionsV1beta1Interface
-	if rf, ok := ret.Get(0).(func() extensionsv1beta1.ExtensionsV1beta1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(extensionsv1beta1.ExtensionsV1beta1Interface)
 		}
 	}
 
@@ -620,22 +454,6 @@ func (_m *Interface) ExtensionsV1beta1() extensionsv1beta1.ExtensionsV1beta1Inte
 	return r0
 }
 
-// Networking provides a mock function with given fields:
-func (_m *Interface) Networking() networkingv1.NetworkingV1Interface {
-	ret := _m.Called()
-
-	var r0 networkingv1.NetworkingV1Interface
-	if rf, ok := ret.Get(0).(func() networkingv1.NetworkingV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(networkingv1.NetworkingV1Interface)
-		}
-	}
-
-	return r0
-}
-
 // NetworkingV1 provides a mock function with given fields:
 func (_m *Interface) NetworkingV1() networkingv1.NetworkingV1Interface {
 	ret := _m.Called()
@@ -652,16 +470,48 @@ func (_m *Interface) NetworkingV1() networkingv1.NetworkingV1Interface {
 	return r0
 }
 
-// Policy provides a mock function with given fields:
-func (_m *Interface) Policy() policyv1beta1.PolicyV1beta1Interface {
+// NetworkingV1beta1 provides a mock function with given fields:
+func (_m *Interface) NetworkingV1beta1() networkingv1beta1.NetworkingV1beta1Interface {
 	ret := _m.Called()
 
-	var r0 policyv1beta1.PolicyV1beta1Interface
-	if rf, ok := ret.Get(0).(func() policyv1beta1.PolicyV1beta1Interface); ok {
+	var r0 networkingv1beta1.NetworkingV1beta1Interface
+	if rf, ok := ret.Get(0).(func() networkingv1beta1.NetworkingV1beta1Interface); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(policyv1beta1.PolicyV1beta1Interface)
+			r0 = ret.Get(0).(networkingv1beta1.NetworkingV1beta1Interface)
+		}
+	}
+
+	return r0
+}
+
+// NodeV1alpha1 provides a mock function with given fields:
+func (_m *Interface) NodeV1alpha1() nodev1alpha1.NodeV1alpha1Interface {
+	ret := _m.Called()
+
+	var r0 nodev1alpha1.NodeV1alpha1Interface
+	if rf, ok := ret.Get(0).(func() nodev1alpha1.NodeV1alpha1Interface); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(nodev1alpha1.NodeV1alpha1Interface)
+		}
+	}
+
+	return r0
+}
+
+// NodeV1beta1 provides a mock function with given fields:
+func (_m *Interface) NodeV1beta1() nodev1beta1.NodeV1beta1Interface {
+	ret := _m.Called()
+
+	var r0 nodev1beta1.NodeV1beta1Interface
+	if rf, ok := ret.Get(0).(func() nodev1beta1.NodeV1beta1Interface); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(nodev1beta1.NodeV1beta1Interface)
 		}
 	}
 
@@ -678,22 +528,6 @@ func (_m *Interface) PolicyV1beta1() policyv1beta1.PolicyV1beta1Interface {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(policyv1beta1.PolicyV1beta1Interface)
-		}
-	}
-
-	return r0
-}
-
-// Rbac provides a mock function with given fields:
-func (_m *Interface) Rbac() rbacv1.RbacV1Interface {
-	ret := _m.Called()
-
-	var r0 rbacv1.RbacV1Interface
-	if rf, ok := ret.Get(0).(func() rbacv1.RbacV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(rbacv1.RbacV1Interface)
 		}
 	}
 
@@ -748,16 +582,16 @@ func (_m *Interface) RbacV1beta1() rbacv1beta1.RbacV1beta1Interface {
 	return r0
 }
 
-// Scheduling provides a mock function with given fields:
-func (_m *Interface) Scheduling() schedulingv1beta1.SchedulingV1beta1Interface {
+// SchedulingV1 provides a mock function with given fields:
+func (_m *Interface) SchedulingV1() schedulingv1.SchedulingV1Interface {
 	ret := _m.Called()
 
-	var r0 schedulingv1beta1.SchedulingV1beta1Interface
-	if rf, ok := ret.Get(0).(func() schedulingv1beta1.SchedulingV1beta1Interface); ok {
+	var r0 schedulingv1.SchedulingV1Interface
+	if rf, ok := ret.Get(0).(func() schedulingv1.SchedulingV1Interface); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(schedulingv1beta1.SchedulingV1beta1Interface)
+			r0 = ret.Get(0).(schedulingv1.SchedulingV1Interface)
 		}
 	}
 
@@ -796,22 +630,6 @@ func (_m *Interface) SchedulingV1beta1() schedulingv1beta1.SchedulingV1beta1Inte
 	return r0
 }
 
-// Settings provides a mock function with given fields:
-func (_m *Interface) Settings() settingsv1alpha1.SettingsV1alpha1Interface {
-	ret := _m.Called()
-
-	var r0 settingsv1alpha1.SettingsV1alpha1Interface
-	if rf, ok := ret.Get(0).(func() settingsv1alpha1.SettingsV1alpha1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(settingsv1alpha1.SettingsV1alpha1Interface)
-		}
-	}
-
-	return r0
-}
-
 // SettingsV1alpha1 provides a mock function with given fields:
 func (_m *Interface) SettingsV1alpha1() settingsv1alpha1.SettingsV1alpha1Interface {
 	ret := _m.Called()
@@ -822,22 +640,6 @@ func (_m *Interface) SettingsV1alpha1() settingsv1alpha1.SettingsV1alpha1Interfa
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(settingsv1alpha1.SettingsV1alpha1Interface)
-		}
-	}
-
-	return r0
-}
-
-// Storage provides a mock function with given fields:
-func (_m *Interface) Storage() storagev1.StorageV1Interface {
-	ret := _m.Called()
-
-	var r0 storagev1.StorageV1Interface
-	if rf, ok := ret.Get(0).(func() storagev1.StorageV1Interface); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(storagev1.StorageV1Interface)
 		}
 	}
 

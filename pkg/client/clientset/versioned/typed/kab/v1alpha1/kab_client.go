@@ -21,7 +21,6 @@ package v1alpha1
 import (
 	v1alpha1 "github.com/projectriff/cnab-k8s-installer-base/pkg/apis/kab/v1alpha1"
 	"github.com/projectriff/cnab-k8s-installer-base/pkg/client/clientset/versioned/scheme"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 	rest "k8s.io/client-go/rest"
 )
 
@@ -35,8 +34,8 @@ type ProjectriffV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *ProjectriffV1alpha1Client) Manifests(namespace string) ManifestInterface {
-	return newManifests(c, namespace)
+func (c *ProjectriffV1alpha1Client) Manifests() ManifestInterface {
+	return newManifests(c)
 }
 
 // NewForConfig creates a new ProjectriffV1alpha1Client for the given config.
@@ -71,7 +70,7 @@ func setConfigDefaults(config *rest.Config) error {
 	gv := v1alpha1.SchemeGroupVersion
 	config.GroupVersion = &gv
 	config.APIPath = "/apis"
-	config.NegotiatedSerializer = serializer.DirectCodecFactory{CodecFactory: scheme.Codecs}
+	config.NegotiatedSerializer = scheme.Codecs.WithoutConversion()
 
 	if config.UserAgent == "" {
 		config.UserAgent = rest.DefaultKubernetesUserAgent()

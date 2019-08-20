@@ -58,7 +58,7 @@ func (c *Client) CreateCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 
 	log.Debugln("creating object", manifest.Name)
 	err := wait.ExponentialBackoff(backOffSettings, func() (bool, error) {
-		old, err := c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Get(manifest.Name, metav1.GetOptions{})
+		old, err := c.kabClient.ProjectriffV1alpha1().Manifests().Get(manifest.Name, metav1.GetOptions{})
 		if err != nil && !k8serr.IsNotFound(err) {
 			log.Debugln("error looking up object", err)
 			return false, nil
@@ -66,7 +66,7 @@ func (c *Client) CreateCRDObject(manifest *v1alpha1.Manifest, backOffSettings wa
 		if !isEmpty(old) {
 			return true, errors.New("bundle already installed")
 		}
-		_, err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Create(manifest)
+		_, err = c.kabClient.ProjectriffV1alpha1().Manifests().Create(manifest)
 		if err != nil {
 			log.Debugln("error creating object", err)
 			return false, nil

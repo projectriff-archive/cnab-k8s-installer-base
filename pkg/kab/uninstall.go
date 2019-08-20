@@ -58,7 +58,7 @@ func (c *Client) Uninstall(name string) error {
 	}
 
 	log.Infoln("uninstalling bundle manifest from cluster")
-	err = c.kabClient.ProjectriffV1alpha1().Manifests(manifest.Namespace).Delete(manifest.Name, &metav1.DeleteOptions{})
+	err = c.kabClient.ProjectriffV1alpha1().Manifests().Delete(manifest.Name, &metav1.DeleteOptions{})
 	if err != nil {
 		return e.New(fmt.Sprintf("error while deleting the manifest: %v", err))
 	}
@@ -71,7 +71,7 @@ func (c *Client) LookupManifest(name string) (*v1alpha1.Manifest, error) {
 		return nil, err
 	}
 	for _, ns := range namespaceList.Items {
-		manifest, err := c.kabClient.ProjectriffV1alpha1().Manifests(ns.Name).Get(name, metav1.GetOptions{})
+		manifest, err := c.kabClient.ProjectriffV1alpha1().Manifests().Get(name, metav1.GetOptions{})
 		if err != nil {
 			if errors.IsNotFound(err) {
 				continue

@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/oauth2"
 	"k8s.io/klog"
 
 	utilnet "k8s.io/apimachinery/pkg/util/net"
@@ -44,7 +45,11 @@ func HTTPWrappersForConfig(config *Config, rt http.RoundTripper) (http.RoundTrip
 	case config.HasBasicAuth() && config.HasTokenAuth():
 		return nil, fmt.Errorf("username/password or bearer token may be set, but not both")
 	case config.HasTokenAuth():
-		rt = NewBearerAuthRoundTripper(config.BearerToken, rt)
+		var err error
+		rt, err = NewBearerAuthWithRefreshRoundTripper(config.BearerToken, config.BearerTokenFile, rt)
+		if err != nil {
+			return nil, err
+		}
 	case config.HasBasicAuth():
 		rt = NewBasicAuthRoundTripper(config.Username, config.Password, rt)
 	}
@@ -265,13 +270,35 @@ func (rt *impersonatingRoundTripper) WrappedRoundTripper() http.RoundTripper { r
 
 type bearerAuthRoundTripper struct {
 	bearer string
+	source oauth2.TokenSource
 	rt     http.RoundTripper
 }
 
 // NewBearerAuthRoundTripper adds the provided bearer token to a request
 // unless the authorization header has already been set.
 func NewBearerAuthRoundTripper(bearer string, rt http.RoundTripper) http.RoundTripper {
-	return &bearerAuthRoundTripper{bearer, rt}
+	return &bearerAuthRoundTripper{bearer, nil, rt}
+}
+
+// NewBearerAuthRoundTripper adds the provided bearer token to a request
+// unless the authorization header has already been set.
+// If tokenFile is non-empty, it is periodically read,
+// and the last successfully read content is used as the bearer token.
+// If tokenFile is non-empty and bearer is empty, the tokenFile is read
+// immediately to populate the initial bearer token.
+func NewBearerAuthWithRefreshRoundTripper(bearer string, tokenFile string, rt http.RoundTripper) (http.RoundTripper, error) {
+	if len(tokenFile) == 0 {
+		return &bearerAuthRoundTripper{bearer, nil, rt}, nil
+	}
+	source := NewCachedFileTokenSource(tokenFile)
+	if len(bearer) == 0 {
+		token, err := source.Token()
+		if err != nil {
+			return nil, err
+		}
+		bearer = token.AccessToken
+	}
+	return &bearerAuthRoundTripper{bearer, source, rt}, nil
 }
 
 func (rt *bearerAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
@@ -280,7 +307,13 @@ func (rt *bearerAuthRoundTripper) RoundTrip(req *http.Request) (*http.Response, 
 	}
 
 	req = utilnet.CloneRequest(req)
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", rt.bearer))
+	token := rt.bearer
+	if rt.source != nil {
+		if refreshedToken, err := rt.source.Token(); err == nil {
+			token = refreshedToken.AccessToken
+		}
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 	return rt.rt.RoundTrip(req)
 }
 
@@ -376,6 +409,38 @@ func (rt *debuggingRoundTripper) CancelRequest(req *http.Request) {
 	}
 }
 
+var knownAuthTypes = map[string]bool{
+	"bearer":    true,
+	"basic":     true,
+	"negotiate": true,
+}
+
+// maskValue masks credential content from authorization headers
+// See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Authorization
+func maskValue(key string, value string) string {
+	if !strings.EqualFold(key, "Authorization") {
+		return value
+	}
+	if len(value) == 0 {
+		return ""
+	}
+	var authType string
+	if i := strings.Index(value, " "); i > 0 {
+		authType = value[0:i]
+	} else {
+		authType = value
+	}
+	if !knownAuthTypes[strings.ToLower(authType)] {
+		return "<masked>"
+	}
+	if len(value) > len(authType)+1 {
+		value = authType + " <masked>"
+	} else {
+		value = authType
+	}
+	return value
+}
+
 func (rt *debuggingRoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	reqInfo := newRequestInfo(req)
 
@@ -390,6 +455,7 @@ func (rt *debuggingRoundTripper) RoundTrip(req *http.Request) (*http.Response, e
 		klog.Infof("Request Headers:")
 		for key, values := range reqInfo.RequestHeaders {
 			for _, value := range values {
+				value = maskValue(key, value)
 				klog.Infof("    %s: %s", key, value)
 			}
 		}
